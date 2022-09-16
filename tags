@@ -1,0 +1,25 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/home/dan/documents/pyuc/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20220828.0/
+Paths	test/test_pyuc.py	/^class Paths(unittest.TestCase):$/;"	c
+ProblemSetup	test/test_pyuc.py	/^class ProblemSetup(unittest.TestCase):$/;"	c
+Settings	test/test_pyuc.py	/^class Settings(unittest.TestCase):$/;"	c
+initialise_paths	pyuc/pyuc.py	/^def initialise_paths(input_data_path, output_data_path):$/;"	f
+initialise_problem	pyuc/pyuc.py	/^def initialise_problem(name):$/;"	f
+load_settings	pyuc/pyuc.py	/^def load_settings(settings_path):$/;"	f
+pd	pyuc/pyuc.py	/^import pandas as pd$/;"	I	nameref:module:pandas
+pd	test/test_pyuc.py	/^import pandas as pd$/;"	I	nameref:module:pandas
+read_settings_file	pyuc/pyuc.py	/^def read_settings_file(settings_path):$/;"	f
+run_opt_problem	pyuc/pyuc.py	/^def run_opt_problem(name, input_data_path, outputs_path=False):$/;"	f
+test_initialise_paths	test/test_pyuc.py	/^    def test_initialise_paths(self):$/;"	m	class:Paths
+test_initialise_problem_as_dict	test/test_pyuc.py	/^    def test_initialise_problem_as_dict(self):$/;"	m	class:ProblemSetup
+test_initialise_problem_with_str	test/test_pyuc.py	/^    def test_initialise_problem_with_str(self):$/;"	m	class:ProblemSetup
+test_read_settings	test/test_pyuc.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:Settings
