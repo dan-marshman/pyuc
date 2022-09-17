@@ -9,18 +9,22 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20220828.0/
-CollectSettings	test/test_load_settings.py	/^class CollectSettings(unittest.TestCase):$/;"	c
 CollectSettings	test/test_setup_problem.py	/^class CollectSettings(unittest.TestCase):$/;"	c
 InitialiseProblem	test/test_setup_problem.py	/^class InitialiseProblem(unittest.TestCase):$/;"	c
-LoadSettings	test/test_load_settings.py	/^class LoadSettings(unittest.TestCase):$/;"	c
 LoadSettings	test/test_setup_problem.py	/^class LoadSettings(unittest.TestCase):$/;"	c
 PathExists	test/test_misc_functions.py	/^class PathExists(unittest.TestCase):$/;"	c
 Paths	test/test_setup_problem.py	/^class Paths(unittest.TestCase):$/;"	c
-ReadSettings	test/test_load_settings.py	/^class ReadSettings(unittest.TestCase):$/;"	c
 ReadSettings	test/test_setup_problem.py	/^class ReadSettings(unittest.TestCase):$/;"	c
 RunOptProblem	test/test_pyuc.py	/^class RunOptProblem(unittest.TestCase):$/;"	c
+Set	pyuc/pyuc.py	/^class Set():$/;"	c
 SetUpProblem	test/test_setup_problem.py	/^class SetUpProblem(unittest.TestCase):$/;"	c
+TestMasterSetInit	test/test_Set.py	/^class TestMasterSetInit(unittest.TestCase):$/;"	c
+TestSubSetInit	test/test_Set.py	/^class TestSubSetInit(unittest.TestCase):$/;"	c
+__init__	pyuc/pyuc.py	/^    def __init__(self, name, indices, master_set=None):$/;"	m	class:Set
+__repr__	pyuc/pyuc.py	/^    def __repr__(self):$/;"	m	class:Set
+__str__	pyuc/pyuc.py	/^    def __str__(self):$/;"	m	class:Set
 add_paths_paths_from_settings	pyuc/setup_problem.py	/^def add_paths_paths_from_settings(paths, settings, name):$/;"	f
+append_subset	pyuc/pyuc.py	/^    def append_subset(self, subset):$/;"	m	class:Set
 check_path_exists	pyuc/misc_functions.py	/^def check_path_exists(path, file_type):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
 collect_setting_type_float	pyuc/setup_problem.py	/^def collect_setting_type_float(value):$/;"	f
@@ -29,10 +33,13 @@ collect_setting_type_string	pyuc/setup_problem.py	/^def collect_setting_type_str
 import_settings_file	pyuc/setup_problem.py	/^def import_settings_file(settings_path):$/;"	f
 initialise_paths	pyuc/setup_problem.py	/^def initialise_paths(input_data_path, output_data_path):$/;"	f
 initialise_uc_problem	pyuc/setup_problem.py	/^def initialise_uc_problem(name):$/;"	f
+ld	test/test_load_data.py	/^from pyuc import load_data as ld$/;"	x	nameref:unknown:load_data
+load_master_sets	pyuc/load_data.py	/^def load_master_sets(data, settings):$/;"	f
 load_settings	pyuc/setup_problem.py	/^def load_settings(settings_path):$/;"	f
-ls	test/test_load_settings.py	/^from pyuc import load_settings as ls$/;"	x	nameref:unknown:load_settings
+pd	pyuc/load_data.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 run_opt_problem	pyuc/pyuc.py	/^def run_opt_problem(name, input_data_path, output_data_path):$/;"	f
-setUp	test/test_load_settings.py	/^    def setUp(self):$/;"	m	class:LoadSettings
+setUp	test/test_Set.py	/^    def setUp(self):$/;"	m	class:TestMasterSetInit
+setUp	test/test_Set.py	/^    def setUp(self):$/;"	m	class:TestSubSetInit
 setUp	test/test_misc_functions.py	/^    def setUp(self):$/;"	m	class:PathExists
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:RunOptProblem
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:LoadSettings
@@ -41,33 +48,33 @@ setup_problem	pyuc/setup_problem.py	/^def setup_problem(name, input_data_path, o
 sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:setup_problem
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
 test_add_paths_from_settings	test/test_setup_problem.py	/^    def test_add_paths_from_settings(self):$/;"	m	class:Paths
-test_call_check_path	test/test_load_settings.py	/^    def test_call_check_path(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
+test_append_subset_is_called	test/test_Set.py	/^    def test_append_subset_is_called(self, append_subset_mock):$/;"	m	class:TestSubSetInit
 test_call_check_path	test/test_setup_problem.py	/^    def test_call_check_path(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
-test_call_import_settings_file	test/test_load_settings.py	/^    def test_call_import_settings_file(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
 test_call_import_settings_file	test/test_setup_problem.py	/^    def test_call_import_settings_file(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
-test_collect_setting_type_boolean	test/test_load_settings.py	/^    def test_collect_setting_type_boolean(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_boolean	test/test_setup_problem.py	/^    def test_collect_setting_type_boolean(self):$/;"	m	class:CollectSettings
-test_collect_setting_type_float	test/test_load_settings.py	/^    def test_collect_setting_type_float(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_float	test/test_setup_problem.py	/^    def test_collect_setting_type_float(self):$/;"	m	class:CollectSettings
-test_collect_setting_type_integer	test/test_load_settings.py	/^    def test_collect_setting_type_integer(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_integer	test/test_setup_problem.py	/^    def test_collect_setting_type_integer(self):$/;"	m	class:CollectSettings
-test_collect_setting_type_string	test/test_load_settings.py	/^    def test_collect_setting_type_string(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_string	test/test_setup_problem.py	/^    def test_collect_setting_type_string(self):$/;"	m	class:CollectSettings
 test_each_fn_is_called	test/test_setup_problem.py	/^    def test_each_fn_is_called(self, load_settings_mock, init_paths_mock, init_prob_mock):$/;"	m	class:SetUpProblem
+test_init_indices	test/test_Set.py	/^    def test_init_indices(self):$/;"	m	class:TestMasterSetInit
+test_init_name	test/test_Set.py	/^    def test_init_name(self):$/;"	m	class:TestMasterSetInit
+test_init_subsets	test/test_Set.py	/^    def test_init_subsets(self):$/;"	m	class:TestMasterSetInit
 test_initialise_paths	test/test_setup_problem.py	/^    def test_initialise_paths(self):$/;"	m	class:Paths
 test_initialise_problem_with_str	test/test_setup_problem.py	/^    def test_initialise_problem_with_str(self):$/;"	m	class:InitialiseProblem
 test_initialise_uc_problem_as_dict	test/test_setup_problem.py	/^    def test_initialise_uc_problem_as_dict(self):$/;"	m	class:InitialiseProblem
+test_master_set_fns_not_called	test/test_Set.py	/^    def test_master_set_fns_not_called(self, append_subset_mock, validate_set_mock):$/;"	m	class:TestMasterSetInit
 test_path_does_exist	test/test_misc_functions.py	/^    def test_path_does_exist(self):$/;"	m	class:PathExists
 test_path_does_not_exist	test/test_misc_functions.py	/^    def test_path_does_not_exist(self, path_exists_mock):$/;"	m	class:PathExists
-test_read_settings	test/test_load_settings.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:ReadSettings
 test_read_settings	test/test_setup_problem.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:ReadSettings
-test_read_settings_call_collect_bool	test/test_load_settings.py	/^    def test_read_settings_call_collect_bool(self, collect_bool_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_bool	test/test_setup_problem.py	/^    def test_read_settings_call_collect_bool(self, collect_bool_mock, open_mock):$/;"	m	class:ReadSettings
-test_read_settings_call_collect_float	test/test_load_settings.py	/^    def test_read_settings_call_collect_float(self, collect_float_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_float	test/test_setup_problem.py	/^    def test_read_settings_call_collect_float(self, collect_float_mock, open_mock):$/;"	m	class:ReadSettings
-test_read_settings_call_collect_int	test/test_load_settings.py	/^    def test_read_settings_call_collect_int(self, collect_int_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_int	test/test_setup_problem.py	/^    def test_read_settings_call_collect_int(self, collect_int_mock, open_mock):$/;"	m	class:ReadSettings
-test_read_settings_call_collect_string	test/test_load_settings.py	/^    def test_read_settings_call_collect_string(self, collect_str_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_string	test/test_setup_problem.py	/^    def test_read_settings_call_collect_string(self, collect_str_mock, open_mock):$/;"	m	class:ReadSettings
+test_set___repr__	test/test_Set.py	/^    def test_set___repr__(self):$/;"	m	class:TestMasterSetInit
+test_set___str__	test/test_Set.py	/^    def test_set___str__(self):$/;"	m	class:TestMasterSetInit
 test_setup_problem	test/test_setup_problem.py	/^    def test_setup_problem(self):$/;"	m	class:SetUpProblem
 test_setup_problem_is_called	test/test_pyuc.py	/^    def test_setup_problem_is_called(self, setup_problem_mock):$/;"	m	class:RunOptProblem
+test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
+test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
+test_validate_set_is_called	test/test_Set.py	/^    def test_validate_set_is_called(self, validate_set_mock):$/;"	m	class:TestSubSetInit
+validate_set	pyuc/pyuc.py	/^    def validate_set(self, master_set):$/;"	m	class:Set
