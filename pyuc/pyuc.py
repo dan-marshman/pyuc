@@ -28,49 +28,87 @@ def initialise_paths(input_data_path, output_data_path):
 
     paths = {
         'input_data': input_data_path,
+        'settings': os.path.join(input_data_path, 'settings.csv'),
         'output_data': output_data_path
     }
-
-    paths['settings'] = os.path.join(paths['input_data'], 'settings.csv')
 
     return paths
 
 
 def load_settings(settings_path):
-    settings_data = read_settings_file(settings_path)
+    """
+    Read the settings file and convert each parameter to the appropriate type.
+
+    :param settings_path str: path to the settings file.
+    """
 
     settings = dict()
 
-    for row in settings_data:
-        if row['Type'] == 'int':
-            settings.setdefault(row['Parameter'], int(row['Value']))
+    with open(settings_path) as f:
+        settings_data = csv.DictReader(f)
 
-        if row['Type'] == 'bool':
-            val = row['Value'].lower()
+        for row in settings_data:
+            key = row['Parameter']
+            key_type = row['Type']
+            value = row['Value']
 
-            if val == 'false':
-                settings.setdefault(row['Parameter'], False)
-            elif val == 'true':
-                settings.setdefault(row['Parameter'], True)
+            if key_type == 'int':
+                settings[key] = collect_setting_type_integer(value)
 
-        if row['Type'] == 'str':
-            settings.setdefault(row['Parameter'], str(row['Value']))
+            elif key_type == 'bool':
+                settings[key] = collect_setting_type_boolean(value)
 
-        if row['Type'] == 'float':
-            settings.setdefault(row['Parameter'], float(row['Value']))
+            elif key_type == 'str':
+                settings[key] = collect_setting_type_string(value)
 
-    if 'OUTPUTS_PATH' not in settings.keys():
-        settings['OUTPUTS_PATH'] = os.path.join(os.getcwd(), 'denki-outputs')
+            elif key_type == 'float':
+                settings[key] = collect_setting_type_float(value)
+
+    # if 'OUTPUTS_PATH' not in settings.keys():
+        # settings['OUTPUTS_PATH'] = os.path.join(os.getcwd(), 'denki-outputs')
 
     return settings
 
 
-def read_settings_file(settings_path):
+def collect_setting_type_integer(value):
     """
-    Read the data rom the settings CSV file
+    Change the setting value to an integer.
 
-    :param settings_path path: path to the problem's settings file
+    :param value float or int: value to be converted.
     """
-    settings_data = pd.read_csv(settings_path)
 
-    return settings_data
+    return int(value)
+
+
+def collect_setting_type_float(value):
+    """
+    Change the setting value to an float.
+
+    :param value float or int: value to be converted.
+    """
+
+    return float(value)
+
+
+def collect_setting_type_string(value):
+    """
+    Change the setting value to an string.
+
+    :param value string, float or int: value to be converted.
+    """
+
+    return str(value)
+
+
+def collect_setting_type_boolean(value):
+    """
+    Change the setting value to an integer.
+
+    :param value str: value to be converted.
+    """
+
+    if value.lower() == 'false':
+        return False
+
+    elif value.lower() == 'true':
+        return True
