@@ -103,35 +103,23 @@ def initialise_uc_problem(name):
     return {'name': name}
 
 
-def initialise_paths(input_data_path, output_data_path):
+def initialise_paths(input_data_path, output_data_path, name):
     """
-    Make the path dictionary and add paths to the inputs, settings and outputs.
+    Make the path dictionary and add paths to the inputs, settings and outputs, etc.
 
     :param input_data_path str: path to the directory with the input data.
     :param output_data_path str : path to the directory to write the output data.
+    :param name str : name of the problem.
     """
 
     paths = {
         'input_data': input_data_path,
         'settings': os.path.join(input_data_path, 'settings.csv'),
-        'output_data': output_data_path
+        'unit_data': os.path.join(input_data_path, 'unit_data.csv'),
+        'demand': os.path.join(input_data_path, 'demand.csv'),
+        'outputs': os.path.join(output_data_path, name),
+        'results': os.path.join(output_data_path, name, 'results'),
     }
-
-    return paths
-
-
-def add_paths_paths_from_settings(paths, settings, name):
-    """
-    Add paths for the results.
-
-    :param paths dict: paths dictionary
-    :param settings dict: settings dictiocnary
-    :param name str: name of the problem
-    """
-
-    paths['outputs'] = os.path.join(settings['OUTPUTS_PATH'], name)
-    paths['results'] = os.path.join(paths['outputs'], 'results')
-    # paths['final_state'] = os.path.join(paths['results'], 'final_state.db')
 
     return paths
 
@@ -146,7 +134,7 @@ def setup_problem(name, input_data_path, output_data_path):
     """
 
     problem = initialise_uc_problem(name)
-    problem['paths'] = initialise_paths(input_data_path, output_data_path)
+    problem['paths'] = initialise_paths(input_data_path, output_data_path, name)
     problem['settings'] = load_settings(problem['paths']['settings'])
 
     return problem

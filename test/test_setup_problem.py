@@ -81,7 +81,6 @@ class ReadSettings(unittest.TestCase):
                 + 'Val4,bool,FALSE'
             )
         result = setup_problem.import_settings_file('dummy_path.csv')
-
         expected = {
             'Val1': 4,
             'Val2': 4.2,
@@ -173,26 +172,14 @@ class InitialiseProblem(unittest.TestCase):
 
 class Paths(unittest.TestCase):
     def test_initialise_paths(self):
-        result = setup_problem.initialise_paths('input_data_path', 'output_data_path')
+        result = setup_problem.initialise_paths('input_data_path', 'output_data_path', 'MY_PROB')
         expected = {
             'input_data': 'input_data_path',
-            'output_data': 'output_data_path',
             'settings': os.path.join('input_data_path', 'settings.csv'),
-        }
-
-        self.assertEqual(result, expected)
-
-    def test_add_paths_from_settings(self):
-        paths = {'A': 'xxx'}
-        settings = {'OUTPUTS_PATH': "A_PATH"}
-        name = 'MY_NAME'
-
-        result = setup_problem.add_paths_paths_from_settings(paths, settings, name)
-        expected = {
-            'A': 'xxx',
-            'outputs': os.path.join('A_PATH', 'MY_NAME'),
-            'results': os.path.join('A_PATH', 'MY_NAME', 'results'),
-            'A': 'xxx',
+            'unit_data': os.path.join('input_data_path', 'unit_data.csv'),
+            'demand': os.path.join('input_data_path', 'demand.csv'),
+            'outputs': os.path.join('output_data_path', 'MY_PROB'),
+            'results': os.path.join('output_data_path', 'MY_PROB', 'results')
         }
 
         self.assertEqual(result, expected)
@@ -212,11 +199,11 @@ class SetUpProblem(unittest.TestCase):
 
         self.settings_path = os.path.join(self.input_data_path, 'settings.csv')
         with open(self.settings_path, 'w', newline='') as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=',')
-            spamwriter.writerow(['Parameter', 'Type', 'Value'])
-            spamwriter.writerow(['P1', 'int', 101])
-            spamwriter.writerow(['P2', 'str', 'A_STRING'])
-            spamwriter.writerow(['P3', 'bool', 'FALSE'])
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow(['Parameter', 'Type', 'Value'])
+            writer.writerow(['P1', 'int', 101])
+            writer.writerow(['P2', 'str', 'A_STRING'])
+            writer.writerow(['P3', 'bool', 'FALSE'])
 
     def tearDown(self):
         shutil.rmtree(self.input_data_path)
@@ -226,25 +213,30 @@ class SetUpProblem(unittest.TestCase):
     @mock.patch('pyuc.setup_problem.initialise_paths')
     @mock.patch('pyuc.setup_problem.load_settings')
     def test_each_fn_is_called(self, load_settings_mock, init_paths_mock, init_prob_mock):
-
         init_prob_mock.return_value = {}
         init_paths_mock.return_value = {'settings': 'A_PATH'}
 
         setup_problem.setup_problem(self.name, self.input_data_path, self.output_data_path)
 
         init_prob_mock.assert_called_once_with(self.name)
-        init_paths_mock.assert_called_once_with(self.input_data_path, self.output_data_path)
+        init_paths_mock.assert_called_once_with(self.input_data_path,
+                                                self.output_data_path,
+                                                self.name)
         load_settings_mock.assert_called_once_with('A_PATH')
 
     def test_setup_problem(self):
         result = setup_problem.setup_problem(self.name,
-                                             self.input_data_path, self.output_data_path)
+                                             self.input_data_path,
+                                             self.output_data_path)
         expected = {
             'name': 'MY_NAME',
             'paths': {
                 'input_data': self.input_data_path,
                 'settings': self.settings_path,
-                'output_data': self.output_data_path
+                'unit_data': os.path.join(self.input_data_path, 'unit_data.csv'),
+                'demand': os.path.join(self.input_data_path, 'demand.csv'),
+                'outputs': os.path.join(self.output_data_path, self.name),
+                'results': os.path.join(self.output_data_path, self.name, 'results'),
             },
             'settings': {'P1': 101, 'P2': 'A_STRING', 'P3': False}
         }
