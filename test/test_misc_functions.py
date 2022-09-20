@@ -1,7 +1,7 @@
 import unittest
 
 import mock
-from pyuc import misc_functions
+from pyuc import utils
 
 
 class PathExists(unittest.TestCase):
@@ -11,11 +11,11 @@ class PathExists(unittest.TestCase):
 
     def test_path_does_exist(self):
         with self.assertRaises(SystemExit):
-            misc_functions.check_path_exists(self.path, self.file_type)
+            utils.check_path_exists(self.path, self.file_type)
 
     @mock.patch('os.path.exists', return_value=True)
     def test_path_does_not_exist(self, path_exists_mock):
         try:
-            misc_functions.check_path_exists(self.path, self.file_type)
+            utils.check_path_exists(self.path, self.file_type)
         except SystemExit:
-            self.fail("misc_functions.check_path_exists exited when the file exists")
+            self.fail("utils.check_path_exists exited when the file exists")

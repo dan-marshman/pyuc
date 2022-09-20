@@ -19,34 +19,25 @@ class LoadSets(unittest.TestCase):
             'units': self.unit_df
         }
 
-        self.sets = ld.create_master_sets(self.data)
+        self.sets = ld.create_sets(self.data)
 
     def test_create_master_set_check_keys(self):
         result = list(self.sets.keys())
-        expected = ['intervals', 'units']
-        self.assertEqual(result, expected)
+        self.assertEqual(result, ['intervals', 'units'])
 
     def test_load_intervals_master_set(self):
         result = self.sets['intervals']
 
-        expected_name = 'intervals'
-        expected_indices = list(range(100))
-
-        self.assertEqual(result.name, expected_name)
-        self.assertEqual(result.indices, expected_indices)
+        self.assertEqual(result.name, 'intervals')
+        self.assertEqual(result.indices, list(range(100)))
 
     def test_load_units_master_set(self):
-        result = self.sets['units']
-
-        expected_name = 'units'
-        expected_indices = ['A1', 'A2', 'A3', 'A4']
-
-        self.assertEqual(result.name, expected_name)
-        self.assertEqual(result.indices, expected_indices)
+        self.assertEqual(self.sets['units'].name, 'units')
+        self.assertEqual(self.sets['units'].indices, ['A1', 'A2', 'A3', 'A4'])
 
 
 class LoadDataItems(unittest.TestCase):
-    @mock.patch('pyuc.misc_functions.check_path_exists')
+    @mock.patch('pyuc.utils.check_path_exists')
     def test_load_unit_data(self, check_path_mock):
         test_file = io.StringIO(
             'Unit,Capacity,MinGen\n'
@@ -63,7 +54,7 @@ class LoadDataItems(unittest.TestCase):
 
         pd.testing.assert_frame_equal(result, expected)
 
-    @mock.patch('pyuc.misc_functions.check_path_exists')
+    @mock.patch('pyuc.utils.check_path_exists')
     def test_load_demand_data(self, check_path_mock):
         test_file = io.StringIO(
             'Interval,Demand\n'

@@ -11,29 +11,19 @@ class TestMasterSetInit(unittest.TestCase):
         self.masterSet = pyuc.Set(self.name, self.indices)
 
     def test_init_name(self):
-        result = self.masterSet.name
-        expected = self.name
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.name, self.name)
 
     def test_init_indices(self):
-        result = self.masterSet.indices
-        expected = self.indices
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.indices, self.indices)
 
     def test_init_subsets(self):
-        result = self.masterSet.subsets
-        expected = []
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.subsets, [])
 
     def test_set___str__(self):
-        result = self.masterSet.__str__()
-        expected = self.name
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.__str__(), self.name)
 
     def test_set___repr__(self):
-        result = self.masterSet.__repr__()
-        expected = "Set(MY_SET)"
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.__repr__(), "Set(MY_SET)")
 
     @mock.patch('pyuc.pyuc.Set.validate_set')
     @mock.patch('pyuc.pyuc.Set.append_subset')
@@ -64,11 +54,10 @@ class TestSubSetInit(unittest.TestCase):
         append_subset_mock.assert_called_once_with(subSet)
 
     def test_subset_is_appended(self):
-        result = self.masterSet.subsets
-        expected = [self.subSet]
-        self.assertEqual(result, expected)
+        self.assertEqual(self.masterSet.subsets, [self.subSet])
 
     def test_subset_is_not_valid(self):
         self.sub_set_indices = range(20)
         with self.assertRaises(ValueError):
-            self.subSet = pyuc.Set(self.sub_set_name, self.sub_set_indices, master_set=self.masterSet)
+            self.subSet = \
+                pyuc.Set(self.sub_set_name, self.sub_set_indices, master_set=self.masterSet)

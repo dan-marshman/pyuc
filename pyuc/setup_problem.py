@@ -1,7 +1,7 @@
 import csv
 import os
 
-from pyuc import misc_functions
+from pyuc import utils
 
 
 def load_settings(settings_path):
@@ -11,7 +11,7 @@ def load_settings(settings_path):
     :param settings_path str: path to the settings file.
     """
 
-    misc_functions.check_path_exists(settings_path, 'Settings File')
+    utils.check_path_exists(settings_path, 'Settings File')
     settings = import_settings_file(settings_path)
 
     return settings

@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from pyuc import misc_functions, pyuc
+from pyuc import pyuc, utils
 
 
 def load_data(paths):
@@ -25,7 +25,7 @@ def load_unit_data(unit_data_path):
     :param unit_data_path str: path to the unit data file.
     """
 
-    misc_functions.check_path_exists(unit_data_path, 'Unit Data File')
+    utils.check_path_exists(unit_data_path, 'Unit Data File')
 
     return pd.read_csv(unit_data_path, index_col='Unit')
 
@@ -37,12 +37,12 @@ def load_demand_data(demand_data_path):
     :param demand_data_path str: path to the deamnd file.
     """
 
-    misc_functions.check_path_exists(demand_data_path, 'Demand File')
+    utils.check_path_exists(demand_data_path, 'Demand File')
 
     return pd.read_csv(demand_data_path, index_col='Interval')
 
 
-def create_master_sets(data):
+def create_sets(data):
     """
     Load sets for intervals and units.
 

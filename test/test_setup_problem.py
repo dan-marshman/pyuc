@@ -143,13 +143,13 @@ class LoadSettings(unittest.TestCase):
     def setUp(self):
         self.settings_path = 'MY_PATH'
 
-    @mock.patch('pyuc.misc_functions.check_path_exists')
+    @mock.patch('pyuc.utils.check_path_exists')
     @mock.patch('pyuc.setup_problem.import_settings_file', return_value={})
     def test_call_import_settings_file(self, load_settings_mock, check_path_mock):
         setup_problem.load_settings(self.settings_path)
         load_settings_mock.assert_called_once_with(self.settings_path)
 
-    @mock.patch('pyuc.misc_functions.check_path_exists')
+    @mock.patch('pyuc.utils.check_path_exists')
     @mock.patch('pyuc.setup_problem.import_settings_file', return_value={})
     def test_call_check_path(self, load_settings_mock, check_path_mock):
         setup_problem.load_settings(self.settings_path)
