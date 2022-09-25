@@ -34,9 +34,9 @@ add_all_constraints_to_pulp_problem	pyuc/constraint_adder.py	/^def add_all_const
 add_constraint	pyuc/constraint_adder.py	/^    def add_constraint(name, constraint):$/;"	f	function:make_constraint_index	file:
 add_constraint	test/test_constraint_adder.py	/^        def add_constraint(name, constraint):$/;"	f	member:testConstraintSelector.setUp	file:
 add_constraints	pyuc/constraint_adder.py	/^def add_constraints(problem):$/;"	f
-add_constraints	pyuc/pyuc.py	/^def add_constraints(problem):$/;"	f
 append_subset	pyuc/pyuc.py	/^    def append_subset(self, subset):$/;"	m	class:Set
 build_constraints	pyuc/constraint_adder.py	/^def build_constraints(problem, constraints={}):$/;"	f
+ca	pyuc/pyuc.py	/^from pyuc import constraint_adder as ca$/;"	x	nameref:unknown:constraint_adder
 ca	test/test_constraint_adder.py	/^from pyuc import constraint_adder as ca$/;"	x	nameref:unknown:constraint_adder
 ca	test/test_constraints.py	/^from pyuc import constraints as ca$/;"	x	nameref:unknown:constraints
 ca	test/test_optimisation_results.py	/^from pyuc import constraint_adder as ca$/;"	x	nameref:unknown:constraint_adder
@@ -99,6 +99,7 @@ pp	pyuc/setup_problem.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_constraint_adder.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_constraints.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_optimisation_results.py	/^import pulp as pp$/;"	I	nameref:module:pulp
+pp	test/test_pyuc.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_setup_problem.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 read_constraint_list	pyuc/constraint_adder.py	/^    def read_constraint_list():$/;"	f	function:constraint_selector	file:
 result_df_clean_up	pyuc/pyuc.py	/^    def result_df_clean_up(self):$/;"	m	class:Var
@@ -122,6 +123,7 @@ setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testVarMethods
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:LoadSettings
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:SetUpProblem
 setup_problem	pyuc/setup_problem.py	/^def setup_problem(name, input_data_path, output_data_path):$/;"	f
+solve_problem	pyuc/pyuc.py	/^def solve_problem(problem):$/;"	f
 sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:setup_problem
 tearDown	test/test_load_data.py	/^    def tearDown(self):$/;"	m	class:LoadData
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
@@ -133,6 +135,7 @@ testConstraints	test/test_constraints.py	/^class testConstraints(unittest.TestCa
 testDimToDf	test/test_pyuc.py	/^class testDimToDf(unittest.TestCase):$/;"	c
 testObjectiveFunctionUtils	test/test_objective_function.py	/^class testObjectiveFunctionUtils(unittest.TestCase):$/;"	c
 testOtherFunctions	test/test_constraints.py	/^class testOtherFunctions(unittest.TestCase):$/;"	c
+testSolve	test/test_pyuc.py	/^class testSolve(unittest.TestCase):$/;"	c
 testVarBasic	test/test_pyuc.py	/^class testVarBasic(unittest.TestCase):$/;"	c
 testVarDfFnChooser	test/test_pyuc.py	/^class testVarDfFnChooser(unittest.TestCase):$/;"	c
 testVarMethods	test/test_pyuc.py	/^class testVarMethods(unittest.TestCase):$/;"	c
@@ -202,6 +205,8 @@ test_set___repr__	test/test_Set.py	/^    def test_set___repr__(self):$/;"	m	clas
 test_set___str__	test/test_Set.py	/^    def test_set___str__(self):$/;"	m	class:TestMasterSetInit
 test_setup_problem	test/test_setup_problem.py	/^    def test_setup_problem(self):$/;"	m	class:SetUpProblem
 test_setup_problem_is_called	test/test_pyuc.py	/^    def test_setup_problem_is_called(self,$/;"	m	class:RunOptProblem
+test_solve_problem	test/test_pyuc.py	/^    def test_solve_problem(self, solve_mock):$/;"	m	class:testSolve
+test_solve_problem_is_called	test/test_pyuc.py	/^    def test_solve_problem_is_called(self,$/;"	m	class:RunOptProblem
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf

@@ -4,7 +4,8 @@ import os
 import pandas as pd
 import pulp as pp
 
-from pyuc import load_data
+from pyuc import constraint_adder as ca
+from pyuc import load_data, objective_function
 from pyuc import setup_problem as sp
 
 
@@ -13,7 +14,9 @@ def run_opt_problem(name, input_data_path, output_data_path):
     problem['data'] = load_data.load_data(problem['paths'])
     problem['sets'] = load_data.create_sets(problem['data'])
     problem['var'] = create_variables(problem['sets'])
-    problem = add_constraints(problem)
+    problem['problem'] = ca.add_constraints(problem)
+    problem['problem'] = objective_function.make_objective_function(problem)
+    problem['problem'] = solve_problem(problem)
 
 
 class Set():
@@ -239,5 +242,12 @@ def create_variables(sets):
     return vars
 
 
-def add_constraints(problem):
-    pass
+def solve_problem(problem):
+    """
+    Pass the problem to the solver, using the pulp command
+
+    :param problem dict: model problem
+    """
+    problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
+
+    return problem['problem']
