@@ -44,10 +44,22 @@ def load_demand_data(demand_data_path):
 
 def create_sets(data):
     """
+    Load single sets (intervals and units) and combinations.
+
+    :param data dict: Optimisation data
+    """
+
+    sets = create_single_sets(data)
+    sets = create_combination_sets(data)
+
+    return sets
+
+
+def create_single_sets(data):
+    """
     Load sets for intervals and units.
 
     :param data dict: Optimisation data
-    :param settings dict: Optimisation settings
     """
 
     sets = {
@@ -56,3 +68,11 @@ def create_sets(data):
     }
 
     return sets
+
+
+def create_combination_sets(sets):
+    """
+    Combine existing sets for convience.
+
+    :param sets dict: problem sets
+    """

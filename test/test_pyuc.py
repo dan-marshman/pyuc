@@ -12,6 +12,7 @@ class RunOptProblem(unittest.TestCase):
         self.input_data_path = "IN"
         self.output_data_path = "OUT"
 
+    @mock.patch('pyuc.pyuc.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
     @mock.patch('pyuc.load_data.load_data')
@@ -21,6 +22,7 @@ class RunOptProblem(unittest.TestCase):
                                      load_data_mock,
                                      create_sets_mock,
                                      create_variables_mock,
+                                     add_constraints_mock,
                                   ):
 
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
@@ -28,6 +30,7 @@ class RunOptProblem(unittest.TestCase):
             self.name, self.input_data_path, self.output_data_path
         )
 
+    @mock.patch('pyuc.pyuc.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
     @mock.patch('pyuc.load_data.load_data')
@@ -37,6 +40,7 @@ class RunOptProblem(unittest.TestCase):
                                  load_data_mock,
                                  create_sets_mock,
                                  create_variables_mock,
+                                 add_constraints_mock,
                                  ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -44,6 +48,7 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         load_data_mock.assert_called_once_with({'path': 'path'})
 
+    @mock.patch('pyuc.pyuc.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
     @mock.patch('pyuc.load_data.load_data')
@@ -53,6 +58,7 @@ class RunOptProblem(unittest.TestCase):
                                    load_data_mock,
                                    create_sets_mock,
                                    create_variables_mock,
+                                   add_constraints_mock,
                                    ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -61,6 +67,7 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         create_sets_mock.assert_called_once_with('data')
 
+    @mock.patch('pyuc.pyuc.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
     @mock.patch('pyuc.load_data.load_data')
@@ -70,6 +77,7 @@ class RunOptProblem(unittest.TestCase):
                                         load_data_mock,
                                         create_sets_mock,
                                         create_variables_mock,
+                                        add_constraints_mock,
                                         ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -77,6 +85,30 @@ class RunOptProblem(unittest.TestCase):
 
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         create_variables_mock.assert_called_once_with('sets')
+
+    @mock.patch('pyuc.pyuc.add_constraints')
+    @mock.patch('pyuc.pyuc.create_variables')
+    @mock.patch('pyuc.load_data.create_sets')
+    @mock.patch('pyuc.load_data.load_data')
+    @mock.patch('pyuc.setup_problem.setup_problem', )
+    def test_add_constraints_is_called(self,
+                                       setup_problem_mock,
+                                       load_data_mock,
+                                       create_sets_mock,
+                                       create_variables_mock,
+                                       add_constraints_mock,
+                                       ):
+
+        setup_problem_mock.return_value = {'paths': {'path': 'path'}}
+        load_data_mock.return_value = 'data'
+        create_sets_mock.return_value = 'sets'
+        create_variables_mock.return_value = 'var'
+
+        expected = \
+            {'paths': {'path': 'path'}, 'data': 'data', 'sets': 'sets', 'var': 'var'}
+
+        pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
+        add_constraints_mock.assert_called_once_with(expected)
 
 
 class testVarBasic(unittest.TestCase):

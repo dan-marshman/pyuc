@@ -5,6 +5,7 @@ import shutil
 import unittest
 
 import mock
+import pulp as pp
 from pyuc import setup_problem
 
 
@@ -169,6 +170,14 @@ class InitialiseProblem(unittest.TestCase):
 
         self.assertIsInstance(result, expected)
 
+    def test_make_pulp_problem(self):
+        name = 'MY_NAME'
+        result = setup_problem.make_pulp_problem(name)
+
+        expected = pp.LpProblem(name='MY_NAME', sense=pp.LpMinimize)
+        self.assertEqual(result.name, expected.name)
+        self.assertEqual(result.sense, expected.sense)
+
 
 class Paths(unittest.TestCase):
     def test_initialise_paths(self):
@@ -238,6 +247,7 @@ class SetUpProblem(unittest.TestCase):
                 'outputs': os.path.join(self.output_data_path, self.name),
                 'results': os.path.join(self.output_data_path, self.name, 'results'),
             },
-            'settings': {'P1': 101, 'P2': 'A_STRING', 'P3': False}
+            'settings': {'P1': 101, 'P2': 'A_STRING', 'P3': False},
+            'problem': mock.ANY
         }
         self.assertEqual(result, expected)

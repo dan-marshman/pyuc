@@ -19,7 +19,7 @@ class LoadSets(unittest.TestCase):
             'units': self.unit_df
         }
 
-        self.sets = ld.create_sets(self.data)
+        self.sets = ld.create_single_sets(self.data)
 
     def test_create_master_set_check_keys(self):
         result = list(self.sets.keys())

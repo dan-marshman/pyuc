@@ -1,6 +1,8 @@
 import csv
 import os
 
+import pulp as pp
+
 from pyuc import utils
 
 
@@ -124,6 +126,10 @@ def initialise_paths(input_data_path, output_data_path, name):
     return paths
 
 
+def make_pulp_problem(name):
+    return pp.LpProblem(name=name, sense=pp.LpMinimize)
+
+
 def setup_problem(name, input_data_path, output_data_path):
     """
     Take the steps to set up the problem.
@@ -136,5 +142,6 @@ def setup_problem(name, input_data_path, output_data_path):
     problem = initialise_uc_problem(name)
     problem['paths'] = initialise_paths(input_data_path, output_data_path, name)
     problem['settings'] = load_settings(problem['paths']['settings'])
+    problem['problem'] = make_pulp_problem(name)
 
     return problem

@@ -13,6 +13,7 @@ def run_opt_problem(name, input_data_path, output_data_path):
     problem['data'] = load_data.load_data(problem['paths'])
     problem['sets'] = load_data.create_sets(problem['data'])
     problem['var'] = create_variables(problem['sets'])
+    problem = add_constraints(problem)
 
 
 class Set():
@@ -220,10 +221,23 @@ class Var():
 def create_variables(sets):
     vars = dict()
 
-    vars['power_generated'] = Var('power_generated', 'MW', m_sets['in_sc_un'])
-    vars['num_committed'] = Var('num_committed', '#Units', m_sets['in_sc_unco'], 'I')
-    vars['num_shutting_down'] = Var('num_shutting_down', '#Units', m_sets['in_sc_unco'], 'I')
-    vars['num_starting_up'] = Var('num_starting_up', '#Units', m_sets['in_sc_unco'], 'I')
-    vars['unserved_power'] = Var('unserved_power', 'MW', m_sets['in_sc'])
+    vars['power_generated'] = \
+        Var('power_generated', 'MW', [sets['intervals'], sets['units']], 'Continuous')
+
+    vars['num_committed'] = \
+        Var('num_committed', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['num_shutting_down'] = \
+        Var('num_shutting_down', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['num_starting_up'] = \
+        Var('num_starting_up', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['unserved_power'] = \
+        Var('unserved_power', 'MW', [sets['intervals']], 'Continuous')
 
     return vars
+
+
+def add_constraints(problem):
+    pass
