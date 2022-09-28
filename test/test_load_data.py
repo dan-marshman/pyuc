@@ -35,6 +35,16 @@ class LoadSets(unittest.TestCase):
         self.assertEqual(self.sets['units'].name, 'units')
         self.assertEqual(self.sets['units'].indices, ['A1', 'A2', 'A3', 'A4'])
 
+    @mock.patch('pyuc.load_data.create_single_sets')
+    def test_create_single_sets_is_called(self, create_single_sets_mock):
+        ld.create_sets(self.data)
+        create_single_sets_mock.assert_called_once_with(self.data)
+
+    @mock.patch('pyuc.load_data.create_combination_sets')
+    def test_create_combination_sets_is_called(self, create_combination_sets_mock):
+        ld.create_sets(self.data)
+        create_combination_sets_mock.assert_called_once_with(self.data)
+
 
 class LoadDataItems(unittest.TestCase):
     @mock.patch('pyuc.utils.check_path_exists')

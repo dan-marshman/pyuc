@@ -15,7 +15,7 @@ LoadData	test/test_load_data.py	/^class LoadData(unittest.TestCase):$/;"	c
 LoadDataItems	test/test_load_data.py	/^class LoadDataItems(unittest.TestCase):$/;"	c
 LoadSets	test/test_load_data.py	/^class LoadSets(unittest.TestCase):$/;"	c
 LoadSettings	test/test_setup_problem.py	/^class LoadSettings(unittest.TestCase):$/;"	c
-PathExists	test/test_misc_functions.py	/^class PathExists(unittest.TestCase):$/;"	c
+PathExists	test/test_utils.py	/^class PathExists(unittest.TestCase):$/;"	c
 Paths	test/test_setup_problem.py	/^class Paths(unittest.TestCase):$/;"	c
 ReadSettings	test/test_setup_problem.py	/^class ReadSettings(unittest.TestCase):$/;"	c
 RunOptProblem	test/test_pyuc.py	/^class RunOptProblem(unittest.TestCase):$/;"	c
@@ -98,6 +98,7 @@ pp	pyuc/pyuc.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	pyuc/setup_problem.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_constraint_adder.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_constraints.py	/^import pulp as pp$/;"	I	nameref:module:pulp
+pp	test/test_objective_function.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_optimisation_results.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_pyuc.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_setup_problem.py	/^import pulp as pp$/;"	I	nameref:module:pulp
@@ -113,7 +114,7 @@ setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:testOtherFunct
 setUp	test/test_create_variables.py	/^    def setUp(self):$/;"	m	class:makeVariables
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadData
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadSets
-setUp	test/test_misc_functions.py	/^    def setUp(self):$/;"	m	class:PathExists
+setUp	test/test_objective_function.py	/^    def setUp(self):$/;"	m	class:testObjectiveFunctionTerms
 setUp	test/test_optimisation_results.py	/^    def setUp(self):$/;"	m	class:testBasicProblems
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:RunOptProblem
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testDimToDf
@@ -122,6 +123,7 @@ setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testVarDfFnChooser
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testVarMethods
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:LoadSettings
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:SetUpProblem
+setUp	test/test_utils.py	/^    def setUp(self):$/;"	m	class:PathExists
 setup_problem	pyuc/setup_problem.py	/^def setup_problem(name, input_data_path, output_data_path):$/;"	f
 solve_problem	pyuc/pyuc.py	/^def solve_problem(problem):$/;"	f
 sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:setup_problem
@@ -133,6 +135,7 @@ testConstraintAdder	test/constraint_adder.py	/^class testConstraintAdder(unittes
 testConstraintSelector	test/test_constraint_adder.py	/^class testConstraintSelector(unittest.TestCase):$/;"	c
 testConstraints	test/test_constraints.py	/^class testConstraints(unittest.TestCase):$/;"	c
 testDimToDf	test/test_pyuc.py	/^class testDimToDf(unittest.TestCase):$/;"	c
+testObjectiveFunctionTerms	test/test_objective_function.py	/^class testObjectiveFunctionTerms(unittest.TestCase):$/;"	c
 testObjectiveFunctionUtils	test/test_objective_function.py	/^class testObjectiveFunctionUtils(unittest.TestCase):$/;"	c
 testOtherFunctions	test/test_constraints.py	/^class testOtherFunctions(unittest.TestCase):$/;"	c
 testSolve	test/test_pyuc.py	/^class testSolve(unittest.TestCase):$/;"	c
@@ -157,8 +160,10 @@ test_collect_setting_type_float	test/test_setup_problem.py	/^    def test_collec
 test_collect_setting_type_integer	test/test_setup_problem.py	/^    def test_collect_setting_type_integer(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_string	test/test_setup_problem.py	/^    def test_collect_setting_type_string(self):$/;"	m	class:CollectSettings
 test_constraint_selector	test/test_constraint_adder.py	/^    def test_constraint_selector(self, read_csv_mock, make_constraint_index_mock):$/;"	m	class:testConstraintSelector
+test_create_combination_sets_is_called	test/test_load_data.py	/^    def test_create_combination_sets_is_called(self, create_combination_sets_mock):$/;"	m	class:LoadSets
 test_create_master_set_check_keys	test/test_load_data.py	/^    def test_create_master_set_check_keys(self):$/;"	m	class:LoadSets
 test_create_sets_is_called	test/test_pyuc.py	/^    def test_create_sets_is_called(self,$/;"	m	class:RunOptProblem
+test_create_single_sets_is_called	test/test_load_data.py	/^    def test_create_single_sets_is_called(self, create_single_sets_mock):$/;"	m	class:LoadSets
 test_create_variables_is_called	test/test_pyuc.py	/^    def test_create_variables_is_called(self,$/;"	m	class:RunOptProblem
 test_df_chooser_four	test/test_pyuc.py	/^    def test_df_chooser_four(self, four_dim_mock, clean_up_mock):$/;"	m	class:testVarDfFnChooser
 test_df_chooser_one	test/test_pyuc.py	/^    def test_df_chooser_one(self, one_dim_mock, clean_up_mock):$/;"	m	class:testVarDfFnChooser
@@ -170,6 +175,7 @@ test_df_clean_up_dtype_integer	test/test_pyuc.py	/^    def test_df_clean_up_dtyp
 test_df_clean_up_name	test/test_pyuc.py	/^    def test_df_clean_up_name(self):$/;"	m	class:testVarMethods
 test_each_fn_is_called	test/test_setup_problem.py	/^    def test_each_fn_is_called(self, load_settings_mock, init_paths_mock, init_prob_mock):$/;"	m	class:SetUpProblem
 test_four_dim_to_df	test/test_pyuc.py	/^    def test_four_dim_to_df(self):$/;"	m	class:testDimToDf
+test_fuel_cost_term	test/test_objective_function.py	/^    def test_fuel_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_heat_rate_calculator	test/test_objective_function.py	/^    def test_heat_rate_calculator(self):$/;"	m	class:testObjectiveFunctionUtils
 test_indices_intervals	test/test_create_variables.py	/^    def test_indices_intervals(self):$/;"	m	class:makeVariables
 test_indices_intervals_x_units	test/test_create_variables.py	/^    def test_indices_intervals_x_units(self):$/;"	m	class:makeVariables
@@ -192,8 +198,8 @@ test_make_var_indices	test/test_pyuc.py	/^    def test_make_var_indices(self):$/
 test_make_var_indices_is_called	test/test_pyuc.py	/^    def test_make_var_indices_is_called(self, make_var_indices_mock):$/;"	m	class:testVarBasic
 test_master_set_fns_not_called	test/test_Set.py	/^    def test_master_set_fns_not_called(self, append_subset_mock, validate_set_mock):$/;"	m	class:TestMasterSetInit
 test_one_dim_to_df	test/test_pyuc.py	/^    def test_one_dim_to_df(self):$/;"	m	class:testDimToDf
-test_path_does_exist	test/test_misc_functions.py	/^    def test_path_does_exist(self):$/;"	m	class:PathExists
-test_path_does_not_exist	test/test_misc_functions.py	/^    def test_path_does_not_exist(self, path_exists_mock):$/;"	m	class:PathExists
+test_path_does_exist	test/test_utils.py	/^    def test_path_does_exist(self):$/;"	m	class:PathExists
+test_path_does_not_exist	test/test_utils.py	/^    def test_path_does_not_exist(self, path_exists_mock):$/;"	m	class:PathExists
 test_problem1	test/test_optimisation_results.py	/^    def test_problem1(self, constraint_selector_mock):$/;"	m	class:testBasicProblems
 test_read_settings	test/test_setup_problem.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_bool	test/test_setup_problem.py	/^    def test_read_settings_call_collect_bool(self, collect_bool_mock, open_mock):$/;"	m	class:ReadSettings
@@ -212,6 +218,7 @@ test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(sel
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf
 test_total_power_in_interval	test/test_constraints.py	/^    def test_total_power_in_interval(self):$/;"	m	class:testOtherFunctions
 test_two_dim_to_df	test/test_pyuc.py	/^    def test_two_dim_to_df(self):$/;"	m	class:testDimToDf
+test_unserved_energy_cost_term	test/test_objective_function.py	/^    def test_unserved_energy_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_validate_set_is_called	test/test_Set.py	/^    def test_validate_set_is_called(self, validate_set_mock):$/;"	m	class:TestSubSetInit
 test_var_init_indices	test/test_pyuc.py	/^    def test_var_init_indices(self):$/;"	m	class:testVarBasic
 test_var_init_name	test/test_pyuc.py	/^    def test_var_init_name(self):$/;"	m	class:testVarBasic
@@ -219,6 +226,7 @@ test_var_init_sets	test/test_pyuc.py	/^    def test_var_init_sets(self):$/;"	m	c
 test_var_init_type	test/test_pyuc.py	/^    def test_var_init_type(self):$/;"	m	class:testVarBasic
 test_var_init_type_specified	test/test_pyuc.py	/^    def test_var_init_type_specified(self):$/;"	m	class:testVarBasic
 test_var_init_units	test/test_pyuc.py	/^    def test_var_init_units(self):$/;"	m	class:testVarBasic
+test_vom_cost_term	test/test_objective_function.py	/^    def test_vom_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_write_to_csv	test/test_pyuc.py	/^    def test_write_to_csv(self, pd_to_csv_mock):$/;"	m	class:testVarMethods
 three_dim_to_df	pyuc/pyuc.py	/^    def three_dim_to_df(self):$/;"	m	class:Var
 to_csv	pyuc/pyuc.py	/^    def to_csv(self, write_directory):$/;"	m	class:Var
