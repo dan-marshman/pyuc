@@ -17,6 +17,7 @@ def run_opt_problem(name, input_data_path, output_data_path):
     problem['problem'] = ca.add_constraints(problem)
     problem['problem'] = objective_function.make_objective_function(problem)
     problem['problem'] = solve_problem(problem)
+    save_results(problem)
 
 
 class Set():
@@ -248,6 +249,28 @@ def solve_problem(problem):
 
     :param problem dict: model problem
     """
+
     problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
+    print_solution_value_and_time(problem['problem'])
 
     return problem['problem']
+
+
+def print_solution_value_and_time(problem):
+    status_dict = {
+        1: "Optimal",
+        0: "Not Solved",
+        -1: "Infeasible",
+        -2: "Unbounded",
+        -3: "Undefined"
+    }
+
+    print("Objective Function Value: %f" % problem.objective.value())
+    print("Optimisation Status: %s" % status_dict[problem.status])
+    print("Solve Time: %.2f" % problem.solutionTime)
+
+
+def save_results(problem):
+    for var in problem['var'].values():
+        var.to_df_fn_chooser()
+        var.to_csv(problem['paths']['results'])

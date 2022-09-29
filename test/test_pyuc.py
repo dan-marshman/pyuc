@@ -13,6 +13,7 @@ class RunOptProblem(unittest.TestCase):
         self.input_data_path = "IN"
         self.output_data_path = "OUT"
 
+    @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.constraint_adder.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
@@ -24,13 +25,16 @@ class RunOptProblem(unittest.TestCase):
                                      create_sets_mock,
                                      create_variables_mock,
                                      add_constraints_mock,
-                                  ):
+                                     solve_problem_mock,
+                                     ):
 
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         setup_problem_mock.assert_called_once_with(
             self.name, self.input_data_path, self.output_data_path
         )
 
+    @mock.patch('pyuc.pyuc.save_results')
+    @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.constraint_adder.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
@@ -42,6 +46,8 @@ class RunOptProblem(unittest.TestCase):
                                  create_sets_mock,
                                  create_variables_mock,
                                  add_constraints_mock,
+                                 solve_problem_mock,
+                                 save_results_mock
                                  ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -49,6 +55,8 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         load_data_mock.assert_called_once_with({'path': 'path'})
 
+    @mock.patch('pyuc.pyuc.save_results')
+    @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.constraint_adder.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
     @mock.patch('pyuc.load_data.create_sets')
@@ -60,6 +68,8 @@ class RunOptProblem(unittest.TestCase):
                                    create_sets_mock,
                                    create_variables_mock,
                                    add_constraints_mock,
+                                   solve_problem_mock,
+                                   save_results_mock
                                    ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -68,6 +78,8 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         create_sets_mock.assert_called_once_with('data')
 
+    @mock.patch('pyuc.pyuc.save_results')
+    @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.objective_function.make_objective_function')
     @mock.patch('pyuc.constraint_adder.add_constraints')
     @mock.patch('pyuc.pyuc.create_variables')
@@ -80,7 +92,9 @@ class RunOptProblem(unittest.TestCase):
                                         create_sets_mock,
                                         create_variables_mock,
                                         add_constraints_mock,
-                                        make_objective_mock
+                                        make_objective_mock,
+                                        solve_problem_mock,
+                                        save_results_mock
                                         ):
 
         setup_problem_mock.return_value = {'paths': {'path': 'path'}}
@@ -89,6 +103,7 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         create_variables_mock.assert_called_once_with('sets')
 
+    @mock.patch('pyuc.pyuc.save_results')
     @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.objective_function.make_objective_function')
     @mock.patch('pyuc.constraint_adder.add_constraints')
@@ -104,6 +119,7 @@ class RunOptProblem(unittest.TestCase):
                                        add_constraints_mock,
                                        make_objective_mock,
                                        solve_problem_mock,
+                                       save_results_mock
                                        ):
 
         setup_problem_mock.return_value = \
@@ -125,6 +141,7 @@ class RunOptProblem(unittest.TestCase):
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         add_constraints_mock.assert_called_once_with(expected)
 
+    @mock.patch('pyuc.pyuc.save_results')
     @mock.patch('pyuc.pyuc.solve_problem')
     @mock.patch('pyuc.objective_function.make_objective_function')
     @mock.patch('pyuc.constraint_adder.add_constraints')
@@ -140,6 +157,7 @@ class RunOptProblem(unittest.TestCase):
                                      add_constraints_mock,
                                      make_objective_mock,
                                      solve_problem_mock,
+                                     save_results_mock
                                      ):
 
         setup_problem_mock.return_value = \
@@ -159,6 +177,43 @@ class RunOptProblem(unittest.TestCase):
 
         pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
         solve_problem_mock.assert_called_once_with(expected)
+
+    @mock.patch('pyuc.pyuc.save_results')
+    @mock.patch('pyuc.pyuc.solve_problem')
+    @mock.patch('pyuc.objective_function.make_objective_function')
+    @mock.patch('pyuc.constraint_adder.add_constraints')
+    @mock.patch('pyuc.pyuc.create_variables')
+    @mock.patch('pyuc.load_data.create_sets')
+    @mock.patch('pyuc.load_data.load_data')
+    @mock.patch('pyuc.setup_problem.setup_problem', )
+    def test_save_results_is_called(self,
+                                    setup_problem_mock,
+                                    load_data_mock,
+                                    create_sets_mock,
+                                    create_variables_mock,
+                                    add_constraints_mock,
+                                    make_objective_mock,
+                                    solve_problem_mock,
+                                    save_results_mock,
+                                    ):
+
+        setup_problem_mock.return_value = \
+            {'paths': {'path': 'path'}, 'problem': 'problem'}
+        load_data_mock.return_value = 'data'
+        create_sets_mock.return_value = 'sets'
+        create_variables_mock.return_value = 'var'
+        solve_problem_mock.return_value = 'problem'
+
+        expected = {
+            'paths': {'path': 'path'},
+            'data': 'data',
+            'sets': 'sets',
+            'var': 'var',
+            'problem': 'problem'
+        }
+
+        pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
+        save_results_mock.assert_called_once_with(expected)
 
 
 class testVarBasic(unittest.TestCase):
@@ -404,8 +459,84 @@ class testDimToDf(unittest.TestCase):
 
 
 class testSolve(unittest.TestCase):
+    def setUp(self):
+        self.problem = {
+            'problem': pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize)
+        }
+
+        self.problem['problem'] += pp.LpVariable('x', lowBound=5)
+        self.problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
+        self.prob = self.problem['problem']
+
     @mock.patch('pulp.LpProblem.solve')
     def test_solve_problem(self, solve_mock):
-        problem = {'problem': pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize)}
-        pyuc.solve_problem(problem)
+        pyuc.solve_problem(self.problem)
         solve_mock.assert_called_once()
+
+    @mock.patch('builtins.print')
+    def test_print_solution(self, print_mock):
+        prob = self.problem['problem']
+        pyuc.print_solution_value_and_time(prob)
+
+        objective_value_str = "Objective Function Value: %f" % prob.objective.value()
+        status_str = "Optimisation Status: Optimal"
+        solve_time_str = "Solve Time: %.2f" % prob.solutionTime
+
+        expected = [
+            mock.call(objective_value_str),
+            mock.call(status_str),
+            mock.call(solve_time_str)
+        ]
+
+        print_mock.assert_has_calls(expected)
+
+
+class testSaveResults(unittest.TestCase):
+    def setUp(self):
+        units = pyuc.Set('units', ['U1', 'U2'])
+        intervals = pyuc.Set('intervals', [0, 1])
+
+        vars = {
+            'power_generated': pyuc.Var('power_generated', 'MW', [intervals, units]),
+            'unserved_power': pyuc.Var('unserved_power', 'MW', [intervals])
+        }
+
+        self.problem = {
+            'var': vars,
+            'paths': {'results': 'MY_PATH'}
+        }
+
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(20)
+        self.problem['var']['power_generated'].var[(0, 'U2')].setInitialValue(45)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(200)
+        self.problem['var']['power_generated'].var[(1, 'U2')].setInitialValue(45)
+
+        self.problem['var']['unserved_power'].var[(0)].setInitialValue(5)
+        self.problem['var']['unserved_power'].var[(1)].setInitialValue(55)
+
+    @mock.patch('pyuc.pyuc.Var.to_csv')
+    @mock.patch('pyuc.pyuc.Var.to_df_fn_chooser')
+    def test_vars_result_dfs_are_made(self, to_df_mock, to_csv_mock):
+        pyuc.save_results(self.problem)
+        self.assertEqual(to_df_mock.call_count, 2)
+
+    @mock.patch('pyuc.pyuc.Var.to_csv')
+    def test_vars_dfs_are_correct(self, to_csv_mock):
+        pyuc.save_results(self.problem)
+
+        # Power Generated
+        expected = pd.DataFrame({'U1': [20, 200], 'U2': [45, 45]})
+        expected.index.name = 'intervals'
+        result = self.problem['var']['power_generated'].result_df
+        pd.testing.assert_frame_equal(result, expected, check_dtype=False)
+
+        # Unserved Power
+        expected = pd.Series([5, 55], name='unserved_power')
+        expected.index.name = 'intervals'
+        result = self.problem['var']['unserved_power'].result_df
+        pd.testing.assert_series_equal(result, expected, check_dtype=False)
+
+    @mock.patch('pyuc.pyuc.Var.to_csv')
+    def test_vars_to_csv_is_called(self, to_csv_mock):
+        pyuc.save_results(self.problem)
+        self.assertEqual(to_csv_mock.call_count, 2)
