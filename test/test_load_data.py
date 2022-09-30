@@ -40,10 +40,15 @@ class LoadSets(unittest.TestCase):
         ld.create_sets(self.data)
         create_single_sets_mock.assert_called_once_with(self.data)
 
+    @mock.patch('pyuc.load_data.create_single_sets')
     @mock.patch('pyuc.load_data.create_combination_sets')
-    def test_create_combination_sets_is_called(self, create_combination_sets_mock):
+    def test_create_combination_sets_is_called(self,
+                                               create_combination_sets_mock,
+                                               create_single_sets_mock
+                                               ):
+        create_single_sets_mock.return_value = 'sets'
         ld.create_sets(self.data)
-        create_combination_sets_mock.assert_called_once_with(self.data)
+        create_combination_sets_mock.assert_called_once_with('sets')
 
 
 class LoadDataItems(unittest.TestCase):
@@ -79,6 +84,11 @@ class LoadDataItems(unittest.TestCase):
 
         pd.testing.assert_frame_equal(result, expected)
 
+    def test_load_voll(self):
+        settings = {'THING': 'THING', 'ValueOfLostLoad$/MWh': 99}
+        result = ld.load_voll(settings)
+        self.assertEqual(result, 99)
+
 
 class LoadData(unittest.TestCase):
     def setUp(self):
@@ -88,6 +98,10 @@ class LoadData(unittest.TestCase):
 
         self.paths = \
             setup_problem.initialise_paths(self.input_data_path, output_data_path, name)
+        self.problem = {
+            'paths': self.paths,
+            'settings': {'ValueOfLostLoad$/MWh': 10}
+        }
 
         self.demand_df = pd.DataFrame(index=[1, 2, 3], data={'Demand': [100, 200, 300]})
         self.demand_df.index.name = 'Interval'
@@ -108,9 +122,13 @@ class LoadData(unittest.TestCase):
         shutil.rmtree(self.input_data_path)
 
     def test_load_data(self):
-        result = ld.load_data(self.paths)
-        expected = {'demand': self.demand_df, 'unit_data': self.unit_data_df}
+        result = ld.load_data(self.problem)
+        expected = {
+            'demand': self.demand_df,
+            'units': self.unit_data_df,
+            'ValueOfLostLoad$/MWh': 10
+        }
 
         self.assertEqual(list(result.keys()), list(expected.keys()))
         pd.testing.assert_frame_equal(result['demand'], expected['demand'])
-        pd.testing.assert_frame_equal(result['unit_data'], expected['unit_data'])
+        pd.testing.assert_frame_equal(result['units'], expected['units'])

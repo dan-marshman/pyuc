@@ -11,7 +11,7 @@ from pyuc import setup_problem as sp
 
 def run_opt_problem(name, input_data_path, output_data_path):
     problem = sp.setup_problem(name, input_data_path, output_data_path)
-    problem['data'] = load_data.load_data(problem['paths'])
+    problem['data'] = load_data.load_data(problem)
     problem['sets'] = load_data.create_sets(problem['data'])
     problem['var'] = create_variables(problem['sets'])
     problem['problem'] = ca.add_constraints(problem)
@@ -199,9 +199,15 @@ class Var():
         self.result_df.index.name = self.sets[0].name
 
         if self.type in ['Binary', 'Integer']:
-            self.result_df = self.result_df.astype(int)
+            try:
+                self.result_df = self.result_df.astype(int)
+            except TypeError:
+                print("Could not change dtype of %s to int." % self.name)
         else:
-            self.result_df = self.result_df.astype(float)
+            try:
+                self.result_df = self.result_df.astype(float)
+            except TypeError:
+                print("Could not change dtype of %s to float." % self.name)
 
     # def remove_LA_int_from_results(self, main_intervals):
         # if 'intervals' not in [setx.name for setx in self.sets]:

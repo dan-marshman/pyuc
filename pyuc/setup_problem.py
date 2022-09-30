@@ -1,5 +1,6 @@
 import csv
 import os
+import shutil
 
 import pulp as pp
 
@@ -119,6 +120,7 @@ def initialise_paths(input_data_path, output_data_path, name):
         'settings': os.path.join(input_data_path, 'settings.csv'),
         'unit_data': os.path.join(input_data_path, 'unit_data.csv'),
         'demand': os.path.join(input_data_path, 'demand.csv'),
+        'constraint_list': os.path.join(input_data_path, 'constraint_list.csv'),
         'outputs': os.path.join(output_data_path, name),
         'results': os.path.join(output_data_path, name, 'results'),
     }
@@ -127,7 +129,24 @@ def initialise_paths(input_data_path, output_data_path, name):
 
 
 def make_pulp_problem(name):
+    """
+    Initiate the pulp problem
+
+    :param name str: Name of problem for pulp
+    """
     return pp.LpProblem(name=name, sense=pp.LpMinimize)
+
+
+def make_results_folders(paths):
+    """
+    Make results folders, removing existing ones if relevant
+
+    :param paths dict: dict of paths
+    """
+    for dir in [paths['outputs'], paths['results']]:
+        if os.path.exists(dir):
+            shutil.rmtree(dir)
+        os.makedirs(dir)
 
 
 def setup_problem(name, input_data_path, output_data_path):
@@ -143,5 +162,6 @@ def setup_problem(name, input_data_path, output_data_path):
     problem['paths'] = initialise_paths(input_data_path, output_data_path, name)
     problem['settings'] = load_settings(problem['paths']['settings'])
     problem['problem'] = make_pulp_problem(name)
+    make_results_folders(problem['paths'])
 
     return problem

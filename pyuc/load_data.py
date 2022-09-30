@@ -5,7 +5,7 @@ import pandas as pd
 from pyuc import pyuc, utils
 
 
-def load_data(paths):
+def load_data(problem):
     """
     Builds the data dictionary, calling necessary functions to read files.
 
@@ -13,8 +13,9 @@ def load_data(paths):
     """
 
     return {
-        'demand': load_demand_data(paths['demand']),
-        'unit_data': load_unit_data(paths['unit_data']),
+        'demand': load_demand_data(problem['paths']['demand']),
+        'units': load_unit_data(problem['paths']['unit_data']),
+        'ValueOfLostLoad$/MWh': load_voll(problem['settings'])
     }
 
 
@@ -42,6 +43,10 @@ def load_demand_data(demand_data_path):
     return pd.read_csv(demand_data_path, index_col='Interval')
 
 
+def load_voll(settings):
+    return settings['ValueOfLostLoad$/MWh']
+
+
 def create_sets(data):
     """
     Load single sets (intervals and units) and combinations.
@@ -50,7 +55,7 @@ def create_sets(data):
     """
 
     sets = create_single_sets(data)
-    sets = create_combination_sets(data)
+    sets = create_combination_sets(sets)
 
     return sets
 
@@ -76,3 +81,5 @@ def create_combination_sets(sets):
 
     :param sets dict: problem sets
     """
+
+    return sets
