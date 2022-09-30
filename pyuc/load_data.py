@@ -15,7 +15,8 @@ def load_data(problem):
     return {
         'demand': load_demand_data(problem['paths']['demand']),
         'units': load_unit_data(problem['paths']['unit_data']),
-        'ValueOfLostLoad$/MWh': load_voll(problem['settings'])
+        'ValueOfLostLoad$/MWh': load_voll(problem['settings']),
+        'IntervalDurationHrs': load_interval_duration(problem['settings'])
     }
 
 
@@ -44,7 +45,23 @@ def load_demand_data(demand_data_path):
 
 
 def load_voll(settings):
+    """
+    Return the value of lost load from the settings file
+
+    :param settings dict: settings dictionary
+    """
+
     return settings['ValueOfLostLoad$/MWh']
+
+
+def load_interval_duration(settings):
+    """
+    Return the interval duration from the settings file
+
+    :param settings dict: settings dictionary
+    """
+
+    return settings['IntervalDurationHrs']
 
 
 def create_sets(data):

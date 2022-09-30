@@ -52,6 +52,9 @@ class LoadSets(unittest.TestCase):
 
 
 class LoadDataItems(unittest.TestCase):
+    def setUp(self):
+        self.  settings = {'IntervalDurationHrs': 1, 'ValueOfLostLoad$/MWh': 99}
+
     @mock.patch('pyuc.utils.check_path_exists')
     def test_load_unit_data(self, check_path_mock):
         test_file = io.StringIO(
@@ -85,9 +88,12 @@ class LoadDataItems(unittest.TestCase):
         pd.testing.assert_frame_equal(result, expected)
 
     def test_load_voll(self):
-        settings = {'THING': 'THING', 'ValueOfLostLoad$/MWh': 99}
-        result = ld.load_voll(settings)
+        result = ld.load_voll(self.settings)
         self.assertEqual(result, 99)
+
+    def test_load_interval_duration(self):
+        result = ld.load_interval_duration(self.settings)
+        self.assertEqual(result, 1)
 
 
 class LoadData(unittest.TestCase):
@@ -100,7 +106,7 @@ class LoadData(unittest.TestCase):
             setup_problem.initialise_paths(self.input_data_path, output_data_path, name)
         self.problem = {
             'paths': self.paths,
-            'settings': {'ValueOfLostLoad$/MWh': 10}
+            'settings': {'ValueOfLostLoad$/MWh': 10, 'IntervalDurationHrs': 0.5}
         }
 
         self.demand_df = pd.DataFrame(index=[1, 2, 3], data={'Demand': [100, 200, 300]})
@@ -126,7 +132,8 @@ class LoadData(unittest.TestCase):
         expected = {
             'demand': self.demand_df,
             'units': self.unit_data_df,
-            'ValueOfLostLoad$/MWh': 10
+            'ValueOfLostLoad$/MWh': 10,
+            'IntervalDurationHrs': 0.5
         }
 
         self.assertEqual(list(result.keys()), list(expected.keys()))
