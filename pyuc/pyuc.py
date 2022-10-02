@@ -20,6 +20,60 @@ def run_opt_problem(name, input_data_path, output_data_path):
     save_results(problem)
 
 
+def create_variables(sets):
+    vars = dict()
+
+    vars['power_generated'] = \
+        Var('power_generated', 'MW', [sets['intervals'], sets['units']], 'Continuous')
+
+    vars['num_committed'] = \
+        Var('num_committed', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['num_shutting_down'] = \
+        Var('num_shutting_down', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['num_starting_up'] = \
+        Var('num_starting_up', '#Units', [sets['intervals'], sets['units']], 'Integer')
+
+    vars['unserved_power'] = \
+        Var('unserved_power', 'MW', [sets['intervals']], 'Continuous')
+
+    return vars
+
+
+def solve_problem(problem):
+    """
+    Pass the problem to the solver, using the pulp command
+
+    :param problem dict: model problem
+    """
+
+    problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
+    print_solution_value_and_time(problem['problem'])
+
+    return problem['problem']
+
+
+def print_solution_value_and_time(problem):
+    status_dict = {
+        1: "Optimal",
+        0: "Not Solved",
+        -1: "Infeasible",
+        -2: "Unbounded",
+        -3: "Undefined"
+    }
+
+    print("Objective Function Value: %f" % problem.objective.value())
+    print("Optimisation Status: %s" % status_dict[problem.status])
+    print("Solve Time: %.2f" % problem.solutionTime)
+
+
+def save_results(problem):
+    for var in problem['var'].values():
+        var.to_df_fn_chooser()
+        var.to_csv(problem['paths']['results'])
+
+
 class Set():
     def __init__(self, name, indices, master_set=None):
         """
@@ -226,57 +280,3 @@ class Var():
 
         write_path = os.path.join(write_directory, self.filename)
         self.result_df.to_csv(write_path)
-
-
-def create_variables(sets):
-    vars = dict()
-
-    vars['power_generated'] = \
-        Var('power_generated', 'MW', [sets['intervals'], sets['units']], 'Continuous')
-
-    vars['num_committed'] = \
-        Var('num_committed', '#Units', [sets['intervals'], sets['units']], 'Integer')
-
-    vars['num_shutting_down'] = \
-        Var('num_shutting_down', '#Units', [sets['intervals'], sets['units']], 'Integer')
-
-    vars['num_starting_up'] = \
-        Var('num_starting_up', '#Units', [sets['intervals'], sets['units']], 'Integer')
-
-    vars['unserved_power'] = \
-        Var('unserved_power', 'MW', [sets['intervals']], 'Continuous')
-
-    return vars
-
-
-def solve_problem(problem):
-    """
-    Pass the problem to the solver, using the pulp command
-
-    :param problem dict: model problem
-    """
-
-    problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
-    print_solution_value_and_time(problem['problem'])
-
-    return problem['problem']
-
-
-def print_solution_value_and_time(problem):
-    status_dict = {
-        1: "Optimal",
-        0: "Not Solved",
-        -1: "Infeasible",
-        -2: "Unbounded",
-        -3: "Undefined"
-    }
-
-    print("Objective Function Value: %f" % problem.objective.value())
-    print("Optimisation Status: %s" % status_dict[problem.status])
-    print("Solve Time: %.2f" % problem.solutionTime)
-
-
-def save_results(problem):
-    for var in problem['var'].values():
-        var.to_df_fn_chooser()
-        var.to_csv(problem['paths']['results'])
