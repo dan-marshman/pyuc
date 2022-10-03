@@ -9,6 +9,7 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	5.9.0	/p5.9.20220828.0/
+BasicConstraintEquations	test/test_constraints.py	/^class BasicConstraintEquations(unittest.TestCase):$/;"	c
 CollectSettings	test/test_setup_problem.py	/^class CollectSettings(unittest.TestCase):$/;"	c
 InitialiseProblem	test/test_setup_problem.py	/^class InitialiseProblem(unittest.TestCase):$/;"	c
 Integration	test/test_integration.py	/^class Integration(unittest.TestCase):$/;"	c
@@ -16,6 +17,9 @@ LoadData	test/test_load_data.py	/^class LoadData(unittest.TestCase):$/;"	c
 LoadDataItems	test/test_load_data.py	/^class LoadDataItems(unittest.TestCase):$/;"	c
 LoadSets	test/test_load_data.py	/^class LoadSets(unittest.TestCase):$/;"	c
 LoadSettings	test/test_setup_problem.py	/^class LoadSettings(unittest.TestCase):$/;"	c
+MinUpAndDownTimes	test/test_constraints.py	/^class MinUpAndDownTimes(unittest.TestCase):$/;"	c
+OtherConstraintTests	test/test_constraints.py	/^class OtherConstraintTests(unittest.TestCase):$/;"	c
+OtherFunctions	test/test_constraints.py	/^class OtherFunctions(unittest.TestCase):$/;"	c
 PathExists	test/test_utils.py	/^class PathExists(unittest.TestCase):$/;"	c
 Paths	test/test_setup_problem.py	/^class Paths(unittest.TestCase):$/;"	c
 ReadSettings	test/test_setup_problem.py	/^class ReadSettings(unittest.TestCase):$/;"	c
@@ -46,6 +50,8 @@ cnsts	pyuc/constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nam
 cnsts	test/test_constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nameref:unknown:constraints
 cnt_commitment_continuity	pyuc/constraints.py	/^def cnt_commitment_continuity(sets, data, var, constraints=[]):$/;"	f
 cnt_commitment_continuity_initial_interval	pyuc/constraints.py	/^def cnt_commitment_continuity_initial_interval(sets, data, var, constraints=[]):$/;"	f
+cnt_minimum_down_time	pyuc/constraints.py	/^def cnt_minimum_down_time(sets, data, var, constraints=[]):$/;"	f
+cnt_minimum_up_time	pyuc/constraints.py	/^def cnt_minimum_up_time(sets, data, var, constraints=[]):$/;"	f
 cnt_num_committed_lt_num_units	pyuc/constraints.py	/^def cnt_num_committed_lt_num_units(sets, data, var, constraints=[]):$/;"	f
 cnt_power_gt_minimum_generation	pyuc/constraints.py	/^def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):$/;"	f
 cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data, var, constraints=[]):$/;"	f
@@ -86,10 +92,11 @@ make_pulp_problem	pyuc/setup_problem.py	/^def make_pulp_problem(name):$/;"	f
 make_pulp_variable	pyuc/pyuc.py	/^    def make_pulp_variable(self):$/;"	m	class:Var
 make_results_folders	pyuc/setup_problem.py	/^def make_results_folders(paths):$/;"	f
 make_var_indices	pyuc/pyuc.py	/^    def make_var_indices(self):$/;"	m	class:Var
+num_shut_downs_within_down_time_calculator	pyuc/constraints.py	/^def num_shut_downs_within_down_time_calculator(sets, data, var):$/;"	f
+num_start_ups_within_up_time_calculator	pyuc/constraints.py	/^def num_start_ups_within_up_time_calculator(sets, data, var):$/;"	f
 objective_adder	pyuc/objective_function.py	/^def objective_adder(objective_term_func):$/;"	f
 of	test/test_objective_function.py	/^from pyuc import objective_function as of$/;"	x	nameref:unknown:objective_function
 one_dim_to_df	pyuc/pyuc.py	/^    def one_dim_to_df(self):$/;"	m	class:Var
-otherConstraintTests	test/test_constraints.py	/^class otherConstraintTests(unittest.TestCase):$/;"	c
 pd	pyuc/constraint_adder.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/load_data.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/pyuc.py	/^import pandas as pd$/;"	I	nameref:module:pandas
@@ -118,9 +125,10 @@ setUp	test/test_Set.py	/^    def setUp(self):$/;"	m	class:TestMasterSetInit
 setUp	test/test_Set.py	/^    def setUp(self):$/;"	m	class:TestSubSetInit
 setUp	test/test_constraint_adder.py	/^    def setUp(self):$/;"	m	class:testBuildAndAddConstraints
 setUp	test/test_constraint_adder.py	/^    def setUp(self):$/;"	m	class:testConstraintSelector
-setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:otherConstraintTests
-setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:testConstraintEquations
-setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:testOtherFunctions
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:BasicConstraintEquations
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:MinUpAndDownTimes
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherConstraintTests
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherFunctions
 setUp	test/test_create_variables.py	/^    def setUp(self):$/;"	m	class:makeVariables
 setUp	test/test_integration.py	/^    def setUp(self):$/;"	m	class:Integration
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadData
@@ -146,12 +154,10 @@ tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpP
 testBasicProblems	test/test_optimisation_results.py	/^class testBasicProblems(unittest.TestCase):$/;"	c
 testBuildAndAddConstraints	test/test_constraint_adder.py	/^class testBuildAndAddConstraints(unittest.TestCase):$/;"	c
 testConstraintAdder	test/constraint_adder.py	/^class testConstraintAdder(unittest.TestCase):$/;"	c
-testConstraintEquations	test/test_constraints.py	/^class testConstraintEquations(unittest.TestCase):$/;"	c
 testConstraintSelector	test/test_constraint_adder.py	/^class testConstraintSelector(unittest.TestCase):$/;"	c
 testDimToDf	test/test_pyuc.py	/^class testDimToDf(unittest.TestCase):$/;"	c
 testObjectiveFunctionTerms	test/test_objective_function.py	/^class testObjectiveFunctionTerms(unittest.TestCase):$/;"	c
 testObjectiveFunctionUtils	test/test_objective_function.py	/^class testObjectiveFunctionUtils(unittest.TestCase):$/;"	c
-testOtherFunctions	test/test_constraints.py	/^class testOtherFunctions(unittest.TestCase):$/;"	c
 testSaveResults	test/test_pyuc.py	/^class testSaveResults(unittest.TestCase):$/;"	c
 testSolve	test/test_pyuc.py	/^class testSolve(unittest.TestCase):$/;"	c
 testVarBasic	test/test_pyuc.py	/^class testVarBasic(unittest.TestCase):$/;"	c
@@ -165,15 +171,15 @@ test_append_subset_is_called	test/test_Set.py	/^    def test_append_subset_is_ca
 test_build_constraints	test/test_constraint_adder.py	/^    def test_build_constraints(self):$/;"	m	class:testBuildAndAddConstraints
 test_call_check_path	test/test_setup_problem.py	/^    def test_call_check_path(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
 test_call_import_settings_file	test/test_setup_problem.py	/^    def test_call_import_settings_file(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
-test_cnt_commitment_continuity	test/test_constraints.py	/^    def test_cnt_commitment_continuity(self):$/;"	m	class:testConstraintEquations
-test_cnt_commitment_continuity_ignores_first_interval	test/test_constraints.py	/^    def test_cnt_commitment_continuity_ignores_first_interval(self):$/;"	m	class:otherConstraintTests
-test_cnt_commitment_continuity_init_int_only_uses_first_int	test/test_constraints.py	/^    def test_cnt_commitment_continuity_init_int_only_uses_first_int(self):$/;"	m	class:otherConstraintTests
-test_cnt_commitment_continuity_initial_interval	test/test_constraints.py	/^    def test_cnt_commitment_continuity_initial_interval(self):$/;"	m	class:testConstraintEquations
-test_cnt_num_committed_lt_num_units	test/test_constraints.py	/^    def test_cnt_num_committed_lt_num_units(self):$/;"	m	class:testConstraintEquations
-test_cnt_power_gt_minimum_generation	test/test_constraints.py	/^    def test_cnt_power_gt_minimum_generation(self):$/;"	m	class:testConstraintEquations
-test_cnt_power_lt_capacity	test/test_constraints.py	/^    def test_cnt_power_lt_capacity(self):$/;"	m	class:testConstraintEquations
-test_cnt_power_lt_committed_capacity	test/test_constraints.py	/^    def test_cnt_power_lt_committed_capacity(self):$/;"	m	class:testConstraintEquations
-test_cnt_supply_eq_demand	test/test_constraints.py	/^    def test_cnt_supply_eq_demand(self):$/;"	m	class:testConstraintEquations
+test_cnt_commitment_continuity	test/test_constraints.py	/^    def test_cnt_commitment_continuity(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_commitment_continuity_ignores_first_interval	test/test_constraints.py	/^    def test_cnt_commitment_continuity_ignores_first_interval(self):$/;"	m	class:OtherConstraintTests
+test_cnt_commitment_continuity_init_int_only_uses_first_int	test/test_constraints.py	/^    def test_cnt_commitment_continuity_init_int_only_uses_first_int(self):$/;"	m	class:OtherConstraintTests
+test_cnt_commitment_continuity_initial_interval	test/test_constraints.py	/^    def test_cnt_commitment_continuity_initial_interval(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_num_committed_lt_num_units	test/test_constraints.py	/^    def test_cnt_num_committed_lt_num_units(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_power_gt_minimum_generation	test/test_constraints.py	/^    def test_cnt_power_gt_minimum_generation(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_power_lt_capacity	test/test_constraints.py	/^    def test_cnt_power_lt_capacity(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_power_lt_committed_capacity	test/test_constraints.py	/^    def test_cnt_power_lt_committed_capacity(self):$/;"	m	class:BasicConstraintEquations
+test_cnt_supply_eq_demand	test/test_constraints.py	/^    def test_cnt_supply_eq_demand(self):$/;"	m	class:BasicConstraintEquations
 test_collect_setting_type_boolean	test/test_setup_problem.py	/^    def test_collect_setting_type_boolean(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_float	test/test_setup_problem.py	/^    def test_collect_setting_type_float(self):$/;"	m	class:CollectSettings
 test_collect_setting_type_integer	test/test_setup_problem.py	/^    def test_collect_setting_type_integer(self):$/;"	m	class:CollectSettings
@@ -220,6 +226,10 @@ test_make_results_folders	test/test_setup_problem.py	/^    def test_make_results
 test_make_var_indices	test/test_pyuc.py	/^    def test_make_var_indices(self):$/;"	m	class:testVarMethods
 test_make_var_indices_is_called	test/test_pyuc.py	/^    def test_make_var_indices_is_called(self, make_var_indices_mock):$/;"	m	class:testVarBasic
 test_master_set_fns_not_called	test/test_Set.py	/^    def test_master_set_fns_not_called(self, append_subset_mock, validate_set_mock):$/;"	m	class:TestMasterSetInit
+test_minimum_down_time	test/test_constraints.py	/^    def test_minimum_down_time(self):$/;"	m	class:MinUpAndDownTimes
+test_minimum_up_time	test/test_constraints.py	/^    def test_minimum_up_time(self):$/;"	m	class:MinUpAndDownTimes
+test_num_shut_downs_calculator	test/test_constraints.py	/^    def test_num_shut_downs_calculator(self):$/;"	m	class:OtherFunctions
+test_num_start_ups_calculator	test/test_constraints.py	/^    def test_num_start_ups_calculator(self):$/;"	m	class:OtherFunctions
 test_one_dim_to_df	test/test_pyuc.py	/^    def test_one_dim_to_df(self):$/;"	m	class:testDimToDf
 test_path_does_exist	test/test_utils.py	/^    def test_path_does_exist(self):$/;"	m	class:PathExists
 test_path_does_not_exist	test/test_utils.py	/^    def test_path_does_not_exist(self, path_exists_mock):$/;"	m	class:PathExists
@@ -242,7 +252,7 @@ test_solve_problem_is_called	test/test_pyuc.py	/^    def test_solve_problem_is_c
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf
-test_total_power_in_interval	test/test_constraints.py	/^    def test_total_power_in_interval(self):$/;"	m	class:testOtherFunctions
+test_total_power_in_interval	test/test_constraints.py	/^    def test_total_power_in_interval(self):$/;"	m	class:OtherFunctions
 test_two_dim_to_df	test/test_pyuc.py	/^    def test_two_dim_to_df(self):$/;"	m	class:testDimToDf
 test_unserved_energy_cost_term	test/test_objective_function.py	/^    def test_unserved_energy_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_unserved_energy_cost_term_interval_duration	test/test_objective_function.py	/^    def test_unserved_energy_cost_term_interval_duration(self):$/;"	m	class:testObjectiveFunctionTerms
