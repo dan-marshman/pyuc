@@ -1,0 +1,3 @@
+Unit,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh
+U1,1,100,0.5,10,0.5,5
+U2,2,50,0.5,20,0.5,5
