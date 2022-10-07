@@ -317,13 +317,14 @@ class OtherFunctions(unittest.TestCase):
         self.assertEqual(total_power_in_interval[1].value(), 200+45)
 
     def test_num_start_ups_calculator(self):
-        self.problem['var']['num_starting_up'].var[(0, 'U1')].setInitialValue(0)
-        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(1)
-        self.problem['var']['num_starting_up'].var[(2, 'U1')].setInitialValue(2)
-        self.problem['var']['num_starting_up'].var[(3, 'U1')].setInitialValue(1)
-        self.problem['var']['num_starting_up'].var[(4, 'U1')].setInitialValue(0)
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
 
-        sets, data, var = self.problem['sets'], self.problem['data'], self.problem['var']
+        var['num_starting_up'].var[(0, 'U1')].setInitialValue(0)
+        var['num_starting_up'].var[(1, 'U1')].setInitialValue(1)
+        var['num_starting_up'].var[(2, 'U1')].setInitialValue(2)
+        var['num_starting_up'].var[(3, 'U1')].setInitialValue(1)
+        var['num_starting_up'].var[(4, 'U1')].setInitialValue(0)
 
         num_start_ups_within_up_time = \
             ca.num_start_ups_within_up_time_calculator(sets, data, var)
@@ -342,13 +343,14 @@ class OtherFunctions(unittest.TestCase):
         self.assertEqual(result_keys, expected_keys)
 
     def test_num_shut_downs_calculator(self):
-        self.problem['var']['num_shutting_down'].var[(0, 'U1')].setInitialValue(0)
-        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
-        self.problem['var']['num_shutting_down'].var[(2, 'U1')].setInitialValue(2)
-        self.problem['var']['num_shutting_down'].var[(3, 'U1')].setInitialValue(1)
-        self.problem['var']['num_shutting_down'].var[(4, 'U1')].setInitialValue(0)
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
 
-        sets, data, var = self.problem['sets'], self.problem['data'], self.problem['var']
+        var['num_shutting_down'].var[(0, 'U1')].setInitialValue(0)
+        var['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
+        var['num_shutting_down'].var[(2, 'U1')].setInitialValue(2)
+        var['num_shutting_down'].var[(3, 'U1')].setInitialValue(1)
+        var['num_shutting_down'].var[(4, 'U1')].setInitialValue(0)
 
         num_shut_downs_within_down_time = \
             ca.num_shut_downs_within_down_time_calculator(sets, data, var)
@@ -365,3 +367,47 @@ class OtherFunctions(unittest.TestCase):
         ]
 
         self.assertEqual(result_keys, expected_keys)
+
+    def test_up_ramp_calculator_all_intervals_and_units(self):
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
+        up_ramp = ca.up_ramp_calculator(sets, data, var)
+
+        result_keys = list(up_ramp.keys())
+        expected_keys = [
+            (i, u) for i in sets['intervals'].indices for u in sets['units'].indices
+        ]
+
+        self.assertEqual(sorted(result_keys), sorted(expected_keys))
+
+    def test_up_ramp_calculator_second_interval(self):
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
+
+        var['power_generated'].var[(0, 'U1')].setInitialValue(20)
+        var['power_generated'].var[(1, 'U1')].setInitialValue(45)
+
+        up_ramp = ca.up_ramp_calculator(sets, data, var)
+        self.assertEqual(up_ramp[(1, 'U1')].value(), 45-20)
+
+    def test_down_ramp_calculator_all_intervals_and_units(self):
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
+        down_ramp = ca.down_ramp_calculator(sets, data, var)
+
+        result_keys = list(down_ramp.keys())
+        expected_keys = [
+            (i, u) for i in sets['intervals'].indices for u in sets['units'].indices
+        ]
+
+        self.assertEqual(sorted(result_keys), sorted(expected_keys))
+
+    def test_down_ramp_calculator_second_interval(self):
+        sets, data, var = \
+            self.problem['sets'], self.problem['data'], self.problem['var']
+
+        var['power_generated'].var[(0, 'U1')].setInitialValue(20)
+        var['power_generated'].var[(1, 'U1')].setInitialValue(45)
+
+        down_ramp = ca.down_ramp_calculator(sets, data, var)
+        self.assertEqual(down_ramp[(1, 'U1')].value(), 20-45)

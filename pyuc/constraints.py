@@ -203,6 +203,30 @@ def cnt_minimum_down_time(sets, data, var, constraints=[]):
     return constraints
 
 
+@constraint_adder
+def cnt_ramp_rate_up(sets, data, var, constraints=[]):
+    constraints = {}  # No idea why this is needed
+
+    up_ramp_MW = up_ramp_calculator(sets, data, var)
+    start_up_ramp_capacity_MW = start_up_ramp_capacity_calculator(sets, data, var)
+    online_ramp_capacity_MW = online_ramp_capacity_calculator(sets, data, var)
+
+    for i in sets['intervals'].indices:
+
+        for u in sets['units_commit'].indices:
+            label = 'ramp_rate_up_(i=%s, u_%d)' % (i, u)
+
+            condition = \
+                up_ramp_MW \
+                <= \
+                var['num_committed'].var[(i, u)] * online_ramp_capacity_MW[u] \
+                + var['num_starting_up'].var[(i, u)] * start_up_ramp_capacity_MW[u]
+
+            constraints[label] = condition
+
+    return constraints
+
+
 def num_start_ups_within_up_time_calculator(sets, data, var):
     """
     Return a dictionary that sums the start up events within a units minimum up time (counting
@@ -269,3 +293,98 @@ def total_power_in_interval(sets, power_generated):
     power_generated = power_generated.var
 
     return {i: pp.lpSum([power_generated[(i, u)] for u in units]) for i in intervals}
+
+
+def up_ramp_calculator(sets, data, var):
+    """
+    Return a dictionary of the up ramp rate (positive difference in power output) for each unit and
+    interval.  For the first interval, the ramp is relative to the initial state power
+    generation.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    :param var dict: var dictionary
+    """
+
+    up_ramp_MW = dict()
+    first_interval = sets['intervals'].indices[0]
+
+    for u in sets['units'].indices:
+        up_ramp_MW[(first_interval, u)] = \
+            0
+            # var['power_generated'].var[(first_interval, u)] \
+            # - data['initial_state']['PowerGeneration_MW'][u]
+
+        for i in sets['intervals'].indices[1:]:
+            up_ramp_MW[(i, u)] = \
+                var['power_generated'].var[(i, u)] \
+                - var['power_generated'].var[(i-1, u)]
+
+    return up_ramp_MW
+
+
+def down_ramp_calculator(sets, data, var):
+    """
+    Return a dictionary of the down ramp rate (negative difference in power output) for each unit
+    and interval.  For the first interval, the ramp is relative to the initial state power
+    generation.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    :param var dict: var dictionary
+    """
+
+    down_ramp_MW = dict()
+    first_interval = sets['intervals'].indices[0]
+
+    for u in sets['units'].indices:
+        down_ramp_MW[(first_interval, u)] = \
+            0
+            # data['initial_state']['PowerGeneration_MW'][u] \
+            # - var['power_generated'].var[(first_interval, u)]
+
+        for i in sets['intervals'].indices[1:]:
+            down_ramp_MW[(i, u)] = \
+                var['power_generated'].var[(i-1, u)] \
+                - var['power_generated'].var[(i, u)]
+
+    return down_ramp_MW
+
+
+def start_up_ramp_capacity_calculator(sets, data, var):
+    start_up_ramp_capacity_MW = dict()
+
+    for u in sets['units'].indices:
+        start_up_ramp_capacity_MW = \
+            max(
+                data['units']['RampRate_pctCapphr'][u],
+                data['units']['MinGen_pctCap'][u]
+            ) \
+            * data['units']['Capacity_MW'][u]
+
+    return start_up_ramp_capacity_MW
+
+
+def shut_down_ramp_capacity_calculator(sets, data, var):
+    shut_down_ramp_capacity_MW = dict()
+
+    for u in sets['units'].indices:
+        shut_down_ramp_capacity_MW = \
+            max(
+                data['units']['RampRate_pctCapphr'][u],
+                data['units']['MinGen_pctCap'][u]
+            ) \
+            * data['units']['Capacity_MW'][u]
+
+    return shut_down_ramp_capacity_MW
+
+
+def online_ramp_capacity_calculator(sets, data, var):
+    online_ramp_capacity_MW = dict()
+
+    for u in sets['units'].indices:
+        online_ramp_capacity_MW = \
+            data['units']['RampRate_pctCapphr'][u] \
+            * data['units']['Capacity_MW'][u]
+
+    return online_ramp_capacity_MW

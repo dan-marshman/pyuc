@@ -56,6 +56,7 @@ cnt_num_committed_lt_num_units	pyuc/constraints.py	/^def cnt_num_committed_lt_nu
 cnt_power_gt_minimum_generation	pyuc/constraints.py	/^def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):$/;"	f
 cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data, var, constraints=[]):$/;"	f
 cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):$/;"	f
+cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints=[]):$/;"	f
 cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints=[]):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
 collect_setting_type_float	pyuc/setup_problem.py	/^def collect_setting_type_float(value):$/;"	f
@@ -69,6 +70,7 @@ create_combination_sets	pyuc/load_data.py	/^def create_combination_sets(sets):$/
 create_sets	pyuc/load_data.py	/^def create_sets(data):$/;"	f
 create_single_sets	pyuc/load_data.py	/^def create_single_sets(data):$/;"	f
 create_variables	pyuc/pyuc.py	/^def create_variables(sets):$/;"	f
+down_ramp_calculator	pyuc/constraints.py	/^def down_ramp_calculator(sets, data, var):$/;"	f
 extractor_wrapper	pyuc/constraints.py	/^    def extractor_wrapper(problem):$/;"	f	function:constraint_adder	file:
 extractor_wrapper	pyuc/objective_function.py	/^    def extractor_wrapper(problem):$/;"	f	function:objective_adder	file:
 four_dim_to_df	pyuc/pyuc.py	/^    def four_dim_to_df(self):$/;"	m	class:Var
@@ -97,6 +99,7 @@ num_start_ups_within_up_time_calculator	pyuc/constraints.py	/^def num_start_ups_
 objective_adder	pyuc/objective_function.py	/^def objective_adder(objective_term_func):$/;"	f
 of	test/test_objective_function.py	/^from pyuc import objective_function as of$/;"	x	nameref:unknown:objective_function
 one_dim_to_df	pyuc/pyuc.py	/^    def one_dim_to_df(self):$/;"	m	class:Var
+online_ramp_capacity_calculator	pyuc/constraints.py	/^def online_ramp_capacity_calculator(sets, data, var):$/;"	f
 pd	pyuc/constraint_adder.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/load_data.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/pyuc.py	/^import pandas as pd$/;"	I	nameref:module:pandas
@@ -147,8 +150,10 @@ setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:LoadSettings
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:SetUpProblem
 setUp	test/test_utils.py	/^    def setUp(self):$/;"	m	class:PathExists
 setup_problem	pyuc/setup_problem.py	/^def setup_problem(name, input_data_path, output_data_path):$/;"	f
+shut_down_ramp_capacity_calculator	pyuc/constraints.py	/^def shut_down_ramp_capacity_calculator(sets, data, var):$/;"	f
 solve_problem	pyuc/pyuc.py	/^def solve_problem(problem):$/;"	f
 sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:setup_problem
+start_up_ramp_capacity_calculator	pyuc/constraints.py	/^def start_up_ramp_capacity_calculator(sets, data, var):$/;"	f
 tearDown	test/test_load_data.py	/^    def tearDown(self):$/;"	m	class:LoadData
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
 testBasicProblems	test/test_optimisation_results.py	/^class testBasicProblems(unittest.TestCase):$/;"	c
@@ -198,6 +203,8 @@ test_df_clean_up_dtype_binary	test/test_pyuc.py	/^    def test_df_clean_up_dtype
 test_df_clean_up_dtype_continuous	test/test_pyuc.py	/^    def test_df_clean_up_dtype_continuous(self):$/;"	m	class:testVarMethods
 test_df_clean_up_dtype_integer	test/test_pyuc.py	/^    def test_df_clean_up_dtype_integer(self):$/;"	m	class:testVarMethods
 test_df_clean_up_name	test/test_pyuc.py	/^    def test_df_clean_up_name(self):$/;"	m	class:testVarMethods
+test_down_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_down_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
+test_down_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_down_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
 test_each_fn_is_called	test/test_setup_problem.py	/^    def test_each_fn_is_called(self,$/;"	m	class:SetUpProblem
 test_four_dim_to_df	test/test_pyuc.py	/^    def test_four_dim_to_df(self):$/;"	m	class:testDimToDf
 test_fuel_cost_term	test/test_objective_function.py	/^    def test_fuel_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
@@ -256,6 +263,8 @@ test_total_power_in_interval	test/test_constraints.py	/^    def test_total_power
 test_two_dim_to_df	test/test_pyuc.py	/^    def test_two_dim_to_df(self):$/;"	m	class:testDimToDf
 test_unserved_energy_cost_term	test/test_objective_function.py	/^    def test_unserved_energy_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_unserved_energy_cost_term_interval_duration	test/test_objective_function.py	/^    def test_unserved_energy_cost_term_interval_duration(self):$/;"	m	class:testObjectiveFunctionTerms
+test_up_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_up_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
+test_up_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_up_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
 test_validate_set_is_called	test/test_Set.py	/^    def test_validate_set_is_called(self, validate_set_mock):$/;"	m	class:TestSubSetInit
 test_var_init_indices	test/test_pyuc.py	/^    def test_var_init_indices(self):$/;"	m	class:testVarBasic
 test_var_init_name	test/test_pyuc.py	/^    def test_var_init_name(self):$/;"	m	class:testVarBasic
@@ -275,5 +284,6 @@ to_df_fn_chooser	pyuc/pyuc.py	/^    def to_df_fn_chooser(self):$/;"	m	class:Var
 total_power_in_interval	pyuc/constraints.py	/^def total_power_in_interval(sets, power_generated):$/;"	f
 two_dim_to_df	pyuc/pyuc.py	/^    def two_dim_to_df(self):$/;"	m	class:Var
 unserved_energy_cost_term	pyuc/objective_function.py	/^def unserved_energy_cost_term(sets, data, var):$/;"	f
+up_ramp_calculator	pyuc/constraints.py	/^def up_ramp_calculator(sets, data, var):$/;"	f
 validate_set	pyuc/pyuc.py	/^    def validate_set(self, master_set):$/;"	m	class:Set
 vom_cost_term	pyuc/objective_function.py	/^def vom_cost_term(sets, data, var):$/;"	f
