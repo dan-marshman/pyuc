@@ -22,6 +22,7 @@ OtherConstraintTests	test/test_constraints.py	/^class OtherConstraintTests(unitt
 OtherFunctions	test/test_constraints.py	/^class OtherFunctions(unittest.TestCase):$/;"	c
 PathExists	test/test_utils.py	/^class PathExists(unittest.TestCase):$/;"	c
 Paths	test/test_setup_problem.py	/^class Paths(unittest.TestCase):$/;"	c
+RampRates	test/test_constraints.py	/^class RampRates(unittest.TestCase):$/;"	c
 ReadSettings	test/test_setup_problem.py	/^class ReadSettings(unittest.TestCase):$/;"	c
 RunOptProblem	test/test_pyuc.py	/^class RunOptProblem(unittest.TestCase):$/;"	c
 Set	pyuc/pyuc.py	/^class Set():$/;"	c
@@ -56,6 +57,7 @@ cnt_num_committed_lt_num_units	pyuc/constraints.py	/^def cnt_num_committed_lt_nu
 cnt_power_gt_minimum_generation	pyuc/constraints.py	/^def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):$/;"	f
 cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data, var, constraints=[]):$/;"	f
 cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):$/;"	f
+cnt_ramp_rate_down	pyuc/constraints.py	/^def cnt_ramp_rate_down(sets, data, var, constraints=[]):$/;"	f
 cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints=[]):$/;"	f
 cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints=[]):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
@@ -94,12 +96,13 @@ make_pulp_problem	pyuc/setup_problem.py	/^def make_pulp_problem(name):$/;"	f
 make_pulp_variable	pyuc/pyuc.py	/^    def make_pulp_variable(self):$/;"	m	class:Var
 make_results_folders	pyuc/setup_problem.py	/^def make_results_folders(paths):$/;"	f
 make_var_indices	pyuc/pyuc.py	/^    def make_var_indices(self):$/;"	m	class:Var
+minimum_generation_calculator	pyuc/constraints.py	/^def minimum_generation_calculator(sets, data):$/;"	f
 num_shut_downs_within_down_time_calculator	pyuc/constraints.py	/^def num_shut_downs_within_down_time_calculator(sets, data, var):$/;"	f
 num_start_ups_within_up_time_calculator	pyuc/constraints.py	/^def num_start_ups_within_up_time_calculator(sets, data, var):$/;"	f
 objective_adder	pyuc/objective_function.py	/^def objective_adder(objective_term_func):$/;"	f
 of	test/test_objective_function.py	/^from pyuc import objective_function as of$/;"	x	nameref:unknown:objective_function
 one_dim_to_df	pyuc/pyuc.py	/^    def one_dim_to_df(self):$/;"	m	class:Var
-online_ramp_capacity_calculator	pyuc/constraints.py	/^def online_ramp_capacity_calculator(sets, data, var):$/;"	f
+online_ramp_capacity_calculator	pyuc/constraints.py	/^def online_ramp_capacity_calculator(sets, data):$/;"	f
 pd	pyuc/constraint_adder.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/load_data.py	/^import pandas as pd$/;"	I	nameref:module:pandas
 pd	pyuc/pyuc.py	/^import pandas as pd$/;"	I	nameref:module:pandas
@@ -132,6 +135,7 @@ setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:BasicConstrain
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:MinUpAndDownTimes
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherConstraintTests
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherFunctions
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:RampRates
 setUp	test/test_create_variables.py	/^    def setUp(self):$/;"	m	class:makeVariables
 setUp	test/test_integration.py	/^    def setUp(self):$/;"	m	class:Integration
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadData
@@ -150,10 +154,10 @@ setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:LoadSettings
 setUp	test/test_setup_problem.py	/^    def setUp(self):$/;"	m	class:SetUpProblem
 setUp	test/test_utils.py	/^    def setUp(self):$/;"	m	class:PathExists
 setup_problem	pyuc/setup_problem.py	/^def setup_problem(name, input_data_path, output_data_path):$/;"	f
-shut_down_ramp_capacity_calculator	pyuc/constraints.py	/^def shut_down_ramp_capacity_calculator(sets, data, var):$/;"	f
+shut_down_ramp_capacity_calculator	pyuc/constraints.py	/^def shut_down_ramp_capacity_calculator(sets, data):$/;"	f
 solve_problem	pyuc/pyuc.py	/^def solve_problem(problem):$/;"	f
 sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:setup_problem
-start_up_ramp_capacity_calculator	pyuc/constraints.py	/^def start_up_ramp_capacity_calculator(sets, data, var):$/;"	f
+start_up_ramp_capacity_calculator	pyuc/constraints.py	/^def start_up_ramp_capacity_calculator(sets, data):$/;"	f
 tearDown	test/test_load_data.py	/^    def tearDown(self):$/;"	m	class:LoadData
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
 testBasicProblems	test/test_optimisation_results.py	/^class testBasicProblems(unittest.TestCase):$/;"	c
@@ -234,15 +238,21 @@ test_make_var_indices	test/test_pyuc.py	/^    def test_make_var_indices(self):$/
 test_make_var_indices_is_called	test/test_pyuc.py	/^    def test_make_var_indices_is_called(self, make_var_indices_mock):$/;"	m	class:testVarBasic
 test_master_set_fns_not_called	test/test_Set.py	/^    def test_master_set_fns_not_called(self, append_subset_mock, validate_set_mock):$/;"	m	class:TestMasterSetInit
 test_minimum_down_time	test/test_constraints.py	/^    def test_minimum_down_time(self):$/;"	m	class:MinUpAndDownTimes
+test_minimum_generation_calculator	test/test_constraints.py	/^    def test_minimum_generation_calculator(self):$/;"	m	class:OtherFunctions
 test_minimum_up_time	test/test_constraints.py	/^    def test_minimum_up_time(self):$/;"	m	class:MinUpAndDownTimes
 test_num_shut_downs_calculator	test/test_constraints.py	/^    def test_num_shut_downs_calculator(self):$/;"	m	class:OtherFunctions
 test_num_start_ups_calculator	test/test_constraints.py	/^    def test_num_start_ups_calculator(self):$/;"	m	class:OtherFunctions
 test_one_dim_to_df	test/test_pyuc.py	/^    def test_one_dim_to_df(self):$/;"	m	class:testDimToDf
+test_online_ramp_calculator	test/test_constraints.py	/^    def test_online_ramp_calculator(self):$/;"	m	class:OtherFunctions
 test_path_does_exist	test/test_utils.py	/^    def test_path_does_exist(self):$/;"	m	class:PathExists
 test_path_does_not_exist	test/test_utils.py	/^    def test_path_does_not_exist(self, path_exists_mock):$/;"	m	class:PathExists
 test_print_solution	test/test_pyuc.py	/^    def test_print_solution(self, print_mock):$/;"	m	class:testSolve
 test_problem1	test/test_optimisation_results.py	/^    def test_problem1(self, constraint_selector_mock):$/;"	m	class:testBasicProblems
 test_problem_files_made	test/test_integration.py	/^    def test_problem_files_made(self):$/;"	m	class:Integration
+test_ramp_rate_down	test/test_constraints.py	/^    def test_ramp_rate_down(self):$/;"	m	class:RampRates
+test_ramp_rate_up_committed_only	test/test_constraints.py	/^    def test_ramp_rate_up_committed_only(self):$/;"	m	class:RampRates
+test_ramp_rate_up_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_up_shutting_down(self):$/;"	m	class:RampRates
+test_ramp_rate_up_starting_up	test/test_constraints.py	/^    def test_ramp_rate_up_starting_up(self):$/;"	m	class:RampRates
 test_read_settings	test/test_setup_problem.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_bool	test/test_setup_problem.py	/^    def test_read_settings_call_collect_bool(self, collect_bool_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_float	test/test_setup_problem.py	/^    def test_read_settings_call_collect_float(self, collect_float_mock, open_mock):$/;"	m	class:ReadSettings
@@ -254,8 +264,10 @@ test_set___repr__	test/test_Set.py	/^    def test_set___repr__(self):$/;"	m	clas
 test_set___str__	test/test_Set.py	/^    def test_set___str__(self):$/;"	m	class:TestMasterSetInit
 test_setup_problem	test/test_setup_problem.py	/^    def test_setup_problem(self):$/;"	m	class:SetUpProblem
 test_setup_problem_is_called	test/test_pyuc.py	/^    def test_setup_problem_is_called(self,$/;"	m	class:RunOptProblem
+test_shut_down_ramp_capacity_calculator	test/test_constraints.py	/^    def test_shut_down_ramp_capacity_calculator(self):$/;"	m	class:OtherFunctions
 test_solve_problem	test/test_pyuc.py	/^    def test_solve_problem(self, solve_mock):$/;"	m	class:testSolve
 test_solve_problem_is_called	test/test_pyuc.py	/^    def test_solve_problem_is_called(self,$/;"	m	class:RunOptProblem
+test_start_up_ramp_capacity_calculator	test/test_constraints.py	/^    def test_start_up_ramp_capacity_calculator(self):$/;"	m	class:OtherFunctions
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf

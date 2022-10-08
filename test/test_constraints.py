@@ -239,6 +239,74 @@ class MinUpAndDownTimes(unittest.TestCase):
         )
 
 
+class RampRates(unittest.TestCase):
+    def setUp(self):
+        unit_data = pd.DataFrame(data={
+            'Unit': ['U1'],
+            'NumUnits': [10],
+            'CapacityMW': [100],
+            'RampRate_pctCapphr': [0.2],
+            'MinimumGenerationFrac': [0.6],
+        }).set_index('Unit')
+
+        units = pyuc.Set('units', list(unit_data.index))
+        intervals = pyuc.Set('intervals', list(range(2)))
+
+        self.problem = {
+            'data': {'units': unit_data},
+            'problem': pp.LpProblem(name='MY_PROB', sense=pp.LpMinimize),
+            'sets': {'units': units, 'intervals': intervals},
+            'paths': None
+        }
+        self.problem['var'] = pyuc.create_variables(self.problem['sets'])
+
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(3)
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(5)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(400)
+
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(150)
+
+    def test_ramp_rate_up_committed_only(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(140)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(180)
+
+        constraints = ca.cnt_ramp_rate_up(self.problem)
+        self.assertEqual(constraints['ramp_rate_up_(i=1, u=U1)'].value(), 0)
+
+    def test_ramp_rate_up_starting_up(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(60)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(140)
+
+        constraints = ca.cnt_ramp_rate_up(self.problem)
+        self.assertEqual(constraints['ramp_rate_up_(i=1, u=U1)'].value(), 0)
+
+    def test_ramp_rate_up_shutting_down(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(120)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(80)
+
+        constraints = ca.cnt_ramp_rate_up(self.problem)
+        self.assertEqual(constraints['ramp_rate_up_(i=1, u=U1)'].value(), 0)
+
+    def test_ramp_rate_down(self):
+        problem = self.problem
+
+        # expected_lower_power = 400 - (5*0.5*100) - (3*0.6*100)
+        # problem['var']['power_generated'].var[(1, 'U1')].setInitialValue( expected_upper_power)
+
+        constraints = ca.cnt_ramp_rate_down(problem)
+
+
 class OtherConstraintTests(unittest.TestCase):
     def setUp(self):
         demand = pd.DataFrame(data={'Demand': [200, 300, 400]})
@@ -286,8 +354,11 @@ class OtherFunctions(unittest.TestCase):
     def setUp(self):
         unit_data = pd.DataFrame(data={
             'Unit': ['U1', 'U2'],
+            'CapacityMW': [100, 80],
             'MinimumUpTimeHrs': [3, 2],
-            'MinimumDownTimeHrs': [2, 2]
+            'MinimumDownTimeHrs': [2, 2],
+            'RampRate_pctCapphr': [0.5, 0.4],
+            'MinimumGenerationFrac': [0.6, 0.3]
         }).set_index('Unit')
 
         units = pyuc.Set('units', list(unit_data.index))
@@ -411,3 +482,30 @@ class OtherFunctions(unittest.TestCase):
 
         down_ramp = ca.down_ramp_calculator(sets, data, var)
         self.assertEqual(down_ramp[(1, 'U1')].value(), 20-45)
+
+    def test_online_ramp_calculator(self):
+        sets, data = self.problem['sets'], self.problem['data']
+        online_ramp_capacityMW = ca.online_ramp_capacity_calculator(sets, data)
+
+        self.assertEqual(online_ramp_capacityMW['U1'], 0.5*100)
+        self.assertEqual(online_ramp_capacityMW['U2'], 0.4*80)
+
+    def test_start_up_ramp_capacity_calculator(self):
+        sets, data = self.problem['sets'], self.problem['data']
+        start_up_ramp_capacityMW = ca.start_up_ramp_capacity_calculator(sets, data)
+
+        self.assertEqual(start_up_ramp_capacityMW['U1'], 0.6*100)
+        self.assertEqual(start_up_ramp_capacityMW['U2'], 0.4*80)
+
+    def test_shut_down_ramp_capacity_calculator(self):
+        sets, data = self.problem['sets'], self.problem['data']
+        shut_down_ramp_capacityMW = ca.shut_down_ramp_capacity_calculator(sets, data)
+
+        self.assertEqual(shut_down_ramp_capacityMW['U1'], 0.6*100)
+        self.assertEqual(shut_down_ramp_capacityMW['U2'], 0.4*80)
+
+    def test_minimum_generation_calculator(self):
+        sets, data = self.problem['sets'], self.problem['data']
+        minimum_generationMW = ca.minimum_generation_calculator(sets, data)
+
+        self.assertEqual(minimum_generationMW['U1'], 0.6*100)

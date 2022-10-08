@@ -207,20 +207,47 @@ def cnt_minimum_down_time(sets, data, var, constraints=[]):
 def cnt_ramp_rate_up(sets, data, var, constraints=[]):
     constraints = {}  # No idea why this is needed
 
-    up_ramp_MW = up_ramp_calculator(sets, data, var)
-    start_up_ramp_capacity_MW = start_up_ramp_capacity_calculator(sets, data, var)
-    online_ramp_capacity_MW = online_ramp_capacity_calculator(sets, data, var)
+    up_rampMW = up_ramp_calculator(sets, data, var)
+    start_up_ramp_capacityMW = start_up_ramp_capacity_calculator(sets, data)
+    online_ramp_capacityMW = online_ramp_capacity_calculator(sets, data)
+    minimum_generationMW = minimum_generation_calculator(sets, data)
 
     for i in sets['intervals'].indices:
 
-        for u in sets['units_commit'].indices:
-            label = 'ramp_rate_up_(i=%s, u_%d)' % (i, u)
+        for u in sets['units'].indices:
+            label = 'ramp_rate_up_(i=%d, u=%s)' % (i, u)
 
             condition = \
-                up_ramp_MW \
+                up_rampMW[(i, u)] \
                 <= \
-                var['num_committed'].var[(i, u)] * online_ramp_capacity_MW[u] \
-                + var['num_starting_up'].var[(i, u)] * start_up_ramp_capacity_MW[u]
+                (var['num_committed'].var[(i, u)] - var['num_starting_up'].var[(i, u)]) \
+                * online_ramp_capacityMW[u] \
+                + var['num_starting_up'].var[(i, u)] * start_up_ramp_capacityMW[u] \
+                - var['num_shutting_down'].var[(i, u)] * minimum_generationMW[u]
+
+            constraints[label] = condition
+
+    return constraints
+
+
+@constraint_adder
+def cnt_ramp_rate_down(sets, data, var, constraints=[]):
+    constraints = {}  # No idea why this is needed
+
+    down_rampMW = down_ramp_calculator(sets, data, var)
+    shut_down_ramp_capacityMW = shut_down_ramp_capacity_calculator(sets, data)
+    online_ramp_capacityMW = online_ramp_capacity_calculator(sets, data)
+
+    for i in sets['intervals'].indices:
+
+        for u in sets['units'].indices:
+            label = 'ramp_rate_down_(i=%d, u=%s)' % (i, u)
+
+            condition = \
+                down_rampMW \
+                <= \
+                var['num_committed'].var[(i, u)] * online_ramp_capacityMW[u] \
+                + var['num_shutting_down'].var[(i, u)] * shut_down_ramp_capacityMW[u]
 
             constraints[label] = condition
 
@@ -306,21 +333,21 @@ def up_ramp_calculator(sets, data, var):
     :param var dict: var dictionary
     """
 
-    up_ramp_MW = dict()
+    up_rampMW = dict()
     first_interval = sets['intervals'].indices[0]
 
     for u in sets['units'].indices:
-        up_ramp_MW[(first_interval, u)] = \
+        up_rampMW[(first_interval, u)] = \
             0
             # var['power_generated'].var[(first_interval, u)] \
-            # - data['initial_state']['PowerGeneration_MW'][u]
+            # - data['initial_state']['PowerGenerationMW'][u]
 
         for i in sets['intervals'].indices[1:]:
-            up_ramp_MW[(i, u)] = \
+            up_rampMW[(i, u)] = \
                 var['power_generated'].var[(i, u)] \
                 - var['power_generated'].var[(i-1, u)]
 
-    return up_ramp_MW
+    return up_rampMW
 
 
 def down_ramp_calculator(sets, data, var):
@@ -334,57 +361,97 @@ def down_ramp_calculator(sets, data, var):
     :param var dict: var dictionary
     """
 
-    down_ramp_MW = dict()
+    down_rampMW = dict()
     first_interval = sets['intervals'].indices[0]
 
     for u in sets['units'].indices:
-        down_ramp_MW[(first_interval, u)] = \
+        down_rampMW[(first_interval, u)] = \
             0
-            # data['initial_state']['PowerGeneration_MW'][u] \
+            # data['initial_state']['PowerGenerationMW'][u] \
             # - var['power_generated'].var[(first_interval, u)]
 
         for i in sets['intervals'].indices[1:]:
-            down_ramp_MW[(i, u)] = \
+            down_rampMW[(i, u)] = \
                 var['power_generated'].var[(i-1, u)] \
                 - var['power_generated'].var[(i, u)]
 
-    return down_ramp_MW
+    return down_rampMW
 
 
-def start_up_ramp_capacity_calculator(sets, data, var):
-    start_up_ramp_capacity_MW = dict()
+def start_up_ramp_capacity_calculator(sets, data):
+    """
+    Return a dictionary of the start up ramp rate in MW per unit that has just started up.
+    Calcuclated as the product of the ramp rate per capacity, and the capacity,
+    but must be greater than to the minimum generation.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    """
+    start_up_ramp_capacityMW = dict()
 
     for u in sets['units'].indices:
-        start_up_ramp_capacity_MW = \
+        start_up_ramp_capacityMW[u] = \
             max(
                 data['units']['RampRate_pctCapphr'][u],
-                data['units']['MinGen_pctCap'][u]
+                data['units']['MinimumGenerationFrac'][u]
             ) \
-            * data['units']['Capacity_MW'][u]
+            * data['units']['CapacityMW'][u]
 
-    return start_up_ramp_capacity_MW
+    return start_up_ramp_capacityMW
 
 
-def shut_down_ramp_capacity_calculator(sets, data, var):
-    shut_down_ramp_capacity_MW = dict()
+def shut_down_ramp_capacity_calculator(sets, data):
+    """
+    Return a dictionary of the shut down ramp rate in MW per unit that has just started up.
+    Calcuclated as the product of the ramp rate per capacity, and the capacity,
+    but must be greater than to the minimum generation.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    """
+
+    shut_down_ramp_capacityMW = dict()
 
     for u in sets['units'].indices:
-        shut_down_ramp_capacity_MW = \
+        shut_down_ramp_capacityMW[u] = \
             max(
                 data['units']['RampRate_pctCapphr'][u],
-                data['units']['MinGen_pctCap'][u]
+                data['units']['MinimumGenerationFrac'][u]
             ) \
-            * data['units']['Capacity_MW'][u]
+            * data['units']['CapacityMW'][u]
 
-    return shut_down_ramp_capacity_MW
+    return shut_down_ramp_capacityMW
 
 
-def online_ramp_capacity_calculator(sets, data, var):
-    online_ramp_capacity_MW = dict()
+def online_ramp_capacity_calculator(sets, data):
+    """
+    Return a dictionary of the ramp rate in MW per unit that is online.  Calcuclated as the
+    product of the ramp rate per capacity, and the capacity.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    """
+
+    online_ramp_capacityMW = dict()
 
     for u in sets['units'].indices:
-        online_ramp_capacity_MW = \
+        online_ramp_capacityMW[u] = \
             data['units']['RampRate_pctCapphr'][u] \
-            * data['units']['Capacity_MW'][u]
+            * data['units']['CapacityMW'][u]
 
-    return online_ramp_capacity_MW
+    return online_ramp_capacityMW
+
+
+def minimum_generation_calculator(sets, data):
+    """
+    Return a dictionary of the minimum generation in MW.  Calcuclated as the product of the
+    minimum generation fraction, and the capacity.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    """
+
+    return {
+        u: data['units']['MinimumGenerationFrac'][u] * data['units']['CapacityMW'][u]
+        for u in sets['units'].indices
+    }
