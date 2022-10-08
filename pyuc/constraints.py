@@ -237,6 +237,7 @@ def cnt_ramp_rate_down(sets, data, var, constraints=[]):
     down_rampMW = down_ramp_calculator(sets, data, var)
     shut_down_ramp_capacityMW = shut_down_ramp_capacity_calculator(sets, data)
     online_ramp_capacityMW = online_ramp_capacity_calculator(sets, data)
+    minimum_generationMW = minimum_generation_calculator(sets, data)
 
     for i in sets['intervals'].indices:
 
@@ -244,10 +245,12 @@ def cnt_ramp_rate_down(sets, data, var, constraints=[]):
             label = 'ramp_rate_down_(i=%d, u=%s)' % (i, u)
 
             condition = \
-                down_rampMW \
+                down_rampMW[(i, u)] \
                 <= \
-                var['num_committed'].var[(i, u)] * online_ramp_capacityMW[u] \
-                + var['num_shutting_down'].var[(i, u)] * shut_down_ramp_capacityMW[u]
+                (var['num_committed'].var[(i, u)] - var['num_starting_up'].var[(i, u)]) \
+                * online_ramp_capacityMW[u] \
+                + var['num_shutting_down'].var[(i, u)] * shut_down_ramp_capacityMW[u] \
+                - var['num_starting_up'].var[(i, u)] * minimum_generationMW[u]
 
             constraints[label] = condition
 

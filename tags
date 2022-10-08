@@ -249,7 +249,9 @@ test_path_does_not_exist	test/test_utils.py	/^    def test_path_does_not_exist(s
 test_print_solution	test/test_pyuc.py	/^    def test_print_solution(self, print_mock):$/;"	m	class:testSolve
 test_problem1	test/test_optimisation_results.py	/^    def test_problem1(self, constraint_selector_mock):$/;"	m	class:testBasicProblems
 test_problem_files_made	test/test_integration.py	/^    def test_problem_files_made(self):$/;"	m	class:Integration
-test_ramp_rate_down	test/test_constraints.py	/^    def test_ramp_rate_down(self):$/;"	m	class:RampRates
+test_ramp_rate_down_committed_only	test/test_constraints.py	/^    def test_ramp_rate_down_committed_only(self):$/;"	m	class:RampRates
+test_ramp_rate_down_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_down_shutting_down(self):$/;"	m	class:RampRates
+test_ramp_rate_down_starting_up	test/test_constraints.py	/^    def test_ramp_rate_down_starting_up(self):$/;"	m	class:RampRates
 test_ramp_rate_up_committed_only	test/test_constraints.py	/^    def test_ramp_rate_up_committed_only(self):$/;"	m	class:RampRates
 test_ramp_rate_up_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_up_shutting_down(self):$/;"	m	class:RampRates
 test_ramp_rate_up_starting_up	test/test_constraints.py	/^    def test_ramp_rate_up_starting_up(self):$/;"	m	class:RampRates

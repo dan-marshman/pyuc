@@ -260,14 +260,6 @@ class RampRates(unittest.TestCase):
         }
         self.problem['var'] = pyuc.create_variables(self.problem['sets'])
 
-        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(3)
-        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(5)
-        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(400)
-
-        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
-        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
-        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(150)
-
     def test_ramp_rate_up_committed_only(self):
         self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
         self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(0)
@@ -298,13 +290,35 @@ class RampRates(unittest.TestCase):
         constraints = ca.cnt_ramp_rate_up(self.problem)
         self.assertEqual(constraints['ramp_rate_up_(i=1, u=U1)'].value(), 0)
 
-    def test_ramp_rate_down(self):
-        problem = self.problem
+    def test_ramp_rate_down_committed_only(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(180)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(140)
 
-        # expected_lower_power = 400 - (5*0.5*100) - (3*0.6*100)
-        # problem['var']['power_generated'].var[(1, 'U1')].setInitialValue( expected_upper_power)
+        constraints = ca.cnt_ramp_rate_down(self.problem)
+        self.assertEqual(constraints['ramp_rate_down_(i=1, u=U1)'].value(), 0)
 
-        constraints = ca.cnt_ramp_rate_down(problem)
+    def test_ramp_rate_down_starting_up(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(2)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(140)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(180)
+
+        constraints = ca.cnt_ramp_rate_down(self.problem)
+        self.assertEqual(constraints['ramp_rate_down_(i=1, u=U1)'].value(), 0)
+
+    def test_ramp_rate_down_shutting_down(self):
+        self.problem['var']['num_committed'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['num_starting_up'].var[(1, 'U1')].setInitialValue(0)
+        self.problem['var']['num_shutting_down'].var[(1, 'U1')].setInitialValue(1)
+        self.problem['var']['power_generated'].var[(0, 'U1')].setInitialValue(120)
+        self.problem['var']['power_generated'].var[(1, 'U1')].setInitialValue(40)
+
+        constraints = ca.cnt_ramp_rate_down(self.problem)
+        self.assertEqual(constraints['ramp_rate_down_(i=1, u=U1)'].value(), 0)
 
 
 class OtherConstraintTests(unittest.TestCase):
