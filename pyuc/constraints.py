@@ -77,7 +77,7 @@ def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):
     constraints = {}  # No idea why this is needed
 
     for i in sets['intervals'].indices:
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'power_gt_minimum_generation_(i=%d, u=%s)' % (i, u)
 
             condition = (
@@ -98,7 +98,7 @@ def cnt_num_committed_lt_num_units(sets, data, var, constraints=[]):
     constraints = {}  # No idea why this is needed
 
     for i in sets['intervals'].indices:
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'num_committed_lt_num_units(i=%d, u=%s)' % (i, u)
 
             condition = (
@@ -117,7 +117,7 @@ def cnt_commitment_continuity(sets, data, var, constraints=[]):
     constraints = {}  # No idea why this is needed
 
     for i in sets['intervals'].indices[1:]:
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'commitment_continuity(i=%d, u=%s)' % (i, u)
 
             condition = (
@@ -140,7 +140,7 @@ def cnt_commitment_continuity_initial_interval(sets, data, var, constraints=[]):
     i = sets['intervals'].indices[0]
     initial_units_on = 0
 
-    for u in sets['units'].indices:
+    for u in sets['units_commit'].indices:
         label = 'commitment_continuity(i=%d, u=%s)' % (i, u)
 
         condition = (
@@ -165,7 +165,7 @@ def cnt_minimum_up_time(sets, data, var, constraints=[]):
 
     for i in sets['intervals'].indices:
 
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'minimum_up_time(i=%d, u=%s)' % (i, u)
 
             condition = (
@@ -188,7 +188,7 @@ def cnt_minimum_down_time(sets, data, var, constraints=[]):
 
     for i in sets['intervals'].indices:
 
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'minimum_down_time(i=%d, u=%s)' % (i, u)
 
             condition = (
@@ -214,7 +214,7 @@ def cnt_ramp_rate_up(sets, data, var, constraints=[]):
 
     for i in sets['intervals'].indices:
 
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'ramp_rate_up_(i=%d, u=%s)' % (i, u)
 
             condition = \
@@ -241,7 +241,7 @@ def cnt_ramp_rate_down(sets, data, var, constraints=[]):
 
     for i in sets['intervals'].indices:
 
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'ramp_rate_down_(i=%d, u=%s)' % (i, u)
 
             condition = \
