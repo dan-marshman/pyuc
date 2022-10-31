@@ -22,7 +22,9 @@ class testBasicProblems(unittest.TestCase):
         }).set_index('Unit')
 
         units = pyuc.Set('units', list(unit_data.index))
+        units_commit = pyuc.Set('units', list(unit_data.index), master_set=units)
         intervals = pyuc.Set('intervals', list(demand.index))
+        sets = {'units': units, "units_commit": units_commit, 'intervals': intervals}
 
         self.problem = {
             'data': {
@@ -32,11 +34,11 @@ class testBasicProblems(unittest.TestCase):
                 'IntervalDurationHrs': 0.5
             },
             'problem': pp.LpProblem(name='MY_PROB', sense=pp.LpMinimize),
-            'sets': {'units': units, 'intervals': intervals},
+            'sets': sets,
             'paths': None
         }
-        self.problem['var'] = pyuc.create_variables(self.problem['sets'])
 
+        self.problem['var'] = pyuc.create_variables(self.problem['sets'])
         self.constraint_list = ca.make_constraint_index()
         self.constraint_list['ToInclude'] = True
 

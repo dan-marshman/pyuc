@@ -9,13 +9,19 @@ class PathExists(unittest.TestCase):
         self.path = "PATH_THAT_DOES_NOT_EXIST"
         self.file_type = "A FILE"
 
-    def test_path_does_exist(self):
+    def test_path_does_not_exist_is_required(self):
         with self.assertRaises(SystemExit):
-            utils.check_path_exists(self.path, self.file_type)
+            utils.check_path_exists(self.path, self.file_type, required_file=True)
 
-    @mock.patch('os.path.exists', return_value=True)
-    def test_path_does_not_exist(self, path_exists_mock):
+    def test_path_does_not_exist_is_not_required(self):
         try:
             utils.check_path_exists(self.path, self.file_type)
         except SystemExit:  # pragma: no cover
-            self.fail("utils.check_path_exists exited when the file exists")
+            self.fail("utils.check_path_exists exited when the file is not required.")
+
+    @mock.patch('os.path.exists', return_value=True)
+    def test_path_does_exist(self, path_exists_mock):
+        try:
+            utils.check_path_exists(self.path, self.file_type)
+        except SystemExit:  # pragma: no cover
+            self.fail("utils.check_path_exists exited when the file exists.")

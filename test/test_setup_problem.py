@@ -186,10 +186,11 @@ class Paths(unittest.TestCase):
             'input_data': 'input_data_path',
             'settings': os.path.join('input_data_path', 'settings.csv'),
             'unit_data': os.path.join('input_data_path', 'unit_data.csv'),
+            'variable_traces': os.path.join('input_data_path', 'variable_traces.csv'),
             'demand': os.path.join('input_data_path', 'demand.csv'),
             'constraint_list': os.path.join('input_data_path', 'constraint_list.csv'),
             'outputs': os.path.join('output_data_path', 'MY_PROB'),
-            'results': os.path.join('output_data_path', 'MY_PROB', 'results')
+            'results': os.path.join('output_data_path', 'MY_PROB', 'results'),
         }
 
         self.assertEqual(result, expected)
@@ -273,6 +274,7 @@ class SetUpProblem(unittest.TestCase):
                 'input_data': self.input_data_path,
                 'settings': self.settings_path,
                 'unit_data': os.path.join(self.input_data_path, 'unit_data.csv'),
+                'variable_traces': os.path.join(self.input_data_path, 'variable_traces.csv'),
                 'demand': os.path.join(self.input_data_path, 'demand.csv'),
                 'constraint_list': os.path.join(self.input_data_path, 'constraint_list.csv'),
                 'outputs': os.path.join(self.output_data_path, self.name),

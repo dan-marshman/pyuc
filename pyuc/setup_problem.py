@@ -119,6 +119,7 @@ def initialise_paths(input_data_path, output_data_path, name):
         'input_data': input_data_path,
         'settings': os.path.join(input_data_path, 'settings.csv'),
         'unit_data': os.path.join(input_data_path, 'unit_data.csv'),
+        'variable_traces': os.path.join(input_data_path, 'variable_traces.csv'),
         'demand': os.path.join(input_data_path, 'demand.csv'),
         'constraint_list': os.path.join(input_data_path, 'constraint_list.csv'),
         'outputs': os.path.join(output_data_path, name),

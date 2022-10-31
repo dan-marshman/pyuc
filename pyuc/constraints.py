@@ -57,7 +57,7 @@ def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):
     constraints = {}  # No idea why this is needed
 
     for i in sets['intervals'].indices:
-        for u in sets['units'].indices:
+        for u in sets['units_commit'].indices:
             label = 'power_lt_committed_capacity_(i=%d, u=%s)' % (i, u)
 
             condition = (

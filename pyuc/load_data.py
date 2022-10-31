@@ -15,6 +15,7 @@ def load_data(problem):
     return {
         'demand': load_demand_data(problem['paths']['demand']),
         'units': load_unit_data(problem['paths']['unit_data']),
+        'variable_traces': load_variable_data(problem['paths']['variable_traces']),
         'ValueOfLostLoad$/MWh': load_voll(problem['settings']),
         'IntervalDurationHrs': load_interval_duration(problem['settings'])
     }
@@ -34,7 +35,7 @@ def load_unit_data(unit_data_path):
 
 def load_demand_data(demand_data_path):
     """
-    Read the demand csv to a dataframe, with Unit as the index.
+    Read the demand csv to a dataframe, with Interval as the index.
 
     :param demand_data_path str: path to the deamnd file.
     """
@@ -42,6 +43,19 @@ def load_demand_data(demand_data_path):
     utils.check_path_exists(demand_data_path, 'Demand File')
 
     return pd.read_csv(demand_data_path, index_col='Interval')
+
+
+def load_variable_data(variable_data_path):
+    """
+    Read the variable generation csv to a dataframe, with Interval as the index.
+
+    :param demand_data_path str: path to the deamnd file.
+    """
+
+    if not utils.check_path_exists(variable_data_path, 'Variable Trace File'):
+        return None
+    else:
+        return pd.read_csv(variable_data_path, index_col='Interval')
 
 
 def load_voll(settings):
@@ -72,6 +86,7 @@ def create_sets(data):
     """
 
     sets = create_single_sets(data)
+    sets = create_subsets(sets, data)
     sets = create_combination_sets(sets)
 
     return sets
@@ -88,6 +103,32 @@ def create_single_sets(data):
         'intervals': pyuc.Set('intervals', data['demand'].index.to_list()),
         'units': pyuc.Set('units', data['units'].index.to_list()),
     }
+
+    return sets
+
+
+def create_subsets(sets, data):
+    def filter_technology(unit_df, selected_techs):
+        return unit_df[unit_df.Technology.isin(selected_techs)].index.to_list()
+
+    tech_commit = ['Coal', 'CCGT', 'OCGT', 'Nuclear']
+    tech_variable = ['Wind', 'Solar']
+    tech_storage = ['Storage']
+
+    sets['units_commit'] = \
+        pyuc.Set('units_commit',
+                 filter_technology(data['units'], tech_commit),
+                 sets['units'])
+
+    sets['units_variable'] = \
+        pyuc.Set('units_variable',
+                 filter_technology(data['units'], tech_variable),
+                 sets['units'])
+
+    sets['units_storage'] = \
+        pyuc.Set('units_storage',
+                 filter_technology(data['units'], tech_storage),
+                 sets['units'])
 
     return sets
 

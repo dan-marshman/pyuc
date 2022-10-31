@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import pulp as pp
 from pyuc import constraints as ca
-from pyuc import pyuc
+from pyuc import load_data, pyuc
 
 
 class BasicConstraintEquations(unittest.TestCase):
@@ -21,12 +21,13 @@ class BasicConstraintEquations(unittest.TestCase):
         }).set_index('Unit')
 
         units = pyuc.Set('units', list(unit_data.index))
+        units_commit = pyuc.Set('units', list(unit_data.index), master_set=units)
         intervals = pyuc.Set('intervals', list(demand.index))
 
         self.problem = {
             'data': {'demand': demand, 'units': unit_data, 'ValueOfLostLoad$/MWh': 1000},
             'problem': pp.LpProblem(name='MY_PROB', sense=pp.LpMinimize),
-            'sets': {'units': units, 'intervals': intervals},
+            'sets': {'units': units, 'units_commit': units_commit, 'intervals': intervals},
             'paths': None
         }
         self.problem['var'] = pyuc.create_variables(self.problem['sets'])
@@ -319,6 +320,48 @@ class RampRates(unittest.TestCase):
 
         constraints = ca.cnt_ramp_rate_down(self.problem)
         self.assertEqual(constraints['ramp_rate_down_(i=1, u=U1)'].value(), 0)
+
+
+class VariableResourceConstraints(unittest.TestCase):
+    pass
+
+
+class UnitTypeConstraintSets(unittest.TestCase):
+    def setUp(self):
+        demand = pd.DataFrame(data={'Demand': [200]})
+
+        self.units = ['Coal', 'CCGT', 'OCGT', 'Nuclear', 'Wind', 'Solar', 'Storage']
+        unit_data = pd.DataFrame(data={
+            'Unit': self.units,
+            'Technology': self.units,
+            'CapacityMW': [100] * len(self.units),
+            'NumUnits': [1] * len(self.units),
+            'FuelCost$/GJ': [1] * len(self.units)
+        }).set_index('Unit')
+
+        data = {'demand': demand, 'units': unit_data, 'ValueOfLostLoad$/MWh': 1000}
+        sets = load_data.create_sets(data)
+
+        self.problem = {
+            'data': data,
+            'problem': pp.LpProblem(name='MY_PROB', sense=pp.LpMinimize),
+            'sets': sets,
+            'paths': None
+        }
+
+        self.problem['var'] = pyuc.create_variables(self.problem['sets'])
+
+    def test_sets_power_lt_capacity(self):
+        constraints = ca.cnt_power_lt_capacity(self.problem)
+        expected = [f"power_lt_capacity_(i=0, u={u})" for u in self.units]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
+
+    def test_sets_power_lt_committed_capacity(self):
+        constraints = ca.cnt_power_lt_committed_capacity(self.problem)
+        expected = [f"power_lt_committed_capacity_(i=0, u={u})" for u in self.units[:4]]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
 
 
 class OtherConstraintTests(unittest.TestCase):
