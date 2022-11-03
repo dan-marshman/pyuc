@@ -327,7 +327,48 @@ class RampRates(unittest.TestCase):
 
 
 class VariableResourceConstraints(unittest.TestCase):
-    pass
+    def setUp(self):
+        unit_data = pd.DataFrame(
+            data={
+                'Unit': ['W', "S"],
+                'Technology': ["Wind", "Solar"],
+                'NumUnits': [1, 2],
+                'CapacityMW': [100, 200]
+            }
+        ).set_index('Unit')
+
+        variable_traces = pd.DataFrame(
+            data={
+                "Wind": [0.2, 0.4],
+                "Solar": [0.3, 0.5]
+            }
+        )
+
+        units = pyuc.Set('units', list(unit_data.index))
+        units_variable = pyuc.Set('units_variable', list(unit_data.index), master_set=units)
+        intervals = pyuc.Set('intervals', list(range(2)))
+        sets = {'units': units, 'units_variable': units_variable, 'intervals': intervals}
+
+        self.problem = {
+            'data': {'units': unit_data, "variable_traces": variable_traces},
+            'problem': pp.LpProblem(name='MY_PROB', sense=pp.LpMinimize),
+            'sets': sets,
+            'paths': None
+        }
+
+        self.problem['var'] = pyuc.create_variables(self.problem['sets'])
+
+    def test_variable_power_lt_resource_availability(self):
+        self.problem["var"]["power_generated"].var[(0, 'W')].setInitialValue(0.2*1*100)
+        self.problem["var"]["power_generated"].var[(1, 'W')].setInitialValue(0.4*1*100)
+        self.problem["var"]["power_generated"].var[(0, 'S')].setInitialValue(0.3*2*200)
+        self.problem["var"]["power_generated"].var[(1, 'S')].setInitialValue(0.5*2*200)
+
+        constraints = ca.cnt_variable_resource_availability(self.problem)
+        self.assertEqual(constraints['variable_resource_availability(i=0, u=W)'].value(), 0)
+        self.assertEqual(constraints['variable_resource_availability(i=1, u=W)'].value(), 0)
+        self.assertEqual(constraints['variable_resource_availability(i=0, u=S)'].value(), 0)
+        self.assertEqual(constraints['variable_resource_availability(i=1, u=S)'].value(), 0)
 
 
 class UnitTypeConstraintSets(unittest.TestCase):

@@ -63,6 +63,7 @@ cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed
 cnt_ramp_rate_down	pyuc/constraints.py	/^def cnt_ramp_rate_down(sets, data, var, constraints=[]):$/;"	f
 cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints=[]):$/;"	f
 cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints=[]):$/;"	f
+cnt_variable_resource_availability	pyuc/constraints.py	/^def cnt_variable_resource_availability(sets, data, var, constraints=[]):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
 collect_setting_type_float	pyuc/setup_problem.py	/^def collect_setting_type_float(value):$/;"	f
 collect_setting_type_integer	pyuc/setup_problem.py	/^def collect_setting_type_integer(value):$/;"	f
@@ -143,6 +144,7 @@ setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherConstrain
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherFunctions
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:RampRates
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:UnitTypeConstraintSets
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:VariableResourceConstraints
 setUp	test/test_create_variables.py	/^    def setUp(self):$/;"	m	class:makeVariables
 setUp	test/test_integration.py	/^    def setUp(self):$/;"	m	class:Integration
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadData
@@ -311,6 +313,7 @@ test_var_init_sets	test/test_pyuc.py	/^    def test_var_init_sets(self):$/;"	m	c
 test_var_init_type	test/test_pyuc.py	/^    def test_var_init_type(self):$/;"	m	class:testVarBasic
 test_var_init_type_specified	test/test_pyuc.py	/^    def test_var_init_type_specified(self):$/;"	m	class:testVarBasic
 test_var_init_units	test/test_pyuc.py	/^    def test_var_init_units(self):$/;"	m	class:testVarBasic
+test_variable_power_lt_resource_availability	test/test_constraints.py	/^    def test_variable_power_lt_resource_availability(self):$/;"	m	class:VariableResourceConstraints
 test_vars_dfs_are_correct	test/test_pyuc.py	/^    def test_vars_dfs_are_correct(self, to_csv_mock):$/;"	m	class:testSaveResults
 test_vars_result_dfs_are_made	test/test_pyuc.py	/^    def test_vars_result_dfs_are_made(self, to_df_mock, to_csv_mock):$/;"	m	class:testSaveResults
 test_vars_to_csv_is_called	test/test_pyuc.py	/^    def test_vars_to_csv_is_called(self, to_csv_mock):$/;"	m	class:testSaveResults
