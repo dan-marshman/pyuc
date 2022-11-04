@@ -19,7 +19,7 @@ class PathExists(unittest.TestCase):
         except SystemExit:  # pragma: no cover
             self.fail("utils.check_path_exists exited when the file is not required.")
 
-    @mock.patch('os.path.exists', return_value=True)
+    @mock.patch("os.path.exists", return_value=True)
     def test_path_does_exist(self, path_exists_mock):
         try:
             utils.check_path_exists(self.path, self.file_type)

@@ -14,7 +14,7 @@ def load_settings(settings_path):
     :param settings_path str: path to the settings file.
     """
 
-    utils.check_path_exists(settings_path, 'Settings File')
+    utils.check_path_exists(settings_path, "Settings File")
     settings = import_settings_file(settings_path)
 
     return settings
@@ -33,20 +33,20 @@ def import_settings_file(settings_path):
         settings_data = csv.DictReader(f)
 
         for row in settings_data:
-            key = row['Parameter']
-            key_type = row['Type']
-            value = row['Value']
+            key = row["Parameter"]
+            key_type = row["Type"]
+            value = row["Value"]
 
-            if key_type == 'int':
+            if key_type == "int":
                 settings[key] = collect_setting_type_integer(value)
 
-            elif key_type == 'bool':
+            elif key_type == "bool":
                 settings[key] = collect_setting_type_boolean(value)
 
-            elif key_type == 'str':
+            elif key_type == "str":
                 settings[key] = collect_setting_type_string(value)
 
-            elif key_type == 'float':
+            elif key_type == "float":
                 settings[key] = collect_setting_type_float(value)
 
     return settings
@@ -89,10 +89,10 @@ def collect_setting_type_boolean(value):
     :param value str: value to be converted.
     """
 
-    if value.lower() == 'false':
+    if value.lower() == "false":
         return False
 
-    elif value.lower() == 'true':
+    elif value.lower() == "true":
         return True
 
 
@@ -103,7 +103,7 @@ def initialise_uc_problem(name):
     :param name str: name of the problem
     """
 
-    return {'name': name}
+    return {"name": name}
 
 
 def initialise_paths(input_data_path, output_data_path, name):
@@ -116,14 +116,14 @@ def initialise_paths(input_data_path, output_data_path, name):
     """
 
     paths = {
-        'input_data': input_data_path,
-        'settings': os.path.join(input_data_path, 'settings.csv'),
-        'unit_data': os.path.join(input_data_path, 'unit_data.csv'),
-        'variable_traces': os.path.join(input_data_path, 'variable_traces.csv'),
-        'demand': os.path.join(input_data_path, 'demand.csv'),
-        'constraint_list': os.path.join(input_data_path, 'constraint_list.csv'),
-        'outputs': os.path.join(output_data_path, name),
-        'results': os.path.join(output_data_path, name, 'results'),
+        "input_data": input_data_path,
+        "settings": os.path.join(input_data_path, "settings.csv"),
+        "unit_data": os.path.join(input_data_path, "unit_data.csv"),
+        "variable_traces": os.path.join(input_data_path, "variable_traces.csv"),
+        "demand": os.path.join(input_data_path, "demand.csv"),
+        "constraint_list": os.path.join(input_data_path, "constraint_list.csv"),
+        "outputs": os.path.join(output_data_path, name),
+        "results": os.path.join(output_data_path, name, "results"),
     }
 
     return paths
@@ -144,7 +144,7 @@ def make_results_folders(paths):
 
     :param paths dict: dict of paths
     """
-    for dir in [paths['outputs'], paths['results']]:
+    for dir in [paths["outputs"], paths["results"]]:
         if os.path.exists(dir):
             shutil.rmtree(dir)
         os.makedirs(dir)
@@ -160,9 +160,9 @@ def setup_problem(name, input_data_path, output_data_path):
     """
 
     problem = initialise_uc_problem(name)
-    problem['paths'] = initialise_paths(input_data_path, output_data_path, name)
-    problem['settings'] = load_settings(problem['paths']['settings'])
-    problem['problem'] = make_pulp_problem(name)
-    make_results_folders(problem['paths'])
+    problem["paths"] = initialise_paths(input_data_path, output_data_path, name)
+    problem["settings"] = load_settings(problem["paths"]["settings"])
+    problem["problem"] = make_pulp_problem(name)
+    make_results_folders(problem["paths"])
 
     return problem

@@ -12,7 +12,7 @@ def constraint_adder(constraint_func):
 
 
 @constraint_adder
-def cnt_supply_eq_demand(sets, data, var, constraints=[]):
+def cnt_supply_eq_demand(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     total_power = total_power_in_interval(sets, var["power_generated"])
@@ -33,7 +33,7 @@ def cnt_supply_eq_demand(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_power_lt_capacity(sets, data, var, constraints=[]):
+def cnt_power_lt_capacity(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     for i in sets["intervals"].indices:
@@ -53,7 +53,7 @@ def cnt_power_lt_capacity(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):
+def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     for i in sets["intervals"].indices:
@@ -73,7 +73,7 @@ def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):
+def cnt_power_gt_minimum_generation(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     for i in sets["intervals"].indices:
@@ -94,7 +94,7 @@ def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_num_committed_lt_num_units(sets, data, var, constraints=[]):
+def cnt_num_committed_lt_num_units(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     for i in sets["intervals"].indices:
@@ -113,7 +113,7 @@ def cnt_num_committed_lt_num_units(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_commitment_continuity(sets, data, var, constraints=[]):
+def cnt_commitment_continuity(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     for i in sets["intervals"].indices[1:]:
@@ -134,7 +134,7 @@ def cnt_commitment_continuity(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_commitment_continuity_initial_interval(sets, data, var, constraints=[]):
+def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     i = sets["intervals"].indices[0]
@@ -157,7 +157,7 @@ def cnt_commitment_continuity_initial_interval(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_minimum_up_time(sets, data, var, constraints=[]):
+def cnt_minimum_up_time(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     num_start_ups_within_up_time = \
@@ -180,7 +180,7 @@ def cnt_minimum_up_time(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_minimum_down_time(sets, data, var, constraints=[]):
+def cnt_minimum_down_time(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     num_shut_downs_within_down_time = \
@@ -204,7 +204,7 @@ def cnt_minimum_down_time(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_ramp_rate_up(sets, data, var, constraints=[]):
+def cnt_ramp_rate_up(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     up_rampMW = up_ramp_calculator(sets, data, var)
@@ -231,7 +231,7 @@ def cnt_ramp_rate_up(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_ramp_rate_down(sets, data, var, constraints=[]):
+def cnt_ramp_rate_down(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     down_rampMW = down_ramp_calculator(sets, data, var)
@@ -258,21 +258,22 @@ def cnt_ramp_rate_down(sets, data, var, constraints=[]):
 
 
 @constraint_adder
-def cnt_variable_resource_availability(sets, data, var, constraints=[]):
+def cnt_variable_resource_availability(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
+
+    technology_type = data["units"]["Technology"].to_dict()
 
     for i in sets["intervals"].indices:
 
         for u in sets["units_variable"].indices:
-            technology_type = data["units"]["Technology"][u]
-
             label = "variable_resource_availability(i=%d, u=%s)" % (i, u)
 
             condition = \
                 var["power_generated"].var[(i, u)] \
                 <= \
-                data["variable_traces"][technology_type][i] \
-                * data["units"]["NumUnits"][u] * data["units"]["CapacityMW"][u]
+                data["variable_traces"][technology_type[u]][i] \
+                * data["units"]["NumUnits"][u] \
+                * data["units"]["CapacityMW"][u]
 
             constraints[label] = condition
 
@@ -363,8 +364,7 @@ def up_ramp_calculator(sets, data, var):
 
     for u in sets["units"].indices:
         up_rampMW[(first_interval, u)] = \
-            0
-            # var["power_generated"].var[(first_interval, u)] \
+            0 - var["power_generated"].var[(first_interval, u)] \
             # - data["initial_state"]["PowerGenerationMW"][u]
 
         for i in sets["intervals"].indices[1:]:
@@ -391,9 +391,8 @@ def down_ramp_calculator(sets, data, var):
 
     for u in sets["units"].indices:
         down_rampMW[(first_interval, u)] = \
-            0
+            0 - var["power_generated"].var[(first_interval, u)]
             # data["initial_state"]["PowerGenerationMW"][u] \
-            # - var["power_generated"].var[(first_interval, u)]
 
         for i in sets["intervals"].indices[1:]:
             down_rampMW[(i, u)] = \

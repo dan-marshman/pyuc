@@ -34,7 +34,7 @@ UnitTypeConstraintSets	test/test_constraints.py	/^class UnitTypeConstraintSets(u
 Var	pyuc/pyuc.py	/^class Var():$/;"	c
 VariableResourceConstraints	test/test_constraints.py	/^class VariableResourceConstraints(unittest.TestCase):$/;"	c
 __init__	pyuc/pyuc.py	/^    def __init__(self, name, indices, master_set=None):$/;"	m	class:Set
-__init__	pyuc/pyuc.py	/^    def __init__(self, name, units, sets, var_type='Continuous'):$/;"	m	class:Var
+__init__	pyuc/pyuc.py	/^    def __init__(self, name, units, sets, var_type="Continuous"):$/;"	m	class:Var
 __repr__	pyuc/pyuc.py	/^    def __repr__(self):$/;"	m	class:Set
 __repr__	pyuc/pyuc.py	/^    def __repr__(self):$/;"	m	class:Var
 __str__	pyuc/pyuc.py	/^    def __str__(self):$/;"	m	class:Set
@@ -52,18 +52,18 @@ ca	test/test_optimisation_results.py	/^from pyuc import constraint_adder as ca$/
 check_path_exists	pyuc/utils.py	/^def check_path_exists(path, file_type, required_file=False):$/;"	f
 cnsts	pyuc/constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nameref:unknown:constraints
 cnsts	test/test_constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nameref:unknown:constraints
-cnt_commitment_continuity	pyuc/constraints.py	/^def cnt_commitment_continuity(sets, data, var, constraints=[]):$/;"	f
-cnt_commitment_continuity_initial_interval	pyuc/constraints.py	/^def cnt_commitment_continuity_initial_interval(sets, data, var, constraints=[]):$/;"	f
-cnt_minimum_down_time	pyuc/constraints.py	/^def cnt_minimum_down_time(sets, data, var, constraints=[]):$/;"	f
-cnt_minimum_up_time	pyuc/constraints.py	/^def cnt_minimum_up_time(sets, data, var, constraints=[]):$/;"	f
-cnt_num_committed_lt_num_units	pyuc/constraints.py	/^def cnt_num_committed_lt_num_units(sets, data, var, constraints=[]):$/;"	f
-cnt_power_gt_minimum_generation	pyuc/constraints.py	/^def cnt_power_gt_minimum_generation(sets, data, var, constraints=[]):$/;"	f
-cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data, var, constraints=[]):$/;"	f
-cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed_capacity(sets, data, var, constraints=[]):$/;"	f
-cnt_ramp_rate_down	pyuc/constraints.py	/^def cnt_ramp_rate_down(sets, data, var, constraints=[]):$/;"	f
-cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints=[]):$/;"	f
-cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints=[]):$/;"	f
-cnt_variable_resource_availability	pyuc/constraints.py	/^def cnt_variable_resource_availability(sets, data, var, constraints=[]):$/;"	f
+cnt_commitment_continuity	pyuc/constraints.py	/^def cnt_commitment_continuity(sets, data, var, constraints={}):$/;"	f
+cnt_commitment_continuity_initial_interval	pyuc/constraints.py	/^def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):$/;"	f
+cnt_minimum_down_time	pyuc/constraints.py	/^def cnt_minimum_down_time(sets, data, var, constraints={}):$/;"	f
+cnt_minimum_up_time	pyuc/constraints.py	/^def cnt_minimum_up_time(sets, data, var, constraints={}):$/;"	f
+cnt_num_committed_lt_num_units	pyuc/constraints.py	/^def cnt_num_committed_lt_num_units(sets, data, var, constraints={}):$/;"	f
+cnt_power_gt_minimum_generation	pyuc/constraints.py	/^def cnt_power_gt_minimum_generation(sets, data, var, constraints={}):$/;"	f
+cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data, var, constraints={}):$/;"	f
+cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):$/;"	f
+cnt_ramp_rate_down	pyuc/constraints.py	/^def cnt_ramp_rate_down(sets, data, var, constraints={}):$/;"	f
+cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints={}):$/;"	f
+cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints={}):$/;"	f
+cnt_variable_resource_availability	pyuc/constraints.py	/^def cnt_variable_resource_availability(sets, data, var, constraints={}):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
 collect_setting_type_float	pyuc/setup_problem.py	/^def collect_setting_type_float(value):$/;"	f
 collect_setting_type_integer	pyuc/setup_problem.py	/^def collect_setting_type_integer(value):$/;"	f
@@ -85,7 +85,7 @@ four_dim_to_df	pyuc/pyuc.py	/^    def four_dim_to_df(self):$/;"	m	class:Var
 fuel_cost_per_mwh_calculator	pyuc/objective_function.py	/^def fuel_cost_per_mwh_calculator(unit_data, u):$/;"	f
 fuel_cost_term	pyuc/objective_function.py	/^def fuel_cost_term(sets, data, var):$/;"	f
 import_settings_file	pyuc/setup_problem.py	/^def import_settings_file(settings_path):$/;"	f
-initialise_df	pyuc/constraint_adder.py	/^    def initialise_df():$/;"	f	function:make_constraint_index	file:
+init_df	pyuc/constraint_adder.py	/^    def init_df():$/;"	f	function:make_constraint_index	file:
 initialise_paths	pyuc/setup_problem.py	/^def initialise_paths(input_data_path, output_data_path, name):$/;"	f
 initialise_uc_problem	pyuc/setup_problem.py	/^def initialise_uc_problem(name):$/;"	f
 ld	test/test_load_data.py	/^from pyuc import load_data as ld$/;"	x	nameref:unknown:load_data
@@ -172,7 +172,6 @@ tearDown	test/test_load_data.py	/^    def tearDown(self):$/;"	m	class:LoadData
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
 testBasicProblems	test/test_optimisation_results.py	/^class testBasicProblems(unittest.TestCase):$/;"	c
 testBuildAndAddConstraints	test/test_constraint_adder.py	/^class testBuildAndAddConstraints(unittest.TestCase):$/;"	c
-testConstraintAdder	test/constraint_adder.py	/^class testConstraintAdder(unittest.TestCase):$/;"	c
 testConstraintSelector	test/test_constraint_adder.py	/^class testConstraintSelector(unittest.TestCase):$/;"	c
 testDimToDf	test/test_pyuc.py	/^class testDimToDf(unittest.TestCase):$/;"	c
 testObjectiveFunctionTerms	test/test_objective_function.py	/^class testObjectiveFunctionTerms(unittest.TestCase):$/;"	c
@@ -288,6 +287,7 @@ test_sets_cnt_power_lt_capacity	test/test_constraints.py	/^    def test_sets_cnt
 test_sets_cnt_power_lt_committed_capacity	test/test_constraints.py	/^    def test_sets_cnt_power_lt_committed_capacity(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_ramp_rate_down	test/test_constraints.py	/^    def test_sets_cnt_ramp_rate_down(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_ramp_rate_up	test/test_constraints.py	/^    def test_sets_cnt_ramp_rate_up(self):$/;"	m	class:UnitTypeConstraintSets
+test_sets_cnt_variable_resource_availability	test/test_constraints.py	/^    def test_sets_cnt_variable_resource_availability(self):$/;"	m	class:UnitTypeConstraintSets
 test_setup_problem	test/test_setup_problem.py	/^    def test_setup_problem(self):$/;"	m	class:SetUpProblem
 test_setup_problem_is_called	test/test_pyuc.py	/^    def test_setup_problem_is_called(self,$/;"	m	class:RunOptProblem
 test_shut_down_ramp_capacity_calculator	test/test_constraints.py	/^    def test_shut_down_ramp_capacity_calculator(self):$/;"	m	class:OtherFunctions

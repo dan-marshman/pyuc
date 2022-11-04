@@ -3,7 +3,7 @@ import os
 
 def check_path_exists(path, file_type, required_file=False):
     """
-    Check that the file exists, or provide an error if it doesn't.
+    Check that the file exists, or provide an error if it doesn"t.
 
     :param path string: Path to the file.
     :param file_type string: The purpose of the file.

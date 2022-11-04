@@ -9,17 +9,30 @@ def make_constraint_index():
     """
 
     def add_constraint(name, constraint):
-        constraint_index.loc[name, 'Function'] = constraint
+        constraint_index.loc[name, "Function"] = constraint
 
-    def initialise_df():
-        return pd.DataFrame(columns=['ID', 'Function']).set_index('ID')
+    def init_df():
+        return pd.DataFrame(columns=["ID", "Function"]).set_index("ID")
 
-    constraint_index = initialise_df()
+    constraint_index = init_df()
 
-    add_constraint('Supply==Demand', cnsts.cnt_supply_eq_demand)
-    add_constraint('Power<=Capacity', cnsts.cnt_power_lt_capacity)
-    add_constraint('Power<=CommittedCapacity', cnsts.cnt_power_lt_committed_capacity)
-    add_constraint('Power>=MinimumGeneration', cnsts.cnt_power_gt_minimum_generation)
+    add_constraint("Supply==Demand", cnsts.cnt_supply_eq_demand)
+    add_constraint("Power<=Capacity", cnsts.cnt_power_lt_capacity)
+    add_constraint("Power<=CommittedCapacity", cnsts.cnt_power_lt_committed_capacity)
+    add_constraint("Power>=MinimumGeneration", cnsts.cnt_power_gt_minimum_generation)
+    add_constraint("NumCommitted<=NumUnits", cnsts.cnt_num_committed_lt_num_units)
+    add_constraint("CommitmentContinuity", cnsts.cnt_commitment_continuity)
+    add_constraint("CommitmentContinuityInitialInterval",
+                   cnsts.cnt_commitment_continuity_initial_interval)
+
+    add_constraint("VariablePower<=ResourceAvailability",
+                   cnsts.cnt_variable_resource_availability)
+
+    add_constraint("MinimumUpTime", cnsts.cnt_minimum_up_time)
+    add_constraint("MinimumDownTime", cnsts.cnt_minimum_down_time)
+
+    add_constraint("RampRateUp", cnsts.cnt_ramp_rate_up)
+    add_constraint("RampRateDown", cnsts.cnt_ramp_rate_down)
 
     return constraint_index
 
@@ -33,15 +46,15 @@ def constraint_selector(paths):
     """
 
     def read_constraint_list():
-        constraint_list = pd.read_csv(paths['constraint_list']).set_index('ID')
-        constraint_list = constraint_list.replace(["TRUE", "True", 'true'], True)
-        constraint_list = constraint_list.replace(["FALSE", "False", 'false'], False)
+        constraint_list = pd.read_csv(paths["constraint_list"]).set_index("ID")
+        constraint_list = constraint_list.replace(["TRUE", "True", "true"], True)
+        constraint_list = constraint_list.replace(["FALSE", "False", "false"], False)
 
         return constraint_list
 
     constraint_index = make_constraint_index()
     constraint_list = read_constraint_list()
-    constraint_list['Function'] = constraint_index.Function
+    constraint_list["Function"] = constraint_index.Function
 
     return constraint_list
 
@@ -55,9 +68,9 @@ def add_all_constraints_to_pulp_problem(problem, constraints):
     """
 
     for label, condition in constraints.items():
-        problem['problem'] += condition, label
+        problem["problem"] += condition, label
 
-    return problem['problem']
+    return problem["problem"]
 
 
 def build_constraints(problem, constraints={}):
@@ -67,10 +80,10 @@ def build_constraints(problem, constraints={}):
     :param problem dict: main problem
     """
 
-    constraint_index = problem['data']['constraint_index']
+    constraint_index = problem["data"]["constraint_index"]
     filt_constraint_index = constraint_index[constraint_index.ToInclude == True]
 
-    for cnt_fn in filt_constraint_index['Function']:
+    for cnt_fn in filt_constraint_index["Function"]:
         cnt_fn_constraints = cnt_fn(problem)
         constraints = {**constraints, **cnt_fn_constraints}
 
@@ -78,8 +91,8 @@ def build_constraints(problem, constraints={}):
 
 
 def add_constraints(problem):
-    problem['data']['constraint_index'] = constraint_selector(problem['paths'])
+    problem["data"]["constraint_index"] = constraint_selector(problem["paths"])
     constraints = build_constraints(problem)
-    problem['problem'] = add_all_constraints_to_pulp_problem(problem, constraints)
+    problem["problem"] = add_all_constraints_to_pulp_problem(problem, constraints)
 
-    return problem['problem']
+    return problem["problem"]

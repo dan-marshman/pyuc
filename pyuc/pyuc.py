@@ -11,32 +11,32 @@ from pyuc import setup_problem as sp
 
 def run_opt_problem(name, input_data_path, output_data_path):
     problem = sp.setup_problem(name, input_data_path, output_data_path)
-    problem['data'] = load_data.load_data(problem)
-    problem['sets'] = load_data.create_sets(problem['data'])
-    problem['var'] = create_variables(problem['sets'])
-    problem['problem'] = ca.add_constraints(problem)
-    problem['problem'] = objective_function.make_objective_function(problem)
-    problem['problem'] = solve_problem(problem)
+    problem["data"] = load_data.load_data(problem)
+    problem["sets"] = load_data.create_sets(problem["data"])
+    problem["var"] = create_variables(problem["sets"])
+    problem["problem"] = ca.add_constraints(problem)
+    problem["problem"] = objective_function.make_objective_function(problem)
+    problem["problem"] = solve_problem(problem)
     save_results(problem)
 
 
 def create_variables(sets):
     vars = dict()
 
-    vars['power_generated'] = \
-        Var('power_generated', 'MW', [sets['intervals'], sets['units']], 'Continuous')
+    vars["power_generated"] = \
+        Var("power_generated", "MW", [sets["intervals"], sets["units"]], "Continuous")
 
-    vars['num_committed'] = \
-        Var('num_committed', '#Units', [sets['intervals'], sets['units']], 'Integer')
+    vars["num_committed"] = \
+        Var("num_committed", "#Units", [sets["intervals"], sets["units"]], "Integer")
 
-    vars['num_shutting_down'] = \
-        Var('num_shutting_down', '#Units', [sets['intervals'], sets['units']], 'Integer')
+    vars["num_shutting_down"] = \
+        Var("num_shutting_down", "#Units", [sets["intervals"], sets["units"]], "Integer")
 
-    vars['num_starting_up'] = \
-        Var('num_starting_up', '#Units', [sets['intervals'], sets['units']], 'Integer')
+    vars["num_starting_up"] = \
+        Var("num_starting_up", "#Units", [sets["intervals"], sets["units"]], "Integer")
 
-    vars['unserved_power'] = \
-        Var('unserved_power', 'MW', [sets['intervals']], 'Continuous')
+    vars["unserved_power"] = \
+        Var("unserved_power", "MW", [sets["intervals"]], "Continuous")
 
     return vars
 
@@ -48,10 +48,10 @@ def solve_problem(problem):
     :param problem dict: model problem
     """
 
-    problem['problem'].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
-    print_solution_value_and_time(problem['problem'])
+    problem["problem"].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
+    print_solution_value_and_time(problem["problem"])
 
-    return problem['problem']
+    return problem["problem"]
 
 
 def print_solution_value_and_time(problem):
@@ -69,9 +69,9 @@ def print_solution_value_and_time(problem):
 
 
 def save_results(problem):
-    for var in problem['var'].values():
+    for var in problem["var"].values():
         var.to_df_fn_chooser()
-        var.to_csv(problem['paths']['results'])
+        var.to_csv(problem["paths"]["results"])
 
 
 class Set():
@@ -103,18 +103,18 @@ class Set():
         Ensure that each indice of the self subset belongs to the master set.
 
         :param master_set Set: Master set
-        :raises ValueError: If a subset indice doesn't belong to the master set.
+        :raises ValueError: If a subset indice doesn"t belong to the master set.
         """
 
         for ind in self.indices:
             if ind not in master_set.indices:
-                print('\nMember of set called %s (%s) is not a member' % (self.name, str(ind)),
-                      'of the master set %s\n' % master_set.name)
-                raise ValueError('Subset validation error')
+                print("\nMember of set called %s (%s) is not a member" % (self.name, str(ind)),
+                      "of the master set %s\n" % master_set.name)
+                raise ValueError("Subset validation error")
 
     def append_subset(self, subset):
         """
-        Append the subset to the master set's subsets
+        Append the subset to the master set"s subsets
 
         :param subset Set: Subset to be appended
         """
@@ -123,7 +123,7 @@ class Set():
 
 
 class Var():
-    def __init__(self, name, units, sets, var_type='Continuous'):
+    def __init__(self, name, units, sets, var_type="Continuous"):
         """
         Initiate the variable
 
@@ -137,7 +137,7 @@ class Var():
         self.units = units
         self.sets = sets
         self.type = var_type
-        self.filename = self.name + '_' + self.units + '.csv'
+        self.filename = self.name + "_" + self.units + ".csv"
         self.sets_indices = self.make_var_indices()
         self.var = self.make_pulp_variable()
 
@@ -145,7 +145,7 @@ class Var():
         return self.name
 
     def __repr__(self):
-        set_str = ''.join([str(s.__str__()) + ', ' for s in self.sets])
+        set_str = "".join([str(s.__str__()) + ", " for s in self.sets])
         set_str = set_str[0:len(set_str)-2]
 
         return "Var(%s); units=%s, Sets=[%s]" % (self.name, self.units, set_str)
@@ -252,7 +252,7 @@ class Var():
 
         self.result_df.index.name = self.sets[0].name
 
-        if self.type in ['Binary', 'Integer']:
+        if self.type in ["Binary", "Integer"]:
             try:
                 self.result_df = self.result_df.astype(int)
             except TypeError:
@@ -264,7 +264,7 @@ class Var():
                 print("Could not change dtype of %s to float." % self.name)
 
     # def remove_LA_int_from_results(self, main_intervals):
-        # if 'intervals' not in [setx.name for setx in self.sets]:
+        # if "intervals" not in [setx.name for setx in self.sets]:
             # self.result_df_trimmed = self.result_df
 
             # return
