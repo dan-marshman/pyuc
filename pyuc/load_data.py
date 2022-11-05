@@ -16,6 +16,7 @@ def load_data(problem):
         "demand": load_demand_data(problem["paths"]["demand"]),
         "units": load_unit_data(problem["paths"]["unit_data"]),
         "variable_traces": load_variable_data(problem["paths"]["variable_traces"]),
+        "initial_state": load_initial_state(problem["paths"]["initial_state"]),
         "ValueOfLostLoad$/MWh": load_voll(problem["settings"]),
         "IntervalDurationHrs": load_interval_duration(problem["settings"])
     }
@@ -45,17 +46,38 @@ def load_demand_data(demand_data_path):
     return pd.read_csv(demand_data_path, index_col="Interval")
 
 
-def load_variable_data(variable_data_path):
+def load_variable_data(variable_trace_path):
     """
     Read the variable generation csv to a dataframe, with Interval as the index.
 
     :param demand_data_path str: path to the deamnd file.
     """
 
-    if not utils.check_path_exists(variable_data_path, "Variable Trace File"):
+    if not utils.check_path_exists(variable_trace_path, "Variable Trace File"):
         return None
     else:
-        return pd.read_csv(variable_data_path, index_col="Interval")
+        return pd.read_csv(variable_trace_path, index_col="Interval")
+
+
+def load_initial_state(initial_state_path):
+    """
+    Read the initial state file to a dataframe, with Interval as the index.
+
+    :param demand_data_path str: path to the deamnd file.
+    """
+
+    if not utils.check_path_exists(
+        initial_state_path,
+        "Initial State File",
+        required_file=False
+    ):
+
+        return None
+    else:
+        df = pd.read_csv(initial_state_path, index_col=[0], header=[0, 1])
+        df.columns = df.columns.set_levels(df.columns.levels[1].astype(int), level=1)
+
+        return df
 
 
 def load_voll(settings):

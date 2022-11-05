@@ -4,6 +4,7 @@ import shutil
 import unittest
 
 import mock
+import numpy as np
 import pandas as pd
 from pyuc import load_data as ld
 from pyuc import setup_problem
@@ -160,6 +161,38 @@ class LoadDataItems(unittest.TestCase):
         result = ld.load_variable_data(test_file)
         self.assertEqual(result, None)
 
+    @mock.patch("pyuc.utils.check_path_exists")
+    def test_load_initial_state_file_exists(self, check_path_mock):
+        test_file = io.StringIO(
+            "Variable,power_generated,num_shutting_down,num_shutting_down,num_starting_up\n"
+            + "Interval,-1,-1,-2,-1\n"
+            + "Unit,,,,\n"
+            + "U1,5,1,2,3\n"
+            + "U2,10,5,6,1"
+        )
+        result = ld.load_initial_state(test_file)
+
+        columns = [
+            ("power_generated", -1),
+            ("num_shutting_down", -1),
+            ("num_shutting_down", -2),
+            ("num_starting_up", -1),
+        ]
+
+        expected = pd.DataFrame(
+            np.array([[5, 1, 2, 3], [10, 5, 6, 1]]),
+            index=["U1", "U2"],
+            columns=pd.MultiIndex.from_tuples(columns, names=["Variable", "Interval"])
+        )
+        expected.index.name = "Unit"
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_initial_state_file_does_not_exist(self):
+        test_file = "path_does_not_exist"
+        result = ld.load_initial_state(test_file)
+        self.assertEqual(result, None)
+
     def test_load_voll(self):
         result = ld.load_voll(self.settings)
         self.assertEqual(result, 99)
@@ -198,12 +231,19 @@ class LoadData(unittest.TestCase):
         )
         self.variable_data_df.index.name = "Interval"
 
+        self.initial_state_df = pd.DataFrame(
+            index=["U1", "U2"],
+            data={"power_generated": [100, 200]}
+        )
+        self.initial_state_df.index.name = "Unit"
+
         if not os.path.exists(self.input_data_path):
             os.makedirs(self.input_data_path)
 
         self.demand_df.to_csv(self.paths["demand"])
         self.unit_data_df.to_csv(self.paths["unit_data"])
         self.variable_data_df.to_csv(self.paths["variable_traces"])
+        self.initial_state_df.to_csv(self.paths["initial_state"])
 
     def tearDown(self):
         shutil.rmtree(self.input_data_path)
@@ -214,6 +254,7 @@ class LoadData(unittest.TestCase):
             "demand": self.demand_df,
             "units": self.unit_data_df,
             "variable_traces": self.variable_data_df,
+            "initial_state": self.variable_data_df,
             "ValueOfLostLoad$/MWh": 10,
             "IntervalDurationHrs": 0.5
         }
@@ -221,5 +262,4 @@ class LoadData(unittest.TestCase):
         self.assertEqual(list(result.keys()), list(expected.keys()))
         pd.testing.assert_frame_equal(result["demand"], expected["demand"])
         pd.testing.assert_frame_equal(result["units"], expected["units"])
-        pd.testing.assert_frame_equal(result["variable_traces"],
-                                      expected["variable_traces"])
+        pd.testing.assert_frame_equal(result["variable_traces"], expected["variable_traces"])
