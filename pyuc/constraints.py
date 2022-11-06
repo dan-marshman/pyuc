@@ -207,7 +207,7 @@ def cnt_minimum_down_time(sets, data, var, constraints={}):
 def cnt_ramp_rate_up(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
-    up_rampMW = up_ramp_calculator(sets, data, var)
+    rampMW = ramp_calculator(sets, data, var)
     start_up_ramp_capacityMW = start_up_ramp_capacity_calculator(sets, data)
     online_ramp_capacityMW = online_ramp_capacity_calculator(sets, data)
     minimum_generationMW = minimum_generation_calculator(sets, data)
@@ -218,7 +218,7 @@ def cnt_ramp_rate_up(sets, data, var, constraints={}):
             label = "ramp_rate_up_(i=%d, u=%s)" % (i, u)
 
             condition = \
-                up_rampMW[(i, u)] \
+                rampMW[(i, u)] \
                 <= \
                 (var["num_committed"].var[(i, u)] - var["num_starting_up"].var[(i, u)]) \
                 * online_ramp_capacityMW[u] \
@@ -234,7 +234,7 @@ def cnt_ramp_rate_up(sets, data, var, constraints={}):
 def cnt_ramp_rate_down(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
-    down_rampMW = down_ramp_calculator(sets, data, var)
+    rampMW = ramp_calculator(sets, data, var)
     shut_down_ramp_capacityMW = shut_down_ramp_capacity_calculator(sets, data)
     online_ramp_capacityMW = online_ramp_capacity_calculator(sets, data)
     minimum_generationMW = minimum_generation_calculator(sets, data)
@@ -245,7 +245,7 @@ def cnt_ramp_rate_down(sets, data, var, constraints={}):
             label = "ramp_rate_down_(i=%d, u=%s)" % (i, u)
 
             condition = \
-                down_rampMW[(i, u)] \
+                -1 * rampMW[(i, u)] \
                 <= \
                 (var["num_committed"].var[(i, u)] - var["num_starting_up"].var[(i, u)]) \
                 * online_ramp_capacityMW[u] \
@@ -290,18 +290,37 @@ def num_start_ups_within_up_time_calculator(sets, data, var):
     :param var dict: var dictionary
     """
 
+    def get_var_starts(i, i_low_var, u):
+        var_starts = \
+            pp.lpSum([
+                var["num_starting_up"].var[(i2, u)] for i2 in range(i_low_var, i+1)
+            ])
+
+        return var_starts
+
+    def get_initial_state_starts(initial_state, i, i_low, u):
+        if initial_state is not None:
+            initial_state_filt = initial_state.xs("num_starting_up", level=0, axis=1)
+            sum_cols = [i2 for i2 in range(i_low, i+1) if i2 in initial_state_filt.columns]
+            initial_state_starts = initial_state_filt.loc[u, sum_cols].sum()
+        else:
+            initial_state_starts = 0
+
+        return initial_state_starts
+
     i0 = min(sets["intervals"].indices)
     num_start_ups_within_up_time = {}
 
     for i in sets["intervals"].indices:
+
         for u in sets["units"].indices:
             up_time = data["units"]["MinimumUpTimeHrs"][u]
-            i_low = max(i0, i - up_time + 1)
+            i_low = i - up_time + 1
+            i_low_var = max(i0, i_low)
 
-            num_start_ups_within_up_time[(i, u)] = \
-                pp.lpSum([
-                    var["num_starting_up"].var[(i2, u)] for i2 in range(i_low, i+1)
-                ])
+            var_starts = get_var_starts(i, i_low_var, u)
+            initial_state_starts = get_initial_state_starts(data["initial_state"], i, i_low, u)
+            num_start_ups_within_up_time[(i, u)] = var_starts + initial_state_starts
 
     return num_start_ups_within_up_time
 
@@ -316,18 +335,36 @@ def num_shut_downs_within_down_time_calculator(sets, data, var):
     :param var dict: var dictionary
     """
 
+    def get_var_stops(i, i_low_var, u):
+        var_stops = \
+            pp.lpSum([
+                var["num_shutting_down"].var[(i2, u)] for i2 in range(i_low_var, i+1)
+            ])
+
+        return var_stops
+
+    def get_initial_state_stops(initial_state, i, i_low, u):
+        if initial_state is not None:
+            initial_state_filt = initial_state.xs("num_shutting_down", level=0, axis=1)
+            sum_cols = [i2 for i2 in range(i_low, i+1) if i2 in initial_state_filt.columns]
+            initial_state_stops = initial_state_filt.loc[u, sum_cols].sum()
+        else:
+            initial_state_stops = 0
+
+        return initial_state_stops
+
     i0 = min(sets["intervals"].indices)
     num_shut_downs_within_down_time = {}
 
     for i in sets["intervals"].indices:
         for u in sets["units"].indices:
-            up_time = data["units"]["MinimumDownTimeHrs"][u]
-            i_low = max(i0, i - up_time + 1)
+            down_time = data["units"]["MinimumDownTimeHrs"][u]
+            i_low = i - down_time + 1
+            i_low_var = max(i0, i_low)
 
-            num_shut_downs_within_down_time[(i, u)] = \
-                pp.lpSum([
-                    var["num_shutting_down"].var[(i2, u)] for i2 in range(i_low, i+1)
-                ])
+            var_stops = get_var_stops(i, i_low_var, u)
+            initial_state_stops = get_initial_state_stops(data["initial_state"], i, i_low, u)
+            num_shut_downs_within_down_time[(i, u)] = var_stops + initial_state_stops
 
     return num_shut_downs_within_down_time
 
@@ -348,9 +385,9 @@ def total_power_in_interval(sets, power_generated):
     return {i: pp.lpSum([power_generated[(i, u)] for u in units]) for i in intervals}
 
 
-def up_ramp_calculator(sets, data, var):
+def ramp_calculator(sets, data, var):
     """
-    Return a dictionary of the up ramp rate (positive difference in power output) for each unit and
+    Return a dictionary of the ramp (difference in power output) for each unit and
     interval.  For the first interval, the ramp is relative to the initial state power
     generation.
 
@@ -359,47 +396,27 @@ def up_ramp_calculator(sets, data, var):
     :param var dict: var dictionary
     """
 
-    up_rampMW = dict()
+    rampMW = dict()
     first_interval = sets["intervals"].indices[0]
 
     for u in sets["units"].indices:
-        up_rampMW[(first_interval, u)] = \
-            0 - var["power_generated"].var[(first_interval, u)] \
-            # - data["initial_state"]["PowerGenerationMW"][u]
+        try:
+            units_initial_power = \
+                float(data["initial_state"][("power_generated", -1)][u])
+        except KeyError:
+            units_initial_power = 0
+        except TypeError:
+            units_initial_power = 0
+
+        rampMW[(first_interval, u)] = \
+            var["power_generated"].var[(first_interval, u)] - units_initial_power
 
         for i in sets["intervals"].indices[1:]:
-            up_rampMW[(i, u)] = \
+            rampMW[(i, u)] = \
                 var["power_generated"].var[(i, u)] \
                 - var["power_generated"].var[(i-1, u)]
 
-    return up_rampMW
-
-
-def down_ramp_calculator(sets, data, var):
-    """
-    Return a dictionary of the down ramp rate (negative difference in power output) for each unit
-    and interval.  For the first interval, the ramp is relative to the initial state power
-    generation.
-
-    :param sets dict: sets dictionary
-    :param data dict: data dictionary
-    :param var dict: var dictionary
-    """
-
-    down_rampMW = dict()
-    first_interval = sets["intervals"].indices[0]
-
-    for u in sets["units"].indices:
-        down_rampMW[(first_interval, u)] = \
-            0 - var["power_generated"].var[(first_interval, u)]
-            # data["initial_state"]["PowerGenerationMW"][u] \
-
-        for i in sets["intervals"].indices[1:]:
-            down_rampMW[(i, u)] = \
-                var["power_generated"].var[(i-1, u)] \
-                - var["power_generated"].var[(i, u)]
-
-    return down_rampMW
+    return rampMW
 
 
 def start_up_ramp_capacity_calculator(sets, data):

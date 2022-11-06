@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 import pandas as pd
 import pulp as pp
 from pyuc import constraints as ca
@@ -188,13 +189,20 @@ class MinUpAndDownTimes(unittest.TestCase):
             "MinimumDownTimeHrs": [2],
         }).set_index("Unit")
 
+        initial_state = pd.DataFrame(
+            np.array([[2, 1, 5]]),
+            columns=pd.MultiIndex.from_tuples([
+                ("num_starting_up", -2), ("num_starting_up", -1), ("num_shutting_down", -1)]),
+            index=["U1"]
+        )
+
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
         sets = {"units": units, "units_commit": units_commit, "intervals": intervals}
 
         self.problem = {
-            "data": {"units": unit_data},
+            "data": {"units": unit_data, "initial_state": initial_state},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -214,31 +222,37 @@ class MinUpAndDownTimes(unittest.TestCase):
     def test_minimum_up_time(self):
         constraints = ca.cnt_minimum_up_time(self.problem)
 
+        self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(3)
+        self.assertEqual(
+            constraints["minimum_up_time(i=0, u=U1)"].value(),
+            3 - (2 + 1 + 1)
+        )
+
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(3)
         self.assertEqual(
             constraints["minimum_up_time(i=3, u=U1)"].value(),
             3 - (2 + 3 + 2)
         )
 
-        self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(7)
-        self.assertEqual(
-            constraints["minimum_up_time(i=3, u=U1)"].value(),
-            7 - (2 + 3 + 2)
-        )
-
     def test_minimum_down_time(self):
         constraints = ca.cnt_minimum_down_time(self.problem)
+
+        self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(6)
+        self.assertEqual(
+            constraints["minimum_down_time(i=0, u=U1)"].value(),
+            (10 - 6) - (5 + 1)
+        )
 
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(6)
         self.assertEqual(
             constraints["minimum_down_time(i=3, u=U1)"].value(),
-            10 - 6 - (2 + 3)
+            (10 - 6) - (2 + 3)
         )
 
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(5)
         self.assertEqual(
             constraints["minimum_down_time(i=3, u=U1)"].value(),
-            10- 5 - (2 + 3)
+            (10 - 5) - (2 + 3)
         )
 
 
@@ -395,6 +409,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
 
         data = {"demand": demand,
                 "units": self.unit_data,
+                "initial_state": None,
                 "variable_traces": variable_traces,
                 "ValueOfLostLoad$/MWh": 1000}
         sets = load_data.create_sets(data)
@@ -544,11 +559,20 @@ class OtherFunctions(unittest.TestCase):
             "MinimumGenerationFrac": [0.6, 0.3]
         }).set_index("Unit")
 
+        initial_state = pd.DataFrame(
+            np.array([[2, 1, 5], [0, 0, 0]]),
+            columns=pd.MultiIndex.from_tuples([
+                ("num_starting_up", -2), ("num_starting_up", -1), ("num_shutting_down", -1)]),
+            index=["U1", "U2"]
+        )
+
         units = pyuc.Set("units", list(unit_data.index))
         intervals = pyuc.Set("intervals", list(range(6)))
 
         self.problem = {
-            "data": {"units": unit_data, "ValueOfLostLoad$/MWh": 1000},
+            "data": {"units": unit_data,
+                     "initial_state": initial_state,
+                     "ValueOfLostLoad$/MWh": 1000},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": {"units": units, "intervals": intervals},
             "paths": None
@@ -583,8 +607,8 @@ class OtherFunctions(unittest.TestCase):
         num_start_ups_within_up_time = \
             ca.num_start_ups_within_up_time_calculator(sets, data, var)
 
-        self.assertEqual(num_start_ups_within_up_time[(0, "U1")].value(), 0)
-        self.assertEqual(num_start_ups_within_up_time[(1, "U1")].value(), 1)
+        self.assertEqual(num_start_ups_within_up_time[(0, "U1")].value(), 3)
+        self.assertEqual(num_start_ups_within_up_time[(1, "U1")].value(), 2)
         self.assertEqual(num_start_ups_within_up_time[(2, "U1")].value(), 3)
         self.assertEqual(num_start_ups_within_up_time[(3, "U1")].value(), 4)
         self.assertEqual(num_start_ups_within_up_time[(4, "U1")].value(), 3)
@@ -609,7 +633,7 @@ class OtherFunctions(unittest.TestCase):
         num_shut_downs_within_down_time = \
             ca.num_shut_downs_within_down_time_calculator(sets, data, var)
 
-        self.assertEqual(num_shut_downs_within_down_time[(0, "U1")].value(), 0)
+        self.assertEqual(num_shut_downs_within_down_time[(0, "U1")].value(), 5)
         self.assertEqual(num_shut_downs_within_down_time[(1, "U1")].value(), 1)
         self.assertEqual(num_shut_downs_within_down_time[(2, "U1")].value(), 3)
         self.assertEqual(num_shut_downs_within_down_time[(3, "U1")].value(), 3)
@@ -622,49 +646,61 @@ class OtherFunctions(unittest.TestCase):
 
         self.assertEqual(result_keys, expected_keys)
 
-    def test_up_ramp_calculator_all_intervals_and_units(self):
+    def test_ramp_calculator_all_intervals_and_units(self):
         sets, data, var = \
             self.problem["sets"], self.problem["data"], self.problem["var"]
-        up_ramp = ca.up_ramp_calculator(sets, data, var)
+        rampMW = ca.ramp_calculator(sets, data, var)
 
-        result_keys = list(up_ramp.keys())
+        result_keys = list(rampMW.keys())
         expected_keys = [
             (i, u) for i in sets["intervals"].indices for u in sets["units"].indices
         ]
 
         self.assertEqual(sorted(result_keys), sorted(expected_keys))
 
-    def test_up_ramp_calculator_second_interval(self):
+    def test_ramp_calculator_first_interval_without_initial_state(self):
+        initial_state = None
+
+        sets, data, var = \
+            self.problem["sets"], self.problem["data"], self.problem["var"]
+
+        data["initial_state"] = initial_state
+
+        var["power_generated"].var[(0, "U1")].setInitialValue(20)
+        var["power_generated"].var[(0, "U2")].setInitialValue(20)
+
+        rampMW = ca.ramp_calculator(sets, data, var)
+        self.assertEqual(rampMW[(0, "U1")].value(), 20-0)
+        self.assertEqual(rampMW[(0, "U2")].value(), 20-0)
+
+    def test_ramp_calculator_first_interval_with_initial_state(self):
+        initial_state = pd.DataFrame(
+            np.array([10, pd.NA]),
+            index=["U1", "U2"],
+            columns=pd.MultiIndex.from_tuples([("power_generated", -1)])
+        )
+
+        sets, data, var = \
+            self.problem["sets"], self.problem["data"], self.problem["var"]
+
+        data["initial_state"] = initial_state
+
+        var["power_generated"].var[(0, "U1")].setInitialValue(20)
+        var["power_generated"].var[(0, "U2")].setInitialValue(20)
+
+        rampMW = ca.ramp_calculator(sets, data, var)
+        self.assertEqual(rampMW[(0, "U1")].value(), 20-10)
+        self.assertEqual(rampMW[(0, "U2")].value(), 20-0)
+
+    def test_ramp_calculator_second_interval(self):
         sets, data, var = \
             self.problem["sets"], self.problem["data"], self.problem["var"]
 
         var["power_generated"].var[(0, "U1")].setInitialValue(20)
         var["power_generated"].var[(1, "U1")].setInitialValue(45)
 
-        up_ramp = ca.up_ramp_calculator(sets, data, var)
-        self.assertEqual(up_ramp[(1, "U1")].value(), 45-20)
-
-    def test_down_ramp_calculator_all_intervals_and_units(self):
-        sets, data, var = \
-            self.problem["sets"], self.problem["data"], self.problem["var"]
-        down_ramp = ca.down_ramp_calculator(sets, data, var)
-
-        result_keys = list(down_ramp.keys())
-        expected_keys = [
-            (i, u) for i in sets["intervals"].indices for u in sets["units"].indices
-        ]
-
-        self.assertEqual(sorted(result_keys), sorted(expected_keys))
-
-    def test_down_ramp_calculator_second_interval(self):
-        sets, data, var = \
-            self.problem["sets"], self.problem["data"], self.problem["var"]
-
-        var["power_generated"].var[(0, "U1")].setInitialValue(20)
-        var["power_generated"].var[(1, "U1")].setInitialValue(45)
-
-        down_ramp = ca.down_ramp_calculator(sets, data, var)
-        self.assertEqual(down_ramp[(1, "U1")].value(), 20-45)
+        rampMW = ca.ramp_calculator(sets, data, var)
+        self.assertEqual(rampMW[(1, "U1")].value(), 45-20)
 
     def test_online_ramp_calculator(self):
         sets, data = self.problem["sets"], self.problem["data"]

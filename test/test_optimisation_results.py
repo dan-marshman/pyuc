@@ -40,6 +40,7 @@ class testBasicProblems(unittest.TestCase):
             "data": {
                 "demand": demand,
                 "units": unit_data,
+                "initial_state": None,
                 "ValueOfLostLoad$/MWh": 1000,
                 "IntervalDurationHrs": 0.5
             },

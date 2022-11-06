@@ -31,7 +31,7 @@ def load_unit_data(unit_data_path):
 
     utils.check_path_exists(unit_data_path, "Unit Data File")
 
-    return pd.read_csv(unit_data_path, index_col="Unit")
+    return pd.read_csv(unit_data_path, index_col="Unit").fillna(0)
 
 
 def load_demand_data(demand_data_path):

@@ -77,13 +77,16 @@ create_sets	pyuc/load_data.py	/^def create_sets(data):$/;"	f
 create_single_sets	pyuc/load_data.py	/^def create_single_sets(data):$/;"	f
 create_subsets	pyuc/load_data.py	/^def create_subsets(sets, data):$/;"	f
 create_variables	pyuc/pyuc.py	/^def create_variables(sets):$/;"	f
-down_ramp_calculator	pyuc/constraints.py	/^def down_ramp_calculator(sets, data, var):$/;"	f
 extractor_wrapper	pyuc/constraints.py	/^    def extractor_wrapper(problem):$/;"	f	function:constraint_adder	file:
 extractor_wrapper	pyuc/objective_function.py	/^    def extractor_wrapper(problem):$/;"	f	function:objective_adder	file:
 filter_technology	pyuc/load_data.py	/^    def filter_technology(unit_df, selected_techs):$/;"	f	function:create_subsets	file:
 four_dim_to_df	pyuc/pyuc.py	/^    def four_dim_to_df(self):$/;"	m	class:Var
 fuel_cost_per_mwh_calculator	pyuc/objective_function.py	/^def fuel_cost_per_mwh_calculator(unit_data, u):$/;"	f
 fuel_cost_term	pyuc/objective_function.py	/^def fuel_cost_term(sets, data, var):$/;"	f
+get_initial_state_starts	pyuc/constraints.py	/^    def get_initial_state_starts(initial_state, i, i_low, u):$/;"	f	function:num_start_ups_within_up_time_calculator	file:
+get_initial_state_stops	pyuc/constraints.py	/^    def get_initial_state_stops(initial_state, i, i_low, u):$/;"	f	function:num_shut_downs_within_down_time_calculator	file:
+get_var_starts	pyuc/constraints.py	/^    def get_var_starts(i, i_low_var, u):$/;"	f	function:num_start_ups_within_up_time_calculator	file:
+get_var_stops	pyuc/constraints.py	/^    def get_var_stops(i, i_low_var, u):$/;"	f	function:num_shut_downs_within_down_time_calculator	file:
 import_settings_file	pyuc/setup_problem.py	/^def import_settings_file(settings_path):$/;"	f
 init_df	pyuc/constraint_adder.py	/^    def init_df():$/;"	f	function:make_constraint_index	file:
 initialise_paths	pyuc/setup_problem.py	/^def initialise_paths(input_data_path, output_data_path, name):$/;"	f
@@ -105,6 +108,7 @@ make_pulp_variable	pyuc/pyuc.py	/^    def make_pulp_variable(self):$/;"	m	class:
 make_results_folders	pyuc/setup_problem.py	/^def make_results_folders(paths):$/;"	f
 make_var_indices	pyuc/pyuc.py	/^    def make_var_indices(self):$/;"	m	class:Var
 minimum_generation_calculator	pyuc/constraints.py	/^def minimum_generation_calculator(sets, data):$/;"	f
+np	test/test_constraints.py	/^import numpy as np$/;"	I	nameref:module:numpy
 np	test/test_load_data.py	/^import numpy as np$/;"	I	nameref:module:numpy
 num_shut_downs_within_down_time_calculator	pyuc/constraints.py	/^def num_shut_downs_within_down_time_calculator(sets, data, var):$/;"	f
 num_start_ups_within_up_time_calculator	pyuc/constraints.py	/^def num_start_ups_within_up_time_calculator(sets, data, var):$/;"	f
@@ -132,6 +136,7 @@ pp	test/test_optimisation_results.py	/^import pulp as pp$/;"	I	nameref:module:pu
 pp	test/test_pyuc.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 pp	test/test_setup_problem.py	/^import pulp as pp$/;"	I	nameref:module:pulp
 print_solution_value_and_time	pyuc/pyuc.py	/^def print_solution_value_and_time(problem):$/;"	f
+ramp_calculator	pyuc/constraints.py	/^def ramp_calculator(sets, data, var):$/;"	f
 read_constraint_list	pyuc/constraint_adder.py	/^    def read_constraint_list():$/;"	f	function:constraint_selector	file:
 result_df_clean_up	pyuc/pyuc.py	/^    def result_df_clean_up(self):$/;"	m	class:Var
 run_opt_problem	pyuc/pyuc.py	/^def run_opt_problem(name, input_data_path, output_data_path):$/;"	f
@@ -219,8 +224,6 @@ test_df_clean_up_dtype_binary	test/test_pyuc.py	/^    def test_df_clean_up_dtype
 test_df_clean_up_dtype_continuous	test/test_pyuc.py	/^    def test_df_clean_up_dtype_continuous(self):$/;"	m	class:testVarMethods
 test_df_clean_up_dtype_integer	test/test_pyuc.py	/^    def test_df_clean_up_dtype_integer(self):$/;"	m	class:testVarMethods
 test_df_clean_up_name	test/test_pyuc.py	/^    def test_df_clean_up_name(self):$/;"	m	class:testVarMethods
-test_down_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_down_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
-test_down_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_down_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
 test_each_fn_is_called	test/test_setup_problem.py	/^    def test_each_fn_is_called(self,$/;"	m	class:SetUpProblem
 test_four_dim_to_df	test/test_pyuc.py	/^    def test_four_dim_to_df(self):$/;"	m	class:testDimToDf
 test_fuel_cost_term	test/test_objective_function.py	/^    def test_fuel_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
@@ -266,6 +269,10 @@ test_path_does_not_exist_is_required	test/test_utils.py	/^    def test_path_does
 test_print_solution	test/test_pyuc.py	/^    def test_print_solution(self, print_mock):$/;"	m	class:testSolve
 test_problem1	test/test_optimisation_results.py	/^    def test_problem1(self, constraint_selector_mock):$/;"	m	class:testBasicProblems
 test_problem_files_made	test/test_integration.py	/^    def test_problem_files_made(self):$/;"	m	class:Integration
+test_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
+test_ramp_calculator_first_interval_with_initial_state	test/test_constraints.py	/^    def test_ramp_calculator_first_interval_with_initial_state(self):$/;"	m	class:OtherFunctions
+test_ramp_calculator_first_interval_without_initial_state	test/test_constraints.py	/^    def test_ramp_calculator_first_interval_without_initial_state(self):$/;"	m	class:OtherFunctions
+test_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
 test_ramp_rate_down_committed_only	test/test_constraints.py	/^    def test_ramp_rate_down_committed_only(self):$/;"	m	class:RampRates
 test_ramp_rate_down_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_down_shutting_down(self):$/;"	m	class:RampRates
 test_ramp_rate_down_starting_up	test/test_constraints.py	/^    def test_ramp_rate_down_starting_up(self):$/;"	m	class:RampRates
@@ -308,8 +315,6 @@ test_units_storage_subset	test/test_load_data.py	/^    def test_units_storage_su
 test_units_variable_generator_subset	test/test_load_data.py	/^    def test_units_variable_generator_subset(self):$/;"	m	class:LoadSubSets
 test_unserved_energy_cost_term	test/test_objective_function.py	/^    def test_unserved_energy_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_unserved_energy_cost_term_interval_duration	test/test_objective_function.py	/^    def test_unserved_energy_cost_term_interval_duration(self):$/;"	m	class:testObjectiveFunctionTerms
-test_up_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_up_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
-test_up_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_up_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
 test_validate_set_is_called	test/test_Set.py	/^    def test_validate_set_is_called(self, validate_set_mock):$/;"	m	class:TestSubSetInit
 test_var_init_indices	test/test_pyuc.py	/^    def test_var_init_indices(self):$/;"	m	class:testVarBasic
 test_var_init_name	test/test_pyuc.py	/^    def test_var_init_name(self):$/;"	m	class:testVarBasic
@@ -330,6 +335,5 @@ to_df_fn_chooser	pyuc/pyuc.py	/^    def to_df_fn_chooser(self):$/;"	m	class:Var
 total_power_in_interval	pyuc/constraints.py	/^def total_power_in_interval(sets, power_generated):$/;"	f
 two_dim_to_df	pyuc/pyuc.py	/^    def two_dim_to_df(self):$/;"	m	class:Var
 unserved_energy_cost_term	pyuc/objective_function.py	/^def unserved_energy_cost_term(sets, data, var):$/;"	f
-up_ramp_calculator	pyuc/constraints.py	/^def up_ramp_calculator(sets, data, var):$/;"	f
 validate_set	pyuc/pyuc.py	/^    def validate_set(self, master_set):$/;"	m	class:Set
 vom_cost_term	pyuc/objective_function.py	/^def vom_cost_term(sets, data, var):$/;"	f
