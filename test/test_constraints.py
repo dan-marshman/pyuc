@@ -22,13 +22,23 @@ class BasicConstraintEquations(unittest.TestCase):
         }).set_index("Unit")
 
         units = pyuc.Set("units", list(unit_data.index))
-        units_commit = pyuc.Set("units", list(unit_data.index), master_set=units)
-        intervals = pyuc.Set("intervals", list(demand.index))
+        units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(3)))
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"demand": demand, "units": unit_data, "ValueOfLostLoad$/MWh": 1000},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
-            "sets": {"units": units, "units_commit": units_commit, "intervals": intervals},
+            "sets": sets,
             "paths": None
         }
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
@@ -198,8 +208,17 @@ class MinUpAndDownTimes(unittest.TestCase):
 
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
-        sets = {"units": units, "units_commit": units_commit, "intervals": intervals}
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"units": unit_data, "initial_state": initial_state},
@@ -256,7 +275,7 @@ class MinUpAndDownTimes(unittest.TestCase):
         )
 
 
-class RampRates(unittest.TestCase):
+class RampRatesConstraints(unittest.TestCase):
     def setUp(self):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1"],
@@ -268,8 +287,17 @@ class RampRates(unittest.TestCase):
 
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
-        intervals = pyuc.Set("intervals", list(range(2)))
-        sets = {"units": units, "units_commit": units_commit, "intervals": intervals}
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(24)))
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"units": unit_data},
@@ -359,9 +387,18 @@ class VariableResourceConstraints(unittest.TestCase):
         )
 
         units = pyuc.Set("units", list(unit_data.index))
+        units_commit = pyuc.Set("units_commit", [], master_set=units)
         units_variable = pyuc.Set("units_variable", list(unit_data.index), master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(2)))
-        sets = {"units": units, "units_variable": units_variable, "intervals": intervals}
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"units": unit_data, "variable_traces": variable_traces},
@@ -385,6 +422,77 @@ class VariableResourceConstraints(unittest.TestCase):
         self.assertEqual(constraints["variable_resource_availability(i=1, u=S)"].value(), 0)
 
 
+class StorageConstraints(unittest.TestCase):
+    def setUp(self):
+        unit_data = pd.DataFrame(data={
+            "Unit": ["S1"],
+            "NumUnits": [10],
+            "CapacityMW": [100],
+            "StorageHrs": [4],
+            "RoundTripEfficiencyFrac": [0.8],
+        }).set_index("Unit")
+
+        units = pyuc.Set("units", list(unit_data.index))
+        units_commit = pyuc.Set("units_commit", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(2)))
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_storage": units_storage,
+            "units_variable": units_variable,
+            "intervals": intervals
+        }
+
+        initial_state = pd.DataFrame(
+            np.array([[100]]),
+            columns=pd.MultiIndex.from_tuples([("stored_energy", -1)]),
+            index=["S1"]
+        )
+
+        self.problem = {
+            "data": {"units": unit_data, "initial_state": initial_state},
+            "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
+            "sets": sets,
+            "paths": None
+        }
+        self.problem["var"] = pyuc.create_variables(self.problem["sets"])
+
+    def test_stored_energy_lt_storage_capacity(self):
+        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10*100*4)
+
+        constraints = ca.cnt_stored_energy_lt_storage_capacity(self.problem)
+        self.assertEqual(constraints["stored_energy_lt_storage_capacity(i=0, u=S1)"].value(), 0)
+
+    def test_charge_lt_rt_loss_adjusted_capacity(self):
+        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(10*100*0.8)
+
+        constraints = ca.cnt_charge_lt_rt_loss_adjusted_capacity(self.problem)
+        self.assertEqual(constraints["charge_lt_rt_loss_adjusted_capacity(i=0, u=S1)"].value(), 0)
+
+    def test_storage_energy_continuity(self):
+        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10)
+        self.problem["var"]["power_generated"].var[(1, "S1")].setInitialValue(5)
+        self.problem["var"]["power_charged"].var[(1, "S1")].setInitialValue(20)
+
+        final_val = 10 - 5 + 0.8 * 20
+        self.problem["var"]["stored_energy"].var[(1, "S1")].setInitialValue(final_val)
+
+        constraints = ca.cnt_storage_energy_continuity(self.problem)
+        self.assertEqual(constraints["storage_energy_continuity(i=1, u=S1)"].value(), 0)
+
+    def test_storage_energy_continuity_initial_interval(self):
+        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(5)
+        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(20)
+
+        final_val = 100 - 5 + 0.8 * 20
+        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(final_val)
+
+        constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
+        self.assertEqual(constraints["storage_energy_continuity(i=0, u=S1)"].value(), 0)
+
+
 class UnitTypeConstraintSets(unittest.TestCase):
     def setUp(self):
         demand = pd.DataFrame(data={"Demand": [200]})
@@ -401,7 +509,9 @@ class UnitTypeConstraintSets(unittest.TestCase):
                 "MinimumGenerationFrac": [1] * len(self.units),
                 "MinimumUpTimeHrs": [1] * len(self.units),
                 "MinimumDownTimeHrs": [1] * len(self.units),
-                "RampRate_pctCapphr": [1] * len(self.units)
+                "RampRate_pctCapphr": [1] * len(self.units),
+                "StorageHrs": [1] * len(self.units),
+                "RoundTripEfficiencyFrac": [1] * len(self.units)
             }
         ).set_index("Unit")
 
@@ -412,6 +522,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
                 "initial_state": None,
                 "variable_traces": variable_traces,
                 "ValueOfLostLoad$/MWh": 1000}
+
         sets = load_data.create_sets(data)
 
         self.problem = {
@@ -502,6 +613,65 @@ class UnitTypeConstraintSets(unittest.TestCase):
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
+    def test_sets_cnt_charge_lt_rt_loss_adjusted_capacity(self):
+        constraints = ca.cnt_charge_lt_rt_loss_adjusted_capacity(self.problem)
+        expected = ["charge_lt_rt_loss_adjusted_capacity(i=0, u=Storage)"]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
+
+    def test_sets_cnt_storage_energy_continuity(self):
+        demand = pd.DataFrame(data={"Demand": [200, 200]})
+        data = {"demand": demand, "units": self.unit_data, "ValueOfLostLoad$/MWh": 1000}
+        sets = load_data.create_sets(data)
+
+        self.problem = {
+            "data": data,
+            "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
+            "sets": sets,
+            "paths": None
+        }
+        self.problem["var"] = pyuc.create_variables(self.problem["sets"])
+
+        constraints = ca.cnt_storage_energy_continuity(self.problem)
+        expected = ["storage_energy_continuity(i=1, u=Storage)"]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
+
+    def test_sets_cnt_storage_energy_continuity_initial_interval(self):
+        initial_state = pd.DataFrame(
+            np.array([[100]]),
+            columns=pd.MultiIndex.from_tuples([("stored_energy", -1)]),
+            index=["Storage"]
+        )
+
+        demand = pd.DataFrame(data={"Demand": [200, 200]})
+        data = {
+            "demand": demand,
+            "units": self.unit_data,
+            "initial_state": initial_state,
+        }
+        sets = load_data.create_sets(data)
+
+        self.problem = {
+            "data": data,
+            "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
+            "sets": sets,
+            "paths": None
+        }
+
+        self.problem["var"] = pyuc.create_variables(self.problem["sets"])
+
+        constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
+        expected = ["storage_energy_continuity(i=0, u=Storage)"]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
+
+    def test_sets_cnt_stored_energy_lt_storage_capacity(self):
+        constraints = ca.cnt_stored_energy_lt_storage_capacity(self.problem)
+        expected = ["stored_energy_lt_storage_capacity(i=0, u=Storage)"]
+        result = list(constraints.keys())
+        self.assertEqual(result, expected)
+
 
 class OtherConstraintTests(unittest.TestCase):
     def setUp(self):
@@ -518,9 +688,18 @@ class OtherConstraintTests(unittest.TestCase):
         }).set_index("Unit")
 
         units = pyuc.Set("units", list(unit_data.index))
-        units_commit = pyuc.Set("units", list(unit_data.index), master_set=units)
-        intervals = pyuc.Set("intervals", list(demand.index))
-        sets = {"units": units, "units_commit": units_commit, "intervals": intervals}
+        units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(24)))
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"demand": demand, "units": unit_data, "ValueOfLostLoad$/MWh": 1000},
@@ -567,14 +746,25 @@ class OtherFunctions(unittest.TestCase):
         )
 
         units = pyuc.Set("units", list(unit_data.index))
-        intervals = pyuc.Set("intervals", list(range(6)))
+        units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(24)))
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "intervals": intervals
+        }
 
         self.problem = {
             "data": {"units": unit_data,
                      "initial_state": initial_state,
                      "ValueOfLostLoad$/MWh": 1000},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
-            "sets": {"units": units, "intervals": intervals},
+            "sets": sets,
             "paths": None
         }
 

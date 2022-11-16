@@ -28,10 +28,13 @@ class testBasicProblems(unittest.TestCase):
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
         intervals = pyuc.Set("intervals", list(demand.index))
+
         sets = {
             "units": units,
             "units_commit": units_commit,
+            "units_storage": units_storage,
             "units_variable": units_variable,
             "intervals": intervals
         }

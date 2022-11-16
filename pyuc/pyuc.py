@@ -22,21 +22,28 @@ def run_opt_problem(name, input_data_path, output_data_path):
 
 def create_variables(sets):
     vars = dict()
+    s = sets
 
     vars["power_generated"] = \
-        Var("power_generated", "MW", [sets["intervals"], sets["units"]], "Continuous")
+        Var("power_generated", "MW", [s["intervals"], s["units"]], "Continuous")
 
     vars["num_committed"] = \
-        Var("num_committed", "#Units", [sets["intervals"], sets["units"]], "Integer")
+        Var("num_committed", "#Units", [s["intervals"], s["units_commit"]], "Integer")
 
     vars["num_shutting_down"] = \
-        Var("num_shutting_down", "#Units", [sets["intervals"], sets["units"]], "Integer")
+        Var("num_shutting_down", "#Units", [s["intervals"], s["units_commit"]], "Integer")
 
     vars["num_starting_up"] = \
-        Var("num_starting_up", "#Units", [sets["intervals"], sets["units"]], "Integer")
+        Var("num_starting_up", "#Units", [s["intervals"], s["units_commit"]], "Integer")
 
     vars["unserved_power"] = \
-        Var("unserved_power", "MW", [sets["intervals"]], "Continuous")
+        Var("unserved_power", "MW", [s["intervals"]], "Continuous")
+
+    vars["stored_energy"] = \
+        Var("stored_energy", "MW", [s["intervals"], s["units_storage"]], "Continuous")
+
+    vars["power_charged"] = \
+        Var("power_charged", "MW", [s["intervals"], s["units_storage"]], "Continuous")
 
     return vars
 

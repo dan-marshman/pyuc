@@ -23,11 +23,12 @@ OtherConstraintTests	test/test_constraints.py	/^class OtherConstraintTests(unitt
 OtherFunctions	test/test_constraints.py	/^class OtherFunctions(unittest.TestCase):$/;"	c
 PathExists	test/test_utils.py	/^class PathExists(unittest.TestCase):$/;"	c
 Paths	test/test_setup_problem.py	/^class Paths(unittest.TestCase):$/;"	c
-RampRates	test/test_constraints.py	/^class RampRates(unittest.TestCase):$/;"	c
+RampRatesConstraints	test/test_constraints.py	/^class RampRatesConstraints(unittest.TestCase):$/;"	c
 ReadSettings	test/test_setup_problem.py	/^class ReadSettings(unittest.TestCase):$/;"	c
 RunOptProblem	test/test_pyuc.py	/^class RunOptProblem(unittest.TestCase):$/;"	c
 Set	pyuc/pyuc.py	/^class Set():$/;"	c
 SetUpProblem	test/test_setup_problem.py	/^class SetUpProblem(unittest.TestCase):$/;"	c
+StorageConstraints	test/test_constraints.py	/^class StorageConstraints(unittest.TestCase):$/;"	c
 TestMasterSetInit	test/test_Set.py	/^class TestMasterSetInit(unittest.TestCase):$/;"	c
 TestSubSetInit	test/test_Set.py	/^class TestSubSetInit(unittest.TestCase):$/;"	c
 UnitTypeConstraintSets	test/test_constraints.py	/^class UnitTypeConstraintSets(unittest.TestCase):$/;"	c
@@ -52,6 +53,7 @@ ca	test/test_optimisation_results.py	/^from pyuc import constraint_adder as ca$/
 check_path_exists	pyuc/utils.py	/^def check_path_exists(path, file_type, required_file=False):$/;"	f
 cnsts	pyuc/constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nameref:unknown:constraints
 cnsts	test/test_constraint_adder.py	/^from pyuc import constraints as cnsts$/;"	x	nameref:unknown:constraints
+cnt_charge_lt_rt_loss_adjusted_capacity	pyuc/constraints.py	/^def cnt_charge_lt_rt_loss_adjusted_capacity(sets, data, var, constraints={}):$/;"	f
 cnt_commitment_continuity	pyuc/constraints.py	/^def cnt_commitment_continuity(sets, data, var, constraints={}):$/;"	f
 cnt_commitment_continuity_initial_interval	pyuc/constraints.py	/^def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):$/;"	f
 cnt_minimum_down_time	pyuc/constraints.py	/^def cnt_minimum_down_time(sets, data, var, constraints={}):$/;"	f
@@ -62,6 +64,9 @@ cnt_power_lt_capacity	pyuc/constraints.py	/^def cnt_power_lt_capacity(sets, data
 cnt_power_lt_committed_capacity	pyuc/constraints.py	/^def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):$/;"	f
 cnt_ramp_rate_down	pyuc/constraints.py	/^def cnt_ramp_rate_down(sets, data, var, constraints={}):$/;"	f
 cnt_ramp_rate_up	pyuc/constraints.py	/^def cnt_ramp_rate_up(sets, data, var, constraints={}):$/;"	f
+cnt_storage_energy_continuity	pyuc/constraints.py	/^def cnt_storage_energy_continuity(sets, data, var, constraints={}):$/;"	f
+cnt_storage_energy_continuity_initial_interval	pyuc/constraints.py	/^def cnt_storage_energy_continuity_initial_interval(sets, data, var, constraints={}):$/;"	f
+cnt_stored_energy_lt_storage_capacity	pyuc/constraints.py	/^def cnt_stored_energy_lt_storage_capacity(sets, data, var, constraints={}):$/;"	f
 cnt_supply_eq_demand	pyuc/constraints.py	/^def cnt_supply_eq_demand(sets, data, var, constraints={}):$/;"	f
 cnt_variable_resource_availability	pyuc/constraints.py	/^def cnt_variable_resource_availability(sets, data, var, constraints={}):$/;"	f
 collect_setting_type_boolean	pyuc/setup_problem.py	/^def collect_setting_type_boolean(value):$/;"	f
@@ -149,7 +154,8 @@ setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:BasicConstrain
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:MinUpAndDownTimes
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherConstraintTests
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:OtherFunctions
-setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:RampRates
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:RampRatesConstraints
+setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:StorageConstraints
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:UnitTypeConstraintSets
 setUp	test/test_constraints.py	/^    def setUp(self):$/;"	m	class:VariableResourceConstraints
 setUp	test/test_create_variables.py	/^    def setUp(self):$/;"	m	class:makeVariables
@@ -196,6 +202,7 @@ test_append_subset_is_called	test/test_Set.py	/^    def test_append_subset_is_ca
 test_build_constraints	test/test_constraint_adder.py	/^    def test_build_constraints(self):$/;"	m	class:testBuildAndAddConstraints
 test_call_check_path	test/test_setup_problem.py	/^    def test_call_check_path(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
 test_call_import_settings_file	test/test_setup_problem.py	/^    def test_call_import_settings_file(self, load_settings_mock, check_path_mock):$/;"	m	class:LoadSettings
+test_charge_lt_rt_loss_adjusted_capacity	test/test_constraints.py	/^    def test_charge_lt_rt_loss_adjusted_capacity(self):$/;"	m	class:StorageConstraints
 test_cnt_commitment_continuity	test/test_constraints.py	/^    def test_cnt_commitment_continuity(self):$/;"	m	class:BasicConstraintEquations
 test_cnt_commitment_continuity_ignores_first_interval	test/test_constraints.py	/^    def test_cnt_commitment_continuity_ignores_first_interval(self):$/;"	m	class:OtherConstraintTests
 test_cnt_commitment_continuity_init_int_only_uses_first_int	test/test_constraints.py	/^    def test_cnt_commitment_continuity_init_int_only_uses_first_int(self):$/;"	m	class:OtherConstraintTests
@@ -231,6 +238,8 @@ test_fuel_cost_term_interval_duration	test/test_objective_function.py	/^    def 
 test_heat_rate_calculator	test/test_objective_function.py	/^    def test_heat_rate_calculator(self):$/;"	m	class:testObjectiveFunctionUtils
 test_indices_intervals	test/test_create_variables.py	/^    def test_indices_intervals(self):$/;"	m	class:makeVariables
 test_indices_intervals_x_units	test/test_create_variables.py	/^    def test_indices_intervals_x_units(self):$/;"	m	class:makeVariables
+test_indices_intervals_x_units_commit	test/test_create_variables.py	/^    def test_indices_intervals_x_units_commit(self):$/;"	m	class:makeVariables
+test_indices_intervals_x_units_storage	test/test_create_variables.py	/^    def test_indices_intervals_x_units_storage(self):$/;"	m	class:makeVariables
 test_init_indices	test/test_Set.py	/^    def test_init_indices(self):$/;"	m	class:TestMasterSetInit
 test_init_name	test/test_Set.py	/^    def test_init_name(self):$/;"	m	class:TestMasterSetInit
 test_init_subsets	test/test_Set.py	/^    def test_init_subsets(self):$/;"	m	class:TestMasterSetInit
@@ -273,12 +282,12 @@ test_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def 
 test_ramp_calculator_first_interval_with_initial_state	test/test_constraints.py	/^    def test_ramp_calculator_first_interval_with_initial_state(self):$/;"	m	class:OtherFunctions
 test_ramp_calculator_first_interval_without_initial_state	test/test_constraints.py	/^    def test_ramp_calculator_first_interval_without_initial_state(self):$/;"	m	class:OtherFunctions
 test_ramp_calculator_second_interval	test/test_constraints.py	/^    def test_ramp_calculator_second_interval(self):$/;"	m	class:OtherFunctions
-test_ramp_rate_down_committed_only	test/test_constraints.py	/^    def test_ramp_rate_down_committed_only(self):$/;"	m	class:RampRates
-test_ramp_rate_down_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_down_shutting_down(self):$/;"	m	class:RampRates
-test_ramp_rate_down_starting_up	test/test_constraints.py	/^    def test_ramp_rate_down_starting_up(self):$/;"	m	class:RampRates
-test_ramp_rate_up_committed_only	test/test_constraints.py	/^    def test_ramp_rate_up_committed_only(self):$/;"	m	class:RampRates
-test_ramp_rate_up_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_up_shutting_down(self):$/;"	m	class:RampRates
-test_ramp_rate_up_starting_up	test/test_constraints.py	/^    def test_ramp_rate_up_starting_up(self):$/;"	m	class:RampRates
+test_ramp_rate_down_committed_only	test/test_constraints.py	/^    def test_ramp_rate_down_committed_only(self):$/;"	m	class:RampRatesConstraints
+test_ramp_rate_down_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_down_shutting_down(self):$/;"	m	class:RampRatesConstraints
+test_ramp_rate_down_starting_up	test/test_constraints.py	/^    def test_ramp_rate_down_starting_up(self):$/;"	m	class:RampRatesConstraints
+test_ramp_rate_up_committed_only	test/test_constraints.py	/^    def test_ramp_rate_up_committed_only(self):$/;"	m	class:RampRatesConstraints
+test_ramp_rate_up_shutting_down	test/test_constraints.py	/^    def test_ramp_rate_up_shutting_down(self):$/;"	m	class:RampRatesConstraints
+test_ramp_rate_up_starting_up	test/test_constraints.py	/^    def test_ramp_rate_up_starting_up(self):$/;"	m	class:RampRatesConstraints
 test_read_settings	test/test_setup_problem.py	/^    def test_read_settings(self, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_bool	test/test_setup_problem.py	/^    def test_read_settings_call_collect_bool(self, collect_bool_mock, open_mock):$/;"	m	class:ReadSettings
 test_read_settings_call_collect_float	test/test_setup_problem.py	/^    def test_read_settings_call_collect_float(self, collect_float_mock, open_mock):$/;"	m	class:ReadSettings
@@ -288,6 +297,7 @@ test_required_variables_are_made	test/test_create_variables.py	/^    def test_re
 test_save_results_is_called	test/test_pyuc.py	/^    def test_save_results_is_called(self,$/;"	m	class:RunOptProblem
 test_set___repr__	test/test_Set.py	/^    def test_set___repr__(self):$/;"	m	class:TestMasterSetInit
 test_set___str__	test/test_Set.py	/^    def test_set___str__(self):$/;"	m	class:TestMasterSetInit
+test_sets_cnt_charge_lt_rt_loss_adjusted_capacity	test/test_constraints.py	/^    def test_sets_cnt_charge_lt_rt_loss_adjusted_capacity(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_commitment_continuity	test/test_constraints.py	/^    def test_sets_cnt_commitment_continuity(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_commitment_continuity_initial_interval	test/test_constraints.py	/^    def test_sets_cnt_commitment_continuity_initial_interval(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_minimum_down_time	test/test_constraints.py	/^    def test_sets_cnt_minimum_down_time(self):$/;"	m	class:UnitTypeConstraintSets
@@ -298,6 +308,9 @@ test_sets_cnt_power_lt_capacity	test/test_constraints.py	/^    def test_sets_cnt
 test_sets_cnt_power_lt_committed_capacity	test/test_constraints.py	/^    def test_sets_cnt_power_lt_committed_capacity(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_ramp_rate_down	test/test_constraints.py	/^    def test_sets_cnt_ramp_rate_down(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_ramp_rate_up	test/test_constraints.py	/^    def test_sets_cnt_ramp_rate_up(self):$/;"	m	class:UnitTypeConstraintSets
+test_sets_cnt_storage_energy_continuity	test/test_constraints.py	/^    def test_sets_cnt_storage_energy_continuity(self):$/;"	m	class:UnitTypeConstraintSets
+test_sets_cnt_storage_energy_continuity_initial_interval	test/test_constraints.py	/^    def test_sets_cnt_storage_energy_continuity_initial_interval(self):$/;"	m	class:UnitTypeConstraintSets
+test_sets_cnt_stored_energy_lt_storage_capacity	test/test_constraints.py	/^    def test_sets_cnt_stored_energy_lt_storage_capacity(self):$/;"	m	class:UnitTypeConstraintSets
 test_sets_cnt_variable_resource_availability	test/test_constraints.py	/^    def test_sets_cnt_variable_resource_availability(self):$/;"	m	class:UnitTypeConstraintSets
 test_setup_problem	test/test_setup_problem.py	/^    def test_setup_problem(self):$/;"	m	class:SetUpProblem
 test_setup_problem_is_called	test/test_pyuc.py	/^    def test_setup_problem_is_called(self,$/;"	m	class:RunOptProblem
@@ -305,6 +318,9 @@ test_shut_down_ramp_capacity_calculator	test/test_constraints.py	/^    def test_
 test_solve_problem	test/test_pyuc.py	/^    def test_solve_problem(self, solve_mock):$/;"	m	class:testSolve
 test_solve_problem_is_called	test/test_pyuc.py	/^    def test_solve_problem_is_called(self,$/;"	m	class:RunOptProblem
 test_start_up_ramp_capacity_calculator	test/test_constraints.py	/^    def test_start_up_ramp_capacity_calculator(self):$/;"	m	class:OtherFunctions
+test_storage_energy_continuity	test/test_constraints.py	/^    def test_storage_energy_continuity(self):$/;"	m	class:StorageConstraints
+test_storage_energy_continuity_initial_interval	test/test_constraints.py	/^    def test_storage_energy_continuity_initial_interval(self):$/;"	m	class:StorageConstraints
+test_stored_energy_lt_storage_capacity	test/test_constraints.py	/^    def test_stored_energy_lt_storage_capacity(self):$/;"	m	class:StorageConstraints
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf
