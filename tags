@@ -318,13 +318,15 @@ test_shut_down_ramp_capacity_calculator	test/test_constraints.py	/^    def test_
 test_solve_problem	test/test_pyuc.py	/^    def test_solve_problem(self, solve_mock):$/;"	m	class:testSolve
 test_solve_problem_is_called	test/test_pyuc.py	/^    def test_solve_problem_is_called(self,$/;"	m	class:RunOptProblem
 test_start_up_ramp_capacity_calculator	test/test_constraints.py	/^    def test_start_up_ramp_capacity_calculator(self):$/;"	m	class:OtherFunctions
+test_storage_adds_to_demand	test/test_constraints.py	/^    def test_storage_adds_to_demand(self):$/;"	m	class:StorageConstraints
 test_storage_energy_continuity	test/test_constraints.py	/^    def test_storage_energy_continuity(self):$/;"	m	class:StorageConstraints
 test_storage_energy_continuity_initial_interval	test/test_constraints.py	/^    def test_storage_energy_continuity_initial_interval(self):$/;"	m	class:StorageConstraints
 test_stored_energy_lt_storage_capacity	test/test_constraints.py	/^    def test_stored_energy_lt_storage_capacity(self):$/;"	m	class:StorageConstraints
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf
-test_total_power_in_interval	test/test_constraints.py	/^    def test_total_power_in_interval(self):$/;"	m	class:OtherFunctions
+test_total_power_charged_in_interval	test/test_constraints.py	/^    def test_total_power_charged_in_interval(self):$/;"	m	class:OtherFunctions
+test_total_power_generated_in_interval	test/test_constraints.py	/^    def test_total_power_generated_in_interval(self):$/;"	m	class:OtherFunctions
 test_two_dim_to_df	test/test_pyuc.py	/^    def test_two_dim_to_df(self):$/;"	m	class:testDimToDf
 test_units_commit_subset	test/test_load_data.py	/^    def test_units_commit_subset(self):$/;"	m	class:LoadSubSets
 test_units_storage_subset	test/test_load_data.py	/^    def test_units_storage_subset(self):$/;"	m	class:LoadSubSets
@@ -348,7 +350,8 @@ test_write_to_csv	test/test_pyuc.py	/^    def test_write_to_csv(self, pd_to_csv_
 three_dim_to_df	pyuc/pyuc.py	/^    def three_dim_to_df(self):$/;"	m	class:Var
 to_csv	pyuc/pyuc.py	/^    def to_csv(self, write_directory):$/;"	m	class:Var
 to_df_fn_chooser	pyuc/pyuc.py	/^    def to_df_fn_chooser(self):$/;"	m	class:Var
-total_power_in_interval	pyuc/constraints.py	/^def total_power_in_interval(sets, power_generated):$/;"	f
+total_power_charged_in_interval	pyuc/constraints.py	/^def total_power_charged_in_interval(sets, data, power_charged):$/;"	f
+total_power_generated_in_interval	pyuc/constraints.py	/^def total_power_generated_in_interval(sets, power_generated):$/;"	f
 two_dim_to_df	pyuc/pyuc.py	/^    def two_dim_to_df(self):$/;"	m	class:Var
 unserved_energy_cost_term	pyuc/objective_function.py	/^def unserved_energy_cost_term(sets, data, var):$/;"	f
 validate_set	pyuc/pyuc.py	/^    def validate_set(self, master_set):$/;"	m	class:Set

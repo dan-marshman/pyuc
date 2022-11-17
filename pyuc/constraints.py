@@ -15,16 +15,21 @@ def constraint_adder(constraint_func):
 def cnt_supply_eq_demand(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
-    total_power = total_power_in_interval(sets, var["power_generated"])
+    total_power_generated = \
+        total_power_generated_in_interval(sets, var["power_generated"])
+
+    total_power_charged = \
+        total_power_charged_in_interval(sets, data, var["power_charged"])
 
     for i in sets["intervals"].indices:
         label = f"supply_eq_demand_(i={i})"
 
         condition = (
-            total_power[i]
+            total_power_generated[i]
             + var["unserved_power"].var[(i)]
             ==
             data["demand"]["Demand"][i]
+            + total_power_charged[i]
             )
 
         constraints[label] = condition
@@ -457,7 +462,7 @@ def num_shut_downs_within_down_time_calculator(sets, data, var):
     return num_shut_downs_within_down_time
 
 
-def total_power_in_interval(sets, power_generated):
+def total_power_generated_in_interval(sets, power_generated):
     """
     Produce a dictionary with intervals for keys, and values that are the sum of the poewr output
     variables from each unit.
@@ -471,6 +476,30 @@ def total_power_in_interval(sets, power_generated):
     power_generated = power_generated.var
 
     return {i: pp.lpSum([power_generated[(i, u)] for u in units]) for i in intervals}
+
+
+def total_power_charged_in_interval(sets, data, power_charged):
+    """
+    Produce a dictionary with intervals for keys, and values that are the sum of the
+    poewr charged including losses
+    variables from each unit.
+
+    :param sets dict: sets dictionary
+    :param power_generated pulp.LpVariable: power generated variable
+    """
+
+    intervals = sets["intervals"].indices
+    units_storage = sets["units_storage"].indices
+    power_charged = power_charged.var
+
+    charge_dict = {
+        i: pp.lpSum([
+            (1 / data["units"]["RoundTripEfficiencyFrac"][u])
+            * power_charged[(i, u)]
+            for u in units_storage]) for i in intervals
+    }
+
+    return charge_dict
 
 
 def ramp_calculator(sets, data, var):

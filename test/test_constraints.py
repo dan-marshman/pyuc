@@ -424,6 +424,8 @@ class VariableResourceConstraints(unittest.TestCase):
 
 class StorageConstraints(unittest.TestCase):
     def setUp(self):
+        demand = pd.DataFrame(data={"Demand": [200, 300]})
+
         unit_data = pd.DataFrame(data={
             "Unit": ["S1"],
             "NumUnits": [10],
@@ -452,7 +454,7 @@ class StorageConstraints(unittest.TestCase):
         )
 
         self.problem = {
-            "data": {"units": unit_data, "initial_state": initial_state},
+            "data": {"demand": demand, "units": unit_data, "initial_state": initial_state},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -491,6 +493,14 @@ class StorageConstraints(unittest.TestCase):
 
         constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
         self.assertEqual(constraints["storage_energy_continuity(i=0, u=S1)"].value(), 0)
+
+    def test_storage_adds_to_demand(self):
+        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(10)
+        self.problem["var"]["unserved_power"].var[0].setInitialValue(200+10/0.8)
+        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(0)
+
+        constraints = ca.cnt_supply_eq_demand(self.problem)
+        self.assertEqual(constraints["supply_eq_demand_(i=0)"].value(), 0)
 
 
 class UnitTypeConstraintSets(unittest.TestCase):
@@ -730,12 +740,14 @@ class OtherConstraintTests(unittest.TestCase):
 class OtherFunctions(unittest.TestCase):
     def setUp(self):
         unit_data = pd.DataFrame(data={
-            "Unit": ["U1", "U2"],
-            "CapacityMW": [100, 80],
-            "MinimumUpTimeHrs": [3, 2],
-            "MinimumDownTimeHrs": [2, 2],
-            "RampRate_pctCapphr": [0.5, 0.4],
-            "MinimumGenerationFrac": [0.6, 0.3]
+            "Unit": ["U1", "U2", "S1"],
+            "Technology": ["Coal", "Coal", "Storage"],
+            "CapacityMW": [100, 80, 100],
+            "MinimumUpTimeHrs": [3, 2, 0],
+            "MinimumDownTimeHrs": [2, 2, 0],
+            "RampRate_pctCapphr": [0.5, 0.4, 1],
+            "MinimumGenerationFrac": [0.6, 0.3, 1],
+            "RoundTripEfficiencyFrac": [1, 1, 0.8],
         }).set_index("Unit")
 
         initial_state = pd.DataFrame(
@@ -746,9 +758,9 @@ class OtherFunctions(unittest.TestCase):
         )
 
         units = pyuc.Set("units", list(unit_data.index))
-        units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_commit = pyuc.Set("units_commit", ["U1", "U2"], master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
-        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", ["S1"], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
 
         sets = {
@@ -770,19 +782,36 @@ class OtherFunctions(unittest.TestCase):
 
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
-    def test_total_power_in_interval(self):
+    def test_total_power_generated_in_interval(self):
         self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
         self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(10)
 
         self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
         self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(1, "S1")].setInitialValue(10)
 
-        total_power_in_interval = \
-            ca.total_power_in_interval(self.problem["sets"],
-                                       self.problem["var"]["power_generated"])
+        total_power_generated = \
+            ca.total_power_generated_in_interval(self.problem["sets"],
+                                                 self.problem["var"]["power_generated"]
+                                                 )
 
-        self.assertEqual(total_power_in_interval[0].value(), 20+45)
-        self.assertEqual(total_power_in_interval[1].value(), 200+45)
+        self.assertEqual(total_power_generated[0].value(), 20+45+10)
+        self.assertEqual(total_power_generated[1].value(), 200+45+10)
+
+    def test_total_power_charged_in_interval(self):
+        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(20)
+        self.problem["var"]["power_charged"].var[(1, "S1")].setInitialValue(40)
+
+        total_power_charged = \
+            ca.total_power_charged_in_interval(
+                self.problem["sets"],
+                self.problem["data"],
+                self.problem["var"]["power_charged"]
+            )
+
+        self.assertEqual(total_power_charged[0].value(), 20/0.8)
+        self.assertEqual(total_power_charged[1].value(), 40/0.8)
 
     def test_num_start_ups_calculator(self):
         sets, data, var = \
@@ -805,7 +834,7 @@ class OtherFunctions(unittest.TestCase):
 
         result_keys = list(num_start_ups_within_up_time.keys())
         expected_keys = [
-            (i, u) for i in sets["intervals"].indices for u in sets["units"].indices
+            (i, u) for i in sets["intervals"].indices for u in sets["units_commit"].indices
         ]
 
         self.assertEqual(result_keys, expected_keys)
@@ -831,7 +860,7 @@ class OtherFunctions(unittest.TestCase):
 
         result_keys = list(num_shut_downs_within_down_time.keys())
         expected_keys = [
-            (i, u) for i in sets["intervals"].indices for u in sets["units"].indices
+            (i, u) for i in sets["intervals"].indices for u in sets["units_commit"].indices
         ]
 
         self.assertEqual(result_keys, expected_keys)
