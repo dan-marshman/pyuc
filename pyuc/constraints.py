@@ -463,6 +463,13 @@ def num_shut_downs_within_down_time_calculator(sets, data, var):
 
 
 def get_initial_units_committed(sets, data):
+    """
+    Get dictionary of number of units committed in initial interval.
+
+    :param sets dict: sets dictionary
+    :param data dict: data dictionary
+    """
+
     init_state_df = data["initial_state"]
     init_commit_col = ("num_committed", -1)
     units_commit = sets["units_commit"].indices
