@@ -143,7 +143,7 @@ def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
     i = sets["intervals"].indices[0]
-    initial_units_on = 0
+    initial_units_committed = get_initial_units_committed(sets, data)
 
     for u in sets["units_commit"].indices:
         label = f"commitment_continuity(i={i}, u={u})"
@@ -151,7 +151,7 @@ def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):
         condition = (
             var["num_committed"].var[(i, u)]
             ==
-            initial_units_on
+            initial_units_committed[u]
             + var["num_starting_up"].var[(i, u)]
             - var["num_shutting_down"].var[(i, u)]
             )
@@ -461,6 +461,16 @@ def num_shut_downs_within_down_time_calculator(sets, data, var):
 
     return num_shut_downs_within_down_time
 
+
+def get_initial_units_committed(sets, data):
+    init_state_df = data["initial_state"]
+    init_commit_col = ("num_committed", -1)
+    units_commit = sets["units_commit"].indices
+
+    if init_state_df is not None:
+        return init_state_df.loc[units_commit, init_commit_col].to_dict()
+    else:
+        return {u: 0 for u in units_commit}
 
 def total_power_generated_in_interval(sets, power_generated):
     """

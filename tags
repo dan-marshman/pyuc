@@ -90,6 +90,7 @@ fuel_cost_per_mwh_calculator	pyuc/objective_function.py	/^def fuel_cost_per_mwh_
 fuel_cost_term	pyuc/objective_function.py	/^def fuel_cost_term(sets, data, var):$/;"	f
 get_initial_state_starts	pyuc/constraints.py	/^    def get_initial_state_starts(initial_state, i, i_low, u):$/;"	f	function:num_start_ups_within_up_time_calculator	file:
 get_initial_state_stops	pyuc/constraints.py	/^    def get_initial_state_stops(initial_state, i, i_low, u):$/;"	f	function:num_shut_downs_within_down_time_calculator	file:
+get_initial_units_committed	pyuc/constraints.py	/^def get_initial_units_committed(sets, data):$/;"	f
 get_var_starts	pyuc/constraints.py	/^    def get_var_starts(i, i_low_var, u):$/;"	f	function:num_start_ups_within_up_time_calculator	file:
 get_var_stops	pyuc/constraints.py	/^    def get_var_stops(i, i_low_var, u):$/;"	f	function:num_shut_downs_within_down_time_calculator	file:
 import_settings_file	pyuc/setup_problem.py	/^def import_settings_file(settings_path):$/;"	f
@@ -235,6 +236,8 @@ test_each_fn_is_called	test/test_setup_problem.py	/^    def test_each_fn_is_call
 test_four_dim_to_df	test/test_pyuc.py	/^    def test_four_dim_to_df(self):$/;"	m	class:testDimToDf
 test_fuel_cost_term	test/test_objective_function.py	/^    def test_fuel_cost_term(self):$/;"	m	class:testObjectiveFunctionTerms
 test_fuel_cost_term_interval_duration	test/test_objective_function.py	/^    def test_fuel_cost_term_interval_duration(self):$/;"	m	class:testObjectiveFunctionTerms
+test_get_initial_units_committed_init_state_defined	test/test_constraints.py	/^    def test_get_initial_units_committed_init_state_defined(self):$/;"	m	class:OtherFunctions
+test_get_initial_units_committed_init_state_undefined	test/test_constraints.py	/^    def test_get_initial_units_committed_init_state_undefined(self):$/;"	m	class:OtherFunctions
 test_heat_rate_calculator	test/test_objective_function.py	/^    def test_heat_rate_calculator(self):$/;"	m	class:testObjectiveFunctionUtils
 test_indices_intervals	test/test_create_variables.py	/^    def test_indices_intervals(self):$/;"	m	class:makeVariables
 test_indices_intervals_x_units	test/test_create_variables.py	/^    def test_indices_intervals_x_units(self):$/;"	m	class:makeVariables

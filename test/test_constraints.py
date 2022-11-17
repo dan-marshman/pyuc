@@ -21,6 +21,12 @@ class BasicConstraintEquations(unittest.TestCase):
             "MinimumGenerationFrac": [0.5, 0.2],
         }).set_index("Unit")
 
+        initial_state = pd.DataFrame(
+            np.array([[0], [2]]),
+            columns=pd.MultiIndex.from_tuples([("num_committed", -1)]),
+            index=["U1", "U2"]
+        )
+
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -35,8 +41,15 @@ class BasicConstraintEquations(unittest.TestCase):
             "intervals": intervals
         }
 
+        data = {
+            "demand": demand,
+            "initial_state": initial_state,
+            "units": unit_data,
+            "ValueOfLostLoad$/MWh": 1000
+        }
+
         self.problem = {
-            "data": {"demand": demand, "units": unit_data, "ValueOfLostLoad$/MWh": 1000},
+            "data": data,
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -186,7 +199,7 @@ class BasicConstraintEquations(unittest.TestCase):
 
         self.assertEqual(
             constraints["commitment_continuity(i=0, u=U2)"].value(),
-            2-2
+            -2
         )
 
 
@@ -527,11 +540,13 @@ class UnitTypeConstraintSets(unittest.TestCase):
 
         variable_traces = pd.DataFrame(data={"Wind": [1], "Solar": [1]})
 
-        data = {"demand": demand,
-                "units": self.unit_data,
-                "initial_state": None,
-                "variable_traces": variable_traces,
-                "ValueOfLostLoad$/MWh": 1000}
+        data = {
+            "demand": demand,
+            "units": self.unit_data,
+            "initial_state": None,
+            "variable_traces": variable_traces,
+            "ValueOfLostLoad$/MWh": 1000
+        }
 
         sets = load_data.create_sets(data)
 
@@ -711,8 +726,15 @@ class OtherConstraintTests(unittest.TestCase):
             "intervals": intervals
         }
 
+        data = {
+            "demand": demand,
+            "units": unit_data,
+            "initial_state": None,
+            "ValueOfLostLoad$/MWh": 1000
+        }
+
         self.problem = {
-            "data": {"demand": demand, "units": unit_data, "ValueOfLostLoad$/MWh": 1000},
+            "data": data,
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -751,9 +773,13 @@ class OtherFunctions(unittest.TestCase):
         }).set_index("Unit")
 
         initial_state = pd.DataFrame(
-            np.array([[2, 1, 5], [0, 0, 0]]),
+            np.array([[1, 1, 2, 5], [2, 0, 0, 0]]),
             columns=pd.MultiIndex.from_tuples([
-                ("num_starting_up", -2), ("num_starting_up", -1), ("num_shutting_down", -1)]),
+                ("num_committed", -1),
+                ("num_starting_up", -1),
+                ("num_starting_up", -2),
+                ("num_shutting_down", -1)
+            ]),
             index=["U1", "U2"]
         )
 
@@ -947,3 +973,18 @@ class OtherFunctions(unittest.TestCase):
         minimum_generationMW = ca.minimum_generation_calculator(sets, data)
 
         self.assertEqual(minimum_generationMW["U1"], 0.6*100)
+
+    def test_get_initial_units_committed_init_state_defined(self):
+        sets, data = self.problem["sets"], self.problem["data"]
+        result = ca.get_initial_units_committed(sets, data)
+        expected = {"U1": 1, "U2": 2}
+
+        self.assertEqual(result, expected)
+
+    def test_get_initial_units_committed_init_state_undefined(self):
+        sets, data = self.problem["sets"], self.problem["data"]
+        data["initial_state"] = None
+        result = ca.get_initial_units_committed(sets, data)
+        expected = {"U1": 0, "U2": 0}
+
+        self.assertEqual(result, expected)
