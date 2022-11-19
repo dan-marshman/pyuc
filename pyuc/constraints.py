@@ -318,9 +318,10 @@ def cnt_storage_energy_continuity(sets, data, var, constraints={}):
             condition = \
                 var["stored_energy"].var[(i-1, u)] \
                 - var["stored_energy"].var[(i, u)] \
-                + var["power_charged"].var[(i, u)] \
-                * data["units"]["RoundTripEfficiencyFrac"][u] \
-                - var["power_generated"].var[(i, u)] \
+                + data["IntervalDurationHrs"] * (
+                    + var["power_charged"].var[(i, u)]
+                    - var["power_generated"].var[(i, u)]
+                ) \
                 == \
                 0
 
@@ -338,12 +339,19 @@ def cnt_storage_energy_continuity_initial_interval(sets, data, var, constraints=
     for u in sets["units_storage"].indices:
         label = f"storage_energy_continuity(i={i}, u={u})"
 
+        if data["initial_state"] is not None:
+            if ("stored_energy", -1) in data["initial_state"].columns:
+                initial_energy = data["initial_state"][("stored_energy", -1)][u]
+        else:
+            initial_energy = 0
+
         condition = \
-            data["initial_state"][("stored_energy", -1)][u] \
+            initial_energy \
             - var["stored_energy"].var[(i, u)] \
-            + var["power_charged"].var[(i, u)] \
-            * data["units"]["RoundTripEfficiencyFrac"][u] \
-            - var["power_generated"].var[(i, u)] \
+            + data["IntervalDurationHrs"] * (
+                + var["power_charged"].var[(i, u)]
+                - var["power_generated"].var[(i, u)]
+            ) \
             == \
             0
 
@@ -366,7 +374,8 @@ def cnt_stored_energy_lt_storage_capacity(sets, data, var, constraints={}):
                 <= \
                 data["units"]["NumUnits"][u] \
                 * data["units"]["CapacityMW"][u] \
-                * data["units"]["StorageHrs"][u]
+                * data["units"]["StorageHrs"][u] \
+                * data["IntervalDurationHrs"]
 
             constraints[label] = condition
 
@@ -478,6 +487,7 @@ def get_initial_units_committed(sets, data):
         return init_state_df.loc[units_commit, init_commit_col].to_dict()
     else:
         return {u: 0 for u in units_commit}
+
 
 def total_power_generated_in_interval(sets, power_generated):
     """

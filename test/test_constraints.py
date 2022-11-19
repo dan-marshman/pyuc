@@ -466,8 +466,15 @@ class StorageConstraints(unittest.TestCase):
             index=["S1"]
         )
 
+        data = {
+            "demand": demand,
+            "units": unit_data,
+            "initial_state": initial_state,
+            "IntervalDurationHrs": 0.5
+        }
+
         self.problem = {
-            "data": {"demand": demand, "units": unit_data, "initial_state": initial_state},
+            "data": data,
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -475,10 +482,10 @@ class StorageConstraints(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
     def test_stored_energy_lt_storage_capacity(self):
-        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10*100*4)
-
+        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10*100*4/2)
         constraints = ca.cnt_stored_energy_lt_storage_capacity(self.problem)
-        self.assertEqual(constraints["stored_energy_lt_storage_capacity(i=0, u=S1)"].value(), 0)
+        result = constraints["stored_energy_lt_storage_capacity(i=0, u=S1)"].value()
+        self.assertEqual(result, 0)
 
     def test_charge_lt_rt_loss_adjusted_capacity(self):
         self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(10*100*0.8)
@@ -491,7 +498,7 @@ class StorageConstraints(unittest.TestCase):
         self.problem["var"]["power_generated"].var[(1, "S1")].setInitialValue(5)
         self.problem["var"]["power_charged"].var[(1, "S1")].setInitialValue(20)
 
-        final_val = 10 - 5 + 0.8 * 20
+        final_val = 10 + 0.5 * (-5 + 20)
         self.problem["var"]["stored_energy"].var[(1, "S1")].setInitialValue(final_val)
 
         constraints = ca.cnt_storage_energy_continuity(self.problem)
@@ -501,7 +508,7 @@ class StorageConstraints(unittest.TestCase):
         self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(5)
         self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(20)
 
-        final_val = 100 - 5 + 0.8 * 20
+        final_val = 100 + 0.5 * (-5 + 20)
         self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(final_val)
 
         constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
@@ -545,7 +552,8 @@ class UnitTypeConstraintSets(unittest.TestCase):
             "units": self.unit_data,
             "initial_state": None,
             "variable_traces": variable_traces,
-            "ValueOfLostLoad$/MWh": 1000
+            "ValueOfLostLoad$/MWh": 1000,
+            "IntervalDurationHrs": 1
         }
 
         sets = load_data.create_sets(data)
@@ -646,7 +654,12 @@ class UnitTypeConstraintSets(unittest.TestCase):
 
     def test_sets_cnt_storage_energy_continuity(self):
         demand = pd.DataFrame(data={"Demand": [200, 200]})
-        data = {"demand": demand, "units": self.unit_data, "ValueOfLostLoad$/MWh": 1000}
+        data = {
+            "demand": demand,
+            "units": self.unit_data,
+            "ValueOfLostLoad$/MWh": 1000,
+            "IntervalDurationHrs": 1
+        }
         sets = load_data.create_sets(data)
 
         self.problem = {
@@ -674,6 +687,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
             "demand": demand,
             "units": self.unit_data,
             "initial_state": initial_state,
+            "IntervalDurationHrs": 1
         }
         sets = load_data.create_sets(data)
 

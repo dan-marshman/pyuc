@@ -34,6 +34,18 @@ def make_constraint_index():
     add_constraint("RampRateUp", cnsts.cnt_ramp_rate_up)
     add_constraint("RampRateDown", cnsts.cnt_ramp_rate_down)
 
+    add_constraint("VariableResourceAvailability",
+                   cnsts.cnt_variable_resource_availability)
+
+    add_constraint("StorageCharge<=Capacity",
+                   cnsts.cnt_charge_lt_rt_loss_adjusted_capacity)
+    add_constraint("StorageEnergyContinuity",
+                   cnsts.cnt_storage_energy_continuity)
+    add_constraint("StorageEnergyContinuityInitialInterval",
+                   cnsts.cnt_storage_energy_continuity_initial_interval)
+    add_constraint("StoredEnergy<=EnergyCapacity",
+                   cnsts.cnt_stored_energy_lt_storage_capacity)
+
     return constraint_index
 
 

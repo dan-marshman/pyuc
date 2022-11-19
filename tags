@@ -166,7 +166,8 @@ setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadDataItems
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadSets
 setUp	test/test_load_data.py	/^    def setUp(self):$/;"	m	class:LoadSubSets
 setUp	test/test_objective_function.py	/^    def setUp(self):$/;"	m	class:testObjectiveFunctionTerms
-setUp	test/test_optimisation_results.py	/^    def setUp(self):$/;"	m	class:testBasicProblems
+setUp	test/test_optimisation_results.py	/^    def setUp(self):$/;"	m	class:testThermal
+setUp	test/test_optimisation_results.py	/^    def setUp(self):$/;"	m	class:testVariableAndStorage
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:RunOptProblem
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testDimToDf
 setUp	test/test_pyuc.py	/^    def setUp(self):$/;"	m	class:testSaveResults
@@ -184,7 +185,6 @@ sp	pyuc/pyuc.py	/^from pyuc import setup_problem as sp$/;"	x	nameref:unknown:set
 start_up_ramp_capacity_calculator	pyuc/constraints.py	/^def start_up_ramp_capacity_calculator(sets, data):$/;"	f
 tearDown	test/test_load_data.py	/^    def tearDown(self):$/;"	m	class:LoadData
 tearDown	test/test_setup_problem.py	/^    def tearDown(self):$/;"	m	class:SetUpProblem
-testBasicProblems	test/test_optimisation_results.py	/^class testBasicProblems(unittest.TestCase):$/;"	c
 testBuildAndAddConstraints	test/test_constraint_adder.py	/^class testBuildAndAddConstraints(unittest.TestCase):$/;"	c
 testConstraintSelector	test/test_constraint_adder.py	/^class testConstraintSelector(unittest.TestCase):$/;"	c
 testDimToDf	test/test_pyuc.py	/^class testDimToDf(unittest.TestCase):$/;"	c
@@ -192,9 +192,11 @@ testObjectiveFunctionTerms	test/test_objective_function.py	/^class testObjective
 testObjectiveFunctionUtils	test/test_objective_function.py	/^class testObjectiveFunctionUtils(unittest.TestCase):$/;"	c
 testSaveResults	test/test_pyuc.py	/^class testSaveResults(unittest.TestCase):$/;"	c
 testSolve	test/test_pyuc.py	/^class testSolve(unittest.TestCase):$/;"	c
+testThermal	test/test_optimisation_results.py	/^class testThermal(unittest.TestCase):$/;"	c
 testVarBasic	test/test_pyuc.py	/^class testVarBasic(unittest.TestCase):$/;"	c
 testVarDfFnChooser	test/test_pyuc.py	/^class testVarDfFnChooser(unittest.TestCase):$/;"	c
 testVarMethods	test/test_pyuc.py	/^class testVarMethods(unittest.TestCase):$/;"	c
+testVariableAndStorage	test/test_optimisation_results.py	/^class testVariableAndStorage(unittest.TestCase):$/;"	c
 test___repr__	test/test_pyuc.py	/^    def test___repr__(self):$/;"	m	class:testVarBasic
 test___str__	test/test_pyuc.py	/^    def test___str__(self):$/;"	m	class:testVarBasic
 test_add_all_constraints_to_pulp_problem	test/test_constraint_adder.py	/^    def test_add_all_constraints_to_pulp_problem(self):$/;"	m	class:testBuildAndAddConstraints
@@ -279,7 +281,6 @@ test_path_does_exist	test/test_utils.py	/^    def test_path_does_exist(self, pat
 test_path_does_not_exist_is_not_required	test/test_utils.py	/^    def test_path_does_not_exist_is_not_required(self):$/;"	m	class:PathExists
 test_path_does_not_exist_is_required	test/test_utils.py	/^    def test_path_does_not_exist_is_required(self):$/;"	m	class:PathExists
 test_print_solution	test/test_pyuc.py	/^    def test_print_solution(self, print_mock):$/;"	m	class:testSolve
-test_problem1	test/test_optimisation_results.py	/^    def test_problem1(self, constraint_selector_mock):$/;"	m	class:testBasicProblems
 test_problem_files_made	test/test_integration.py	/^    def test_problem_files_made(self):$/;"	m	class:Integration
 test_ramp_calculator_all_intervals_and_units	test/test_constraints.py	/^    def test_ramp_calculator_all_intervals_and_units(self):$/;"	m	class:OtherFunctions
 test_ramp_calculator_first_interval_with_initial_state	test/test_constraints.py	/^    def test_ramp_calculator_first_interval_with_initial_state(self):$/;"	m	class:OtherFunctions
@@ -327,6 +328,7 @@ test_storage_energy_continuity_initial_interval	test/test_constraints.py	/^    d
 test_stored_energy_lt_storage_capacity	test/test_constraints.py	/^    def test_stored_energy_lt_storage_capacity(self):$/;"	m	class:StorageConstraints
 test_subset_is_appended	test/test_Set.py	/^    def test_subset_is_appended(self):$/;"	m	class:TestSubSetInit
 test_subset_is_not_valid	test/test_Set.py	/^    def test_subset_is_not_valid(self):$/;"	m	class:TestSubSetInit
+test_thermal_problem1	test/test_optimisation_results.py	/^    def test_thermal_problem1(self, constraint_selector_mock):$/;"	m	class:testThermal
 test_three_dim_to_df	test/test_pyuc.py	/^    def test_three_dim_to_df(self):$/;"	m	class:testDimToDf
 test_total_power_charged_in_interval	test/test_constraints.py	/^    def test_total_power_charged_in_interval(self):$/;"	m	class:OtherFunctions
 test_total_power_generated_in_interval	test/test_constraints.py	/^    def test_total_power_generated_in_interval(self):$/;"	m	class:OtherFunctions
@@ -344,6 +346,7 @@ test_var_init_type	test/test_pyuc.py	/^    def test_var_init_type(self):$/;"	m	c
 test_var_init_type_specified	test/test_pyuc.py	/^    def test_var_init_type_specified(self):$/;"	m	class:testVarBasic
 test_var_init_units	test/test_pyuc.py	/^    def test_var_init_units(self):$/;"	m	class:testVarBasic
 test_variable_power_lt_resource_availability	test/test_constraints.py	/^    def test_variable_power_lt_resource_availability(self):$/;"	m	class:VariableResourceConstraints
+test_variable_with_storage_problem1	test/test_optimisation_results.py	/^    def test_variable_with_storage_problem1(self, constraint_selector_mock):$/;"	m	class:testVariableAndStorage
 test_vars_dfs_are_correct	test/test_pyuc.py	/^    def test_vars_dfs_are_correct(self, to_csv_mock):$/;"	m	class:testSaveResults
 test_vars_result_dfs_are_made	test/test_pyuc.py	/^    def test_vars_result_dfs_are_made(self, to_df_mock, to_csv_mock):$/;"	m	class:testSaveResults
 test_vars_to_csv_is_called	test/test_pyuc.py	/^    def test_vars_to_csv_is_called(self, to_csv_mock):$/;"	m	class:testSaveResults

@@ -17,7 +17,7 @@ def fuel_cost_term(sets, data, var):
         data["IntervalDurationHrs"]
         * var["power_generated"].var[(i, u)]
         * fuel_cost_per_mwh_calculator(data["units"], u)
-        for u in sets["units"].indices for i in sets["intervals"].indices
+        for u in sets["units_commit"].indices for i in sets["intervals"].indices
     ])
 
 
