@@ -12,10 +12,17 @@ class makeVariables(unittest.TestCase):
 
         self.sets["units_commit"] = \
             pyuc.Set("units_commit", ["U1", "U2"], master_set=self.sets["units"])
+
         self.sets["units_storage"] = \
             pyuc.Set("units_storage", ["S1"], master_set=self.sets["units"])
+
         self.sets["units_variable"] = \
             pyuc.Set("units_variable", ["V1"], master_set=self.sets["units"])
+
+        self.sets["units_reserve"] = \
+            pyuc.Set("units_reserve", ["U1", "U2", "S1"], master_set=self.sets["units"])
+
+        self.sets["reserves"] = pyuc.Set("units_reserve", ["raise", "lower"])
 
         self.vars = pyuc.create_variables(self.sets)
 
@@ -27,7 +34,8 @@ class makeVariables(unittest.TestCase):
             "num_starting_up",
             "unserved_power",
             "stored_energy",
-            "power_charged"
+            "power_charged",
+            "reserve_enabled"
         ]
 
         self.assertEqual(list(self.vars.keys()), expected)

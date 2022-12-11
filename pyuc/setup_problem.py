@@ -16,6 +16,14 @@ def load_settings(settings_path):
 
     utils.check_path_exists(settings_path, "Settings File")
     settings = import_settings_file(settings_path)
+    settings = validate_settings(settings)
+
+    return settings
+
+
+def validate_settings(settings):
+    if "reserves" not in settings.keys():
+        settings["reserves"] = None
 
     return settings
 

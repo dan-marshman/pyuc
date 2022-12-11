@@ -29,14 +29,18 @@ class testThermal(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(demand.index))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_storage": units_storage,
+            "units_reserve": units_reserve,
             "units_variable": units_variable,
-            "intervals": intervals
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         self.problem = {
@@ -97,16 +101,20 @@ class testVariableAndStorage(unittest.TestCase):
 
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", ["U1"], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         units_variable = pyuc.Set("units_variable", ["W1"], master_set=units)
         units_storage = pyuc.Set("units_storage", ["B1"], master_set=units)
         intervals = pyuc.Set("intervals", list(demand.index))
+        reserves = pyuc.Set("reserves", [], master_set=units)
 
         sets = {
             "units": units,
             "units_commit": units_commit,
+            "units_reserve": units_reserve,
             "units_storage": units_storage,
             "units_variable": units_variable,
-            "intervals": intervals
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         data = {

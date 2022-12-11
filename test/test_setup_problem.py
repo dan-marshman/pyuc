@@ -144,17 +144,40 @@ class LoadSettings(unittest.TestCase):
     def setUp(self):
         self.settings_path = "MY_PATH"
 
+    @mock.patch("pyuc.setup_problem.validate_settings")
     @mock.patch("pyuc.utils.check_path_exists")
-    @mock.patch("pyuc.setup_problem.import_settings_file", return_value={})
-    def test_call_import_settings_file(self, load_settings_mock, check_path_mock):
+    @mock.patch("pyuc.setup_problem.import_settings_file", return_value="settings")
+    def test_call_import_settings_file(self, load_settings_mock, check_path_mock, validate_mock):
         setup_problem.load_settings(self.settings_path)
         load_settings_mock.assert_called_once_with(self.settings_path)
 
+    @mock.patch("pyuc.setup_problem.validate_settings")
     @mock.patch("pyuc.utils.check_path_exists")
-    @mock.patch("pyuc.setup_problem.import_settings_file", return_value={})
-    def test_call_check_path(self, load_settings_mock, check_path_mock):
+    @mock.patch("pyuc.setup_problem.import_settings_file", return_value="settings")
+    def test_call_check_path(self, load_settings_mock, check_path_mock, validate_mock):
         setup_problem.load_settings(self.settings_path)
         check_path_mock.assert_called_once_with(self.settings_path, "Settings File")
+
+    @mock.patch("pyuc.setup_problem.validate_settings")
+    @mock.patch("pyuc.utils.check_path_exists")
+    @mock.patch("pyuc.setup_problem.import_settings_file", return_value="settings")
+    def test_validate_settings_is_called(self, load_settings_mock, check_path_mock, validate_mock):
+        setup_problem.load_settings(self.settings_path)
+        validate_mock.assert_called_once_with("settings")
+
+
+class ValidateSettings(unittest.TestCase):
+    def test_reserves_not_in_settings(self):
+        settings = {}
+        result = setup_problem.validate_settings(settings)
+        expected = {"reserves": None}
+        self.assertEqual(result, expected)
+
+    def test_reserves_is_in_settings(self):
+        settings = {"reserves": "reserve_setting"}
+        result = setup_problem.validate_settings(settings)
+        expected = {"reserves": "reserve_setting"}
+        self.assertEqual(result, expected)
 
 
 class InitialiseProblem(unittest.TestCase):
@@ -282,7 +305,7 @@ class SetUpProblem(unittest.TestCase):
                 "outputs": os.path.join(self.output_data_path, self.name),
                 "results": os.path.join(self.output_data_path, self.name, "results"),
             },
-            "settings": {"P1": 101, "P2": "A_STRING", "P3": False},
-            "problem": mock.ANY
+            "settings": {"P1": 101, "P2": "A_STRING", "P3": False, "reserves": None},
+            "problem": mock.ANY,
         }
         self.assertEqual(result, expected)

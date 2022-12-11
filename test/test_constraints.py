@@ -31,14 +31,18 @@ class BasicConstraintEquations(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(3)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
             "units_storage": units_storage,
-            "intervals": intervals
+            "units_reserve": units_reserve,
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         data = {
@@ -223,14 +227,18 @@ class MinUpAndDownTimes(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
             "units_storage": units_storage,
-            "intervals": intervals
+            "units_reserve": units_reserve,
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         self.problem = {
@@ -302,14 +310,18 @@ class RampRatesConstraints(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
+            "units_reserve": units_reserve,
             "units_storage": units_storage,
-            "intervals": intervals
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         self.problem = {
@@ -401,16 +413,21 @@ class VariableResourceConstraints(unittest.TestCase):
 
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", [], master_set=units)
-        units_variable = pyuc.Set("units_variable", list(unit_data.index), master_set=units)
+        units_variable = \
+            pyuc.Set("units_variable", list(unit_data.index), master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(2)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
             "units_storage": units_storage,
-            "intervals": intervals
+            "units_reserve": units_reserve,
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         self.problem = {
@@ -451,13 +468,18 @@ class StorageConstraints(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", [], master_set=units)
         units_storage = pyuc.Set("units_storage", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(2)))
+        reserves = pyuc.Set("reserves", [])
+
         sets = {
             "units": units,
             "units_commit": units_commit,
+            "units_reserve": units_reserve,
             "units_storage": units_storage,
             "units_variable": units_variable,
-            "intervals": intervals
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         initial_state = pd.DataFrame(
@@ -730,14 +752,18 @@ class OtherConstraintTests(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
             "units_storage": units_storage,
-            "intervals": intervals
+            "units_reserve": units_reserve,
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         data = {
@@ -801,14 +827,18 @@ class OtherFunctions(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", ["U1", "U2"], master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", ["S1"], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
+        reserves = pyuc.Set("reserves", [])
 
         sets = {
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
+            "units_reserve": units_reserve,
             "units_storage": units_storage,
-            "intervals": intervals
+            "intervals": intervals,
+            "reserves": reserves
         }
 
         self.problem = {

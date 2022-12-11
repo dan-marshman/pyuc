@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 
 from pyuc import pyuc, utils
@@ -100,30 +98,40 @@ def load_interval_duration(settings):
     return settings["IntervalDurationHrs"]
 
 
-def create_sets(data):
+def create_sets(data, reserve_opt=None):
     """
     Load single sets (intervals and units) and combinations.
 
     :param data dict: Optimisation data
     """
 
-    sets = create_single_sets(data)
+    sets = create_single_sets(data, reserve_opt)
     sets = create_subsets(sets, data)
     sets = create_combination_sets(sets)
 
     return sets
 
 
-def create_single_sets(data):
+def create_single_sets(data, reserve_opt=None):
     """
     Load sets for intervals and units.
 
     :param data dict: Optimisation data
+    :param settings dict: Settings dict
+    :param reserve_opt None, str or list: specifies which types of reserve to include
     """
+
+    reserve_opts = {"None": [], None: [], "RaiseAndLower": ["raise", "lower"]}
+
+    if reserve_opt in reserve_opts.keys():
+        reserves = reserve_opts[reserve_opt]
+    else:
+        reserves = []
 
     sets = {
         "intervals": pyuc.Set("intervals", data["demand"].index.to_list()),
         "units": pyuc.Set("units", data["units"].index.to_list()),
+        "reserves": pyuc.Set("reserves", reserves),
     }
 
     return sets
@@ -150,6 +158,11 @@ def create_subsets(sets, data):
     sets["units_storage"] = \
         pyuc.Set("units_storage",
                  filter_technology(data["units"], tech_storage),
+                 sets["units"])
+
+    sets["units_reserve"] = \
+        pyuc.Set("units_reserve",
+                 filter_technology(data["units"], tech_storage+tech_commit),
                  sets["units"])
 
     return sets

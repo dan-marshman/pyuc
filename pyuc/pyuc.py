@@ -5,17 +5,18 @@ import pandas as pd
 import pulp as pp
 
 from pyuc import constraint_adder as ca
-from pyuc import load_data, objective_function
+from pyuc import load_data as ld
+from pyuc import objective_function as of
 from pyuc import setup_problem as sp
 
 
 def run_opt_problem(name, input_data_path, output_data_path):
     problem = sp.setup_problem(name, input_data_path, output_data_path)
-    problem["data"] = load_data.load_data(problem)
-    problem["sets"] = load_data.create_sets(problem["data"])
+    problem["data"] = ld.load_data(problem)
+    problem["sets"] = ld.create_sets(problem["data"], problem["settings"]["reserves"])
     problem["var"] = create_variables(problem["sets"])
     problem["problem"] = ca.add_constraints(problem)
-    problem["problem"] = objective_function.make_objective_function(problem)
+    problem["problem"] = of.make_objective_function(problem)
     problem["problem"] = solve_problem(problem)
     save_results(problem)
 
@@ -44,6 +45,13 @@ def create_variables(sets):
 
     vars["power_charged"] = \
         Var("power_charged", "MW", [s["intervals"], s["units_storage"]], "Continuous")
+
+    vars["reserve_enabled"] = \
+        Var("reserve_enabled",
+            "MW",
+            [s["intervals"], s["units_reserve"], s["reserves"]],
+            "Continuous"
+            )
 
     return vars
 

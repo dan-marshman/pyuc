@@ -22,11 +22,12 @@ class LoadSets(unittest.TestCase):
             "units": self.unit_df
         }
 
-        self.sets = ld.create_single_sets(self.data)
+        self.reserve_opt = None
+        self.sets = ld.create_single_sets(self.data, self.reserve_opt)
 
     def test_create_master_set_check_keys(self):
         result = list(self.sets.keys())
-        self.assertEqual(result, ["intervals", "units"])
+        self.assertEqual(result, ["intervals", "units", "reserves"])
 
     def test_load_intervals_master_set(self):
         result = self.sets["intervals"]
@@ -38,29 +39,63 @@ class LoadSets(unittest.TestCase):
         self.assertEqual(self.sets["units"].name, "units")
         self.assertEqual(self.sets["units"].indices, ["A1", "A2", "A3", "A4"])
 
-    @mock.patch("pyuc.load_data.create_single_sets")
-    @mock.patch("pyuc.load_data.create_subsets")
+    def test_reserve_opt_is_None(self):
+        reserve_opt = None
+        self.sets = ld.create_single_sets(self.data, reserve_opt)
+        expected = []
+        result = self.sets["reserves"].indices
+        self.assertEqual(result, expected)
+
+    def test_reserve_opt_is_None_str(self):
+        reserve_opt = "None"
+        self.sets = ld.create_single_sets(self.data, reserve_opt)
+        expected = []
+        result = self.sets["reserves"].indices
+        self.assertEqual(result, expected)
+
+    def test_reserve_opt_is_RaiseAndLower(self):
+        reserve_opt = "RaiseAndLower"
+        self.sets = ld.create_single_sets(self.data, reserve_opt)
+        expected = ["raise", "lower"]
+        result = self.sets["reserves"].indices
+        self.assertEqual(result, expected)
+
+
+@mock.patch("pyuc.load_data.create_single_sets")
+@mock.patch("pyuc.load_data.create_combination_sets")
+@mock.patch("pyuc.load_data.create_subsets")
+class CreateSets(unittest.TestCase):
+    def setUp(self):
+        self.demand_df = pd.DataFrame(index=range(100))
+        self.unit_df = pd.DataFrame(
+            index=["A1", "A2", "A3", "A4"],
+            data={"Technology": ["Coal", "Coal", "Coal", "Coal"]})
+
+        self.data = {
+            "demand": self.demand_df,
+            "units": self.unit_df
+        }
+
+        self.reserve_opt = None
+        self.sets = ld.create_single_sets(self.data, self.reserve_opt)
+
     def test_create_single_sets_is_called(self,
                                           create_subsets_mock,
-                                          create_single_sets_mock):
-        ld.create_sets(self.data)
-        create_single_sets_mock.assert_called_once_with(self.data)
+                                          create_combination_sets_mock,
+                                          create_single_sets_mock
+                                         ):
+        ld.create_sets(self.data, self.reserve_opt)
+        create_single_sets_mock.assert_called_once_with(self.data, self.reserve_opt)
 
-    @mock.patch("pyuc.load_data.create_single_sets")
-    @mock.patch("pyuc.load_data.create_combination_sets")
-    @mock.patch("pyuc.load_data.create_subsets")
     def test_create_subsets_is_called(self,
                                       create_subsets_mock,
                                       create_combination_sets_mock,
                                       create_single_sets_mock,
                                       ):
         create_single_sets_mock.return_value = "sets"
-        ld.create_sets(self.data)
+        ld.create_sets(self.data, self.reserve_opt)
         create_subsets_mock.assert_called_once_with("sets", self.data)
 
-    @mock.patch("pyuc.load_data.create_single_sets")
-    @mock.patch("pyuc.load_data.create_combination_sets")
-    @mock.patch("pyuc.load_data.create_subsets")
     def test_create_combination_sets_is_called(self,
                                                create_subsets_mock,
                                                create_combination_sets_mock,
@@ -68,7 +103,7 @@ class LoadSets(unittest.TestCase):
                                                ):
         create_single_sets_mock.return_value = "sets"
         create_subsets_mock.return_value = "sets"
-        ld.create_sets(self.data)
+        ld.create_sets(self.data, self.reserve_opt)
         create_combination_sets_mock.assert_called_once_with("sets")
 
 
