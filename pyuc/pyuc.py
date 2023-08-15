@@ -40,6 +40,9 @@ def create_variables(sets):
     vars["unserved_power"] = \
         Var("unserved_power", "MW", [s["intervals"]], "Continuous")
 
+    vars["unserved_reserve"] = \
+        Var("unserved_reserve", "MW", [s["intervals"], s["reserves"]], "Continuous")
+
     vars["stored_energy"] = \
         Var("stored_energy", "MW", [s["intervals"], s["units_storage"]], "Continuous")
 

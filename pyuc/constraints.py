@@ -38,6 +38,29 @@ def cnt_supply_eq_demand(sets, data, var, constraints={}):
 
 
 @constraint_adder
+def cnt_reserve_enabled_exceeds_reserve_requirement(sets, data, var, constraints={}):
+    constraints = {}  # No idea why this is needed
+
+    total_reserve_enabled = \
+        total_reserve_enabled_in_interval(sets, var["reserve_enabled"])
+
+    for i in sets["intervals"].indices:
+        for r in sets["reserves"].indices:
+            label = f"reserve_enabled_exceeds_reserve_requirement_(i={i}, r={r})"
+
+            condition = (
+                total_reserve_enabled[(i, r)]
+                + var["unserved_reserve"].var[(i, r)]
+                >=
+                data["reserve_requirement"][r][i]
+                )
+
+            constraints[label] = condition
+
+    return constraints
+
+
+@constraint_adder
 def cnt_power_lt_capacity(sets, data, var, constraints={}):
     constraints = {}  # No idea why this is needed
 
@@ -65,8 +88,15 @@ def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):
         for u in sets["units_commit"].indices:
             label = f"power_lt_committed_capacity_(i={i}, u={u})"
 
+            if u in sets["units_reserve"].indices:
+                var_raise_reserves_enabled = \
+                    sum(var["reserve_enabled"].var[(i, u, r)] for r in sets["raise_reserves"].indices)
+            else:
+                var_raise_reserves_enabled = 0
+
             condition = (
                 var["power_generated"].var[(i, u)]
+                + var_raise_reserves_enabled
                 <=
                 var["num_committed"].var[(i, u)]
                 * data["units"]["CapacityMW"][u]
@@ -85,8 +115,15 @@ def cnt_power_gt_minimum_generation(sets, data, var, constraints={}):
         for u in sets["units_commit"].indices:
             label = f"power_gt_minimum_generation_(i={i}, u={u})"
 
+            if u in sets["units_reserve"].indices:
+                var_lower_reserves_enabled = \
+                    sum(var["reserve_enabled"].var[(i, u, r)] for r in sets["lower_reserves"].indices)
+            else:
+                var_lower_reserves_enabled = 0
+
             condition = (
                 var["power_generated"].var[(i, u)]
+                - var_lower_reserves_enabled
                 >=
                 var["num_committed"].var[(i, u)]
                 * data["units"]["CapacityMW"][u]
@@ -503,6 +540,24 @@ def total_power_generated_in_interval(sets, power_generated):
     power_generated = power_generated.var
 
     return {i: pp.lpSum([power_generated[(i, u)] for u in units]) for i in intervals}
+
+
+def total_reserve_enabled_in_interval(sets, reserve_enabled):
+    """
+    Produce a dictionary with intervals and reserve tuples for keys, and values that are the sum of the reserve
+    enabled variables from each unit.
+
+    :param sets dict: sets dictionary
+    :param power_generated pulp.LpVariable: reserve enabled variable
+    """
+
+    intervals = sets["intervals"].indices
+    reserves = sets["reserves"].indices
+    units_reserve = sets["units_reserve"].indices
+    reserve_enabled = reserve_enabled.var
+
+    return {(i, r): pp.lpSum([reserve_enabled[(i, u, r)] for u in units_reserve])
+            for i in intervals for r in reserves}
 
 
 def total_power_charged_in_interval(sets, data, power_charged):

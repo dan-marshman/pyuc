@@ -33,12 +33,22 @@ class makeVariables(unittest.TestCase):
             "num_shutting_down",
             "num_starting_up",
             "unserved_power",
+            "unserved_reserve",
             "stored_energy",
             "power_charged",
             "reserve_enabled"
         ]
 
         self.assertEqual(list(self.vars.keys()), expected)
+
+    def test_indices_intervals_x_reserves(self):
+        expected = [
+            (0, "raise"), (1, "raise"), (2, "raise"),
+            (0, "lower"), (1, "lower"), (2, "lower"),
+        ]
+
+        result = self.vars["unserved_reserve"].sets_indices
+        self.assertEqual(sorted(result), sorted(expected))
 
     def test_indices_intervals_x_units(self):
         expected = [

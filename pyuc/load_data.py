@@ -44,6 +44,18 @@ def load_demand_data(demand_data_path):
     return pd.read_csv(demand_data_path, index_col="Interval")
 
 
+def load_reserve_data(reserve_data_path):
+    """
+    Read the demand csv to a dataframe, with Interval as the index.
+
+    :param demand_data_path str: path to the deamnd file.
+    """
+
+    utils.check_path_exists(reserve_data_path, "Reserve File")
+
+    return pd.read_csv(reserve_data_path, index_col="Interval")
+
+
 def load_variable_data(variable_trace_path):
     """
     Read the variable generation csv to a dataframe, with Interval as the index.
@@ -106,7 +118,7 @@ def create_sets(data, reserve_opt=None):
     """
 
     sets = create_single_sets(data, reserve_opt)
-    sets = create_subsets(sets, data)
+    sets = create_subsets(sets, data, reserve_opt)
     sets = create_combination_sets(sets)
 
     return sets
@@ -137,7 +149,7 @@ def create_single_sets(data, reserve_opt=None):
     return sets
 
 
-def create_subsets(sets, data):
+def create_subsets(sets, data, reserve_opt=None):
     def filter_technology(unit_df, selected_techs):
         return unit_df[unit_df.Technology.isin(selected_techs)].index.to_list()
 
@@ -164,6 +176,13 @@ def create_subsets(sets, data):
         pyuc.Set("units_reserve",
                  filter_technology(data["units"], tech_storage+tech_commit),
                  sets["units"])
+
+    if reserve_opt != None:
+        sets["raise_reserves"] = pyuc.Set("raise_reserves", ["raise"], sets["reserves"])
+        sets["lower_reserves"] = pyuc.Set("lower_reserves", ["lower"], sets["reserves"])
+    else:
+        sets["raise_reserves"] = pyuc.Set("raise_reserves", [], sets["reserves"])
+        sets["lower_reserves"] = pyuc.Set("lower_reserves", [], sets["reserves"])
 
     return sets
 

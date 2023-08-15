@@ -11,6 +11,10 @@ class BasicConstraintEquations(unittest.TestCase):
     def setUp(self):
         demand = pd.DataFrame(data={"Demand": [200, 300, 400]})
 
+        reserve_requirement = pd.DataFrame(
+            data={"raise": [45, 45, 45], "lower": [35, 35, 35]}
+        )
+
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
             "CapacityMW": [100, 100],
@@ -31,9 +35,11 @@ class BasicConstraintEquations(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
-        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", ["U1"], master_set=units)
         intervals = pyuc.Set("intervals", list(range(3)))
-        reserves = pyuc.Set("reserves", [])
+        reserves = pyuc.Set("reserves", ["raise", "lower"])
+        raise_reserves = pyuc.Set("raise_reserves", ["raise"])
+        lower_reserves = pyuc.Set("lower_reserves", ["lower"])
 
         sets = {
             "units": units,
@@ -42,11 +48,14 @@ class BasicConstraintEquations(unittest.TestCase):
             "units_storage": units_storage,
             "units_reserve": units_reserve,
             "intervals": intervals,
-            "reserves": reserves
+            "reserves": reserves,
+            "raise_reserves": raise_reserves,
+            "lower_reserves": lower_reserves,
         }
 
         data = {
             "demand": demand,
+            "reserve_requirement": reserve_requirement,
             "initial_state": initial_state,
             "units": unit_data,
             "ValueOfLostLoad$/MWh": 1000
@@ -60,13 +69,11 @@ class BasicConstraintEquations(unittest.TestCase):
         }
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
-        self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
-        self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
-
         self.problem["var"]["unserved_power"].var[(0)].setInitialValue(5)
         self.problem["var"]["unserved_power"].var[(1)].setInitialValue(55)
+
+        self.problem["var"]["unserved_reserve"].var[(0, "raise")].setInitialValue(25)
+        self.problem["var"]["unserved_reserve"].var[(0, "lower")].setInitialValue(25)
 
         self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(1)
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
@@ -83,10 +90,25 @@ class BasicConstraintEquations(unittest.TestCase):
         self.problem["var"]["num_shutting_down"].var[(0, "U2")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U2")].setInitialValue(1)
 
+        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
+        self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
+        self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
+
+        self.problem["var"]["reserve_enabled"].var[(0, "U1", "raise")].setInitialValue(30)
+        self.problem["var"]["reserve_enabled"].var[(0, "U1", "lower")].setInitialValue(10)
+        self.problem["var"]["reserve_enabled"].var[(1, "U1", "raise")].setInitialValue(30)
+        self.problem["var"]["reserve_enabled"].var[(1, "U1", "lower")].setInitialValue(10)
+
     def test_cnt_supply_eq_demand(self):
         constraints = ca.cnt_supply_eq_demand(self.problem)
         self.assertEqual(constraints["supply_eq_demand_(i=0)"].value(), 20+45+5-200)
         self.assertEqual(constraints["supply_eq_demand_(i=1)"].value(), 200+45+55-300)
+
+    def test_cnt_reserve_enabled_exceeds_reserve_requirement(self):
+        constraints = ca.cnt_reserve_enabled_exceeds_reserve_requirement(self.problem)
+        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(i=0, r=raise)"].value(), 30+25-45)
+        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(i=0, r=lower)"].value(), 10+25-35)
 
     def test_cnt_power_lt_capacity(self):
         constraints = ca.cnt_power_lt_capacity(self.problem)
@@ -116,7 +138,7 @@ class BasicConstraintEquations(unittest.TestCase):
 
         self.assertEqual(
             constraints["power_lt_committed_capacity_(i=0, u=U1)"].value(),
-            20-1*100
+            20+30-1*100
         )
 
         self.assertEqual(
@@ -126,7 +148,7 @@ class BasicConstraintEquations(unittest.TestCase):
 
         self.assertEqual(
             constraints["power_lt_committed_capacity_(i=1, u=U1)"].value(),
-            200-2*100
+            200+30-2*100
         )
 
         self.assertEqual(
@@ -139,12 +161,12 @@ class BasicConstraintEquations(unittest.TestCase):
 
         self.assertEqual(
             constraints["power_gt_minimum_generation_(i=0, u=U1)"].value(),
-            20-0.5*1*100
+            20-10-0.5*1*100
         )
 
         self.assertEqual(
             constraints["power_gt_minimum_generation_(i=1, u=U1)"].value(),
-            200-0.5*2*100
+            200-10-0.5*2*100
         )
 
         self.assertEqual(

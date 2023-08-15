@@ -94,7 +94,7 @@ class CreateSets(unittest.TestCase):
                                       ):
         create_single_sets_mock.return_value = "sets"
         ld.create_sets(self.data, self.reserve_opt)
-        create_subsets_mock.assert_called_once_with("sets", self.data)
+        create_subsets_mock.assert_called_once_with("sets", self.data, None)
 
     def test_create_combination_sets_is_called(self,
                                                create_subsets_mock,
@@ -119,8 +119,8 @@ class LoadSubSets(unittest.TestCase):
             "units": self.unit_df
         }
 
-        self.sets = ld.create_single_sets(self.data)
-        self.sets = ld.create_subsets(self.sets, self.data)
+        self.sets = ld.create_single_sets(self.data, reserve_opt="RaiseAndLower")
+        self.sets = ld.create_subsets(self.sets, self.data, reserve_opt="RaiseAndLower")
 
     def test_units_commit_subset(self):
         result = self.sets["units_commit"].indices
@@ -135,6 +135,16 @@ class LoadSubSets(unittest.TestCase):
     def test_units_storage_subset(self):
         result = self.sets["units_storage"].indices
         expected = ["St"]
+        self.assertEqual(result, expected)
+
+    def test_raise_reserves_subset(self):
+        result = self.sets["raise_reserves"].indices
+        expected = ["raise"]
+        self.assertEqual(result, expected)
+
+    def test_lower_reserves_subset(self):
+        result = self.sets["lower_reserves"].indices
+        expected = ["lower"]
         self.assertEqual(result, expected)
 
 
@@ -170,6 +180,24 @@ class LoadDataItems(unittest.TestCase):
         result = ld.load_demand_data(test_file)
 
         expected = pd.DataFrame(index=[1, 2, 3], data={"Demand": [100, 200, 300]})
+        expected.index.name = "Interval"
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    @mock.patch("pyuc.utils.check_path_exists")
+    def test_load_reserve_data(self, check_path_mock):
+        test_file = io.StringIO(
+            "Interval,raise,lower\n"
+            + "1,101,50\n"
+            + "2,102,50\n"
+            + "3,103,50"
+        )
+        result = ld.load_reserve_data(test_file)
+
+        expected = pd.DataFrame(
+            index=[1, 2, 3],
+            data={"raise": [101, 102, 103], "lower": [50, 50, 50]}
+        )
         expected.index.name = "Interval"
 
         pd.testing.assert_frame_equal(result, expected)
@@ -215,13 +243,13 @@ class LoadDataItems(unittest.TestCase):
         ]
 
         expected = pd.DataFrame(
-            np.array([[5, 1, 2, 3], [10, 5, 6, 1]]),
+            np.array([[5, 1, 2, 3], [10, 5, 6, 1]], dtype=np.int64),  #Avoids int32 on Windows.
             index=["U1", "U2"],
             columns=pd.MultiIndex.from_tuples(columns, names=["Variable", "Interval"])
         )
         expected.index.name = "Unit"
 
-        pd.testing.assert_frame_equal(result, expected)
+        pd.testing.assert_frame_equal(result, expected, check_column_type=False)
 
     def test_initial_state_file_does_not_exist(self):
         test_file = "path_does_not_exist"
