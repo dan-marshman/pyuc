@@ -3,3 +3,16 @@ Supply==Demand,TRUE
 Power<=Capacity,TRUE
 Power<=CommittedCapacity,TRUE
 Power>=MinimumGeneration,TRUE
+NumCommitted<=NumUnits,TRUE
+CommitmentContinuity,TRUE
+CommitmentContinuityInitialInterval,TRUE
+VariablePower<=ResourceAvailability,TRUE
+MinimumUpTime,TRUE
+MinimumDownTime,TRUE
+RampRateUp,TRUE
+RampRateDown,TRUE
+VariableResourceAvailability,TRUE
+StorageCharge<=Capacity,TRUE
+StorageEnergyContinuity,TRUE
+StorageEnergyContinuityInitialInterval,TRUE
+StoredEnergy<=EnergyCapacity,TRUE

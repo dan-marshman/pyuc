@@ -1,3 +1,4 @@
-Unit,Technology,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh
-U1,Coal,1,100,0.5,10,0.5,5
-U2,CCGT,2,50,0.5,20,0.5,5
+Unit,Technology,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh,RoundTripEfficiencyFrac,StorageHrs,MinimumUpTimeHrs,MinimumDownTimeHrs,RampRate_pctCapphr
+U1,Coal,1,100,0.5,10,0.5,5,0,0,4,2,0.3
+U2,CCGT,3,50,0.5,20,0.5,5,0,0,4,4,0.3
+S1,Storage,1,100,0,0,0,5,0.8,2,0,0,1
