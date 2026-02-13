@@ -46,6 +46,9 @@ def make_constraint_index():
     add_constraint("StoredEnergy<=EnergyCapacity",
                    cnsts.cnt_stored_energy_lt_storage_capacity)
 
+    add_constraint("Reserve>=ReserveRequirement",
+                   cnsts.cnt_reserve_enabled_exceeds_reserve_requirement)
+
     return constraint_index
 
 

@@ -46,9 +46,9 @@ def load_demand_data(demand_data_path):
 
 def load_reserve_data(reserve_data_path):
     """
-    Read the demand csv to a dataframe, with Interval as the index.
+    Read the reserve csv to a dataframe, with Interval as the index.
 
-    :param demand_data_path str: path to the deamnd file.
+    :param reserve_data_path str: path to the reserve file.
     """
 
     utils.check_path_exists(reserve_data_path, "Reserve File")

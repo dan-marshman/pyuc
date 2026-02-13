@@ -10,7 +10,10 @@ from pyuc import objective_function as of
 from pyuc import setup_problem as sp
 
 
-def run_opt_problem(name, input_data_path, output_data_path):
+def run_opt_problem(input_data_path, output_data_path, name=None):
+    if name == None:
+        name = "UnnamedProblem"
+
     problem = sp.setup_problem(name, input_data_path, output_data_path)
     problem["data"] = ld.load_data(problem)
     problem["sets"] = ld.create_sets(problem["data"], problem["settings"]["reserves"])
@@ -44,7 +47,7 @@ def create_variables(sets):
         Var("unserved_reserve", "MW", [s["intervals"], s["reserves"]], "Continuous")
 
     vars["stored_energy"] = \
-        Var("stored_energy", "MW", [s["intervals"], s["units_storage"]], "Continuous")
+        Var("stored_energy", "MWh", [s["intervals"], s["units_storage"]], "Continuous")
 
     vars["power_charged"] = \
         Var("power_charged", "MW", [s["intervals"], s["units_storage"]], "Continuous")
@@ -74,8 +77,8 @@ def solve_problem(problem):
 
 def print_solution_value_and_time(problem):
     status_dict = {
-        1: "Optimal",
-        0: "Not Solved",
+        1:  "Optimal",
+        0:  "Not Solved",
         -1: "Infeasible",
         -2: "Unbounded",
         -3: "Undefined"

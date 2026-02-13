@@ -16,3 +16,37 @@ class testLoadDataAndPaths(unittest.TestCase):
         result = pyucs.read_traces_series(dummy_paths)
         expected = {"demand": "xyz", "variable_traces": "abc"}
         self.assertEqual(result, expected)
+
+
+class testFilterDays(unittest.TestCase):
+    def test_get_days_whole_number(self):
+        day_length = 24
+        expected = 365
+        trace_df = pd.DataFrame(index=range(8760))
+        traces = {"demand": trace_df, "variable_traces": trace_df}
+
+        result = pyucs.get_days(traces, day_length)
+
+        self.assertEqual(result, expected)
+
+    def test_get_days_fraction(self):
+        day_length = 24
+        expected = 366
+        trace_df = pd.DataFrame(index=range(8761))
+        traces = {"demand": trace_df, "variable_traces": trace_df}
+
+        result = pyucs.get_days(traces, day_length)
+
+        self.assertEqual(result, expected)
+
+    def test_get_days_unequal_length(self):
+        day_length = 24
+        expected = 366
+        demand_df = pd.DataFrame(index=range(8761))
+        variable_trace_df = pd.DataFrame(index=range(8760))
+        traces = {"demand": demand_df, "variable_traces": variable_trace_df}
+
+        with self.assertRaises(SystemExit) as cm:
+            pyucs.get_days(traces, day_length)
+
+        self.assertEqual(cm.exception.code, 1)

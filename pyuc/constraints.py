@@ -13,7 +13,7 @@ def constraint_adder(constraint_func):
 
 @constraint_adder
 def cnt_supply_eq_demand(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     total_power_generated = \
         total_power_generated_in_interval(sets, var["power_generated"])
@@ -39,7 +39,7 @@ def cnt_supply_eq_demand(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_reserve_enabled_exceeds_reserve_requirement(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     total_reserve_enabled = \
         total_reserve_enabled_in_interval(sets, var["reserve_enabled"])
@@ -62,7 +62,7 @@ def cnt_reserve_enabled_exceeds_reserve_requirement(sets, data, var, constraints
 
 @constraint_adder
 def cnt_power_lt_capacity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
         for u in sets["units"].indices:
@@ -82,7 +82,7 @@ def cnt_power_lt_capacity(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
         for u in sets["units_commit"].indices:
@@ -108,8 +108,29 @@ def cnt_power_lt_committed_capacity(sets, data, var, constraints={}):
 
 
 @constraint_adder
+def cnt_reserve_enabled_lt_reserve_capability(sets, data, var, constraints={}):
+    constraints = {}
+
+    for i in sets["intervals"].indices:
+        for u in sets["units_reserve"].indices:
+            for r in sets["reserves"].indices:
+                label = f"reserve_enabled_lt_reserve_capability_(i={i}, u={u}, r={r})"
+
+                condition = (
+                    var["reserve_enabled"].var[(i, u, r)]
+                    <=
+                    var["num_committed"].var[(i, u)]
+                    * data["units"][f"{r}CapabilityMW"][u]
+                    )
+
+                constraints[label] = condition
+
+    return constraints
+
+
+@constraint_adder
 def cnt_power_gt_minimum_generation(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
         for u in sets["units_commit"].indices:
@@ -137,7 +158,7 @@ def cnt_power_gt_minimum_generation(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_num_committed_lt_num_units(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
         for u in sets["units_commit"].indices:
@@ -156,7 +177,7 @@ def cnt_num_committed_lt_num_units(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_commitment_continuity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices[1:]:
         for u in sets["units_commit"].indices:
@@ -177,7 +198,7 @@ def cnt_commitment_continuity(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     i = sets["intervals"].indices[0]
     initial_units_committed = get_initial_units_committed(sets, data)
@@ -200,7 +221,7 @@ def cnt_commitment_continuity_initial_interval(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_minimum_up_time(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     num_start_ups_within_up_time = \
         num_start_ups_within_up_time_calculator(sets, data, var)
@@ -223,7 +244,7 @@ def cnt_minimum_up_time(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_minimum_down_time(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     num_shut_downs_within_down_time = \
         num_shut_downs_within_down_time_calculator(sets, data, var)
@@ -247,7 +268,7 @@ def cnt_minimum_down_time(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_ramp_rate_up(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     rampMW = ramp_calculator(sets, data, var)
     start_up_ramp_capacityMW = start_up_ramp_capacity_calculator(sets, data)
@@ -274,7 +295,7 @@ def cnt_ramp_rate_up(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_ramp_rate_down(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     rampMW = ramp_calculator(sets, data, var)
     shut_down_ramp_capacityMW = shut_down_ramp_capacity_calculator(sets, data)
@@ -301,7 +322,7 @@ def cnt_ramp_rate_down(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_variable_resource_availability(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     technology_type = data["units"]["Technology"].to_dict()
 
@@ -324,7 +345,7 @@ def cnt_variable_resource_availability(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_charge_lt_rt_loss_adjusted_capacity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
 
@@ -345,7 +366,7 @@ def cnt_charge_lt_rt_loss_adjusted_capacity(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_storage_energy_continuity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices[1:]:
 
@@ -369,7 +390,7 @@ def cnt_storage_energy_continuity(sets, data, var, constraints={}):
 
 @constraint_adder
 def cnt_storage_energy_continuity_initial_interval(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     i = sets["intervals"].indices[0]
 
@@ -399,7 +420,7 @@ def cnt_storage_energy_continuity_initial_interval(sets, data, var, constraints=
 
 @constraint_adder
 def cnt_stored_energy_lt_storage_capacity(sets, data, var, constraints={}):
-    constraints = {}  # No idea why this is needed
+    constraints = {}
 
     for i in sets["intervals"].indices:
 
@@ -578,6 +599,7 @@ def total_power_charged_in_interval(sets, data, power_charged):
         i: pp.lpSum([
             (1 / data["units"]["RoundTripEfficiencyFrac"][u])
             * power_charged[(i, u)]
+
             for u in units_storage]) for i in intervals
     }
 
@@ -693,5 +715,6 @@ def minimum_generation_calculator(sets, data):
 
     return {
         u: data["units"]["MinimumGenerationFrac"][u] * data["units"]["CapacityMW"][u]
+
         for u in sets["units"].indices
     }

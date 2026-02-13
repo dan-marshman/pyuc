@@ -2,3 +2,4 @@ pyuc/__pycache__/*
 test/__pycache__/*
 references/*
 test/test_problem/MY_PROB/*
+test/results/*

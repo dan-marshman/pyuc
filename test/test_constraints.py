@@ -567,6 +567,74 @@ class StorageConstraints(unittest.TestCase):
         self.assertEqual(constraints["supply_eq_demand_(i=0)"].value(), 0)
 
 
+class ReserveConstraints(unittest.TestCase):
+        unit_data = pd.DataFrame(data={
+            "Unit": ["U1"],
+            "NumUnits": [2],
+            "RaiseReserveCapabilityMW": [20],
+            "LowerReserveCapabilityMW": [10],
+        }).set_index("Unit")
+
+        initial_state = pd.DataFrame(
+            np.array([[2, 1, 5]]),
+            columns=pd.MultiIndex.from_tuples([
+                ("num_starting_up", -2), ("num_starting_up", -1), ("num_shutting_down", -1)]),
+            index=["U1"]
+        )
+
+        units = pyuc.Set("units", list(unit_data.index))
+        units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
+        units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_storage = pyuc.Set("units_storage", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
+        intervals = pyuc.Set("intervals", list(range(24)))
+        reserves = pyuc.Set("reserves", [])
+
+        sets = {
+            "units": units,
+            "units_commit": units_commit,
+            "units_variable": units_variable,
+            "units_storage": units_storage,
+            "units_reserve": units_reserve,
+            "intervals": intervals,
+            "reserves": reserves
+        }
+
+        self.problem = {
+            "data": {"units": unit_data, "initial_state": initial_state},
+            "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
+            "sets": sets,
+            "paths": None
+        }
+        self.problem["var"] = pyuc.create_variables(self.problem["sets"])
+
+        self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(0)
+        self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(1)
+        self.problem["var"]["num_committed"].var[(2, "U1")].setInitialValue(2)
+
+    def test_raise_reserve_capability(self):
+        constraints = ca.cnt_reserve_enabled_lt_reserve_capability(self.problem)
+
+        self.problem["var"]["reserve_enabled"].var[(0, "U1", "raise")].setInitialValue(0)
+        self.problem["var"]["reserve_enabled"].var[(1, "U1", "raise")].setInitialValue(20)
+        self.problem["var"]["reserve_enabled"].var[(2, "U1", "raise")].setInitialValue(40)
+
+        self.assertEqual(
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            0 - 0*20
+        )
+
+        self.assertEqual(
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            20 - 1*20
+        )
+
+        self.assertEqual(
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            40 - 2*20
+        )
+
+
 class UnitTypeConstraintSets(unittest.TestCase):
     def setUp(self):
         demand = pd.DataFrame(data={"Demand": [200]})

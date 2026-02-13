@@ -7,17 +7,30 @@ from pyuc import pyuc
 
 class Integration(unittest.TestCase):
     def setUp(self):
-        self.name = "MY_PROB"
-        self.input_path = os.path.join("test", "test_problem")
-        self.output_path = os.path.join("test", "test_problem")
+        self.output_path = os.path.join("test")
 
         if os.path.exists(os.path.join(self.output_path, "results")):
-            shutil.rmtree(os.path.join(self.output_path, "MY_PROB", "results"))
+            shutil.rmtree(os.path.join(self.output_path, "results"))
 
     def test_problem_files_made(self):
-        pyuc.run_opt_problem(self.name, self.input_path, self.output_path)
+        self.name = "test_problem_files_made"
+        self.input_path = os.path.join("test", "test_problems", "Integration", "TestSet1")
 
-        power_generated_path = \
-            os.path.join(self.output_path, "MY_PROB", "results", "power_generated_MW.csv")
+        pyuc.run_opt_problem(self.input_path, self.output_path, self.name)
 
-        self.assertTrue(os.path.exists(power_generated_path))
+        files = [
+            ("power_generated", "MW"),
+            ("num_committed", "#Units"),
+            ("num_shutting_down", "#Units"),
+            ("num_starting_up", "#Units"),
+            ("unserved_power", "MW"),
+            ("unserved_reserve", "MW"),
+            ("stored_energy", "MWh"),
+            ("power_charged", "MW"),
+            ("reserve_enabled", "MW")
+        ]
+
+        for name, unit in files:
+            file_name = f"{name}_{unit}.csv"
+            file_path = os.path.join(self.output_path, self.name, "results", file_name)
+            self.assertTrue(os.path.exists(file_path))

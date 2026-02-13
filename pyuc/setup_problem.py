@@ -114,13 +114,12 @@ def initialise_uc_problem(name):
     return {"name": name}
 
 
-def initialise_paths(input_data_path, output_data_path, name):
+def initialise_paths(input_data_path, output_data_path):
     """
     Make the path dictionary and add paths to the inputs, settings and outputs, etc.
 
     :param input_data_path str: path to the directory with the input data.
     :param output_data_path str : path to the directory to write the output data.
-    :param name str : name of the problem.
     """
 
     paths = {
@@ -132,8 +131,8 @@ def initialise_paths(input_data_path, output_data_path, name):
         "demand": os.path.join(input_data_path, "demand.csv"),
         "reserve_requirement": os.path.join(input_data_path, "reserve_requirement.csv"),
         "constraint_list": os.path.join(input_data_path, "constraint_list.csv"),
-        "outputs": os.path.join(output_data_path, name),
-        "results": os.path.join(output_data_path, name, "results"),
+        "outputs": os.path.join(output_data_path),
+        "results": os.path.join(output_data_path, "results"),
     }
 
     return paths
@@ -145,6 +144,7 @@ def make_pulp_problem(name):
 
     :param name str: Name of problem for pulp
     """
+
     return pp.LpProblem(name=name, sense=pp.LpMinimize)
 
 
@@ -154,6 +154,7 @@ def make_results_folders(paths):
 
     :param paths dict: dict of paths
     """
+
     for dir in [paths["outputs"], paths["results"]]:
         if os.path.exists(dir):
             shutil.rmtree(dir)
@@ -170,7 +171,7 @@ def setup_problem(name, input_data_path, output_data_path):
     """
 
     problem = initialise_uc_problem(name)
-    problem["paths"] = initialise_paths(input_data_path, output_data_path, name)
+    problem["paths"] = initialise_paths(input_data_path, output_data_path)
     problem["settings"] = load_settings(problem["paths"]["settings"])
     problem["problem"] = make_pulp_problem(name)
     make_results_folders(problem["paths"])
