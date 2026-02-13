@@ -32,5 +32,5 @@ class Integration(unittest.TestCase):
 
         for name, unit in files:
             file_name = f"{name}_{unit}.csv"
-            file_path = os.path.join(self.output_path, self.name, "results", file_name)
-            self.assertTrue(os.path.exists(file_path))
+            file_path = os.path.join(self.output_path, "results", file_name)
+            self.assertTrue(os.path.exists(file_path), msg=f"File not found {file_path}")

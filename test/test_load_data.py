@@ -272,7 +272,7 @@ class LoadData(unittest.TestCase):
         name = "MY_PROB"
 
         self.paths = \
-            setup_problem.initialise_paths(self.input_data_path, output_data_path, name)
+            setup_problem.initialise_paths(self.input_data_path, output_data_path)
 
         self.problem = {
             "paths": self.paths,

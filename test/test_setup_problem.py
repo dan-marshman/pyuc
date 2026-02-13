@@ -204,7 +204,8 @@ class InitialiseProblem(unittest.TestCase):
 
 class Paths(unittest.TestCase):
     def test_initialise_paths(self):
-        result = setup_problem.initialise_paths("input_data_path", "output_data_path", "MY_PROB")
+        result = setup_problem.initialise_paths("input_data_path", "output_data_path")
+
         expected = {
             "input_data": "input_data_path",
             "settings": os.path.join("input_data_path", "settings.csv"),
@@ -214,8 +215,8 @@ class Paths(unittest.TestCase):
             "demand": os.path.join("input_data_path", "demand.csv"),
             "reserve_requirement": os.path.join("input_data_path", "reserve_requirement.csv"),
             "constraint_list": os.path.join("input_data_path", "constraint_list.csv"),
-            "outputs": os.path.join("output_data_path", "MY_PROB"),
-            "results": os.path.join("output_data_path", "MY_PROB", "results"),
+            "outputs": os.path.join("output_data_path"),
+            "results": os.path.join("output_data_path", "results"),
         }
 
         self.assertEqual(result, expected)
@@ -225,15 +226,15 @@ class Paths(unittest.TestCase):
             "outputs": os.path.join("test", "TEMP", "outputs"),
             "results": os.path.join("test", "TEMP", "outputs", "results")
         }
+
         test_folder = os.path.join(paths["results"], "test")
 
-        for dir in [paths["outputs"], paths["results"], test_folder]:
+        for dir in [paths["results"], test_folder]:
             if not os.path.exists(dir):
                 os.makedirs(dir)
 
         setup_problem.make_results_folders(paths)
 
-        self.assertTrue(os.path.exists(paths["outputs"]))
         self.assertTrue(os.path.exists(paths["results"]))
         self.assertEqual(os.listdir(paths["results"]), [])
 
@@ -278,21 +279,17 @@ class SetUpProblem(unittest.TestCase):
         init_prob_mock.return_value = {}
         init_paths_mock.return_value = {"settings": "A_PATH"}
 
-        setup_problem.setup_problem(self.name,
-                                    self.input_data_path,
-                                    self.output_data_path)
+        setup_problem.setup_problem(self.name, self.input_data_path, self.output_data_path)
 
         init_prob_mock.assert_called_once_with(self.name)
-        init_paths_mock.assert_called_once_with(self.input_data_path,
-                                                self.output_data_path,
-                                                self.name)
+        init_paths_mock.assert_called_once_with(self.input_data_path, self.output_data_path)
         load_settings_mock.assert_called_once_with("A_PATH")
         make_results_folders_mock.assert_called_once_with({"settings": "A_PATH"})
 
     def test_setup_problem(self):
-        result = setup_problem.setup_problem(self.name,
-                                             self.input_data_path,
-                                             self.output_data_path)
+        result = \
+            setup_problem.setup_problem(self.name, self.input_data_path, self.output_data_path)
+
         expected = {
             "name": "MY_NAME",
             "paths": {
@@ -304,8 +301,8 @@ class SetUpProblem(unittest.TestCase):
                 "demand": os.path.join(self.input_data_path, "demand.csv"),
                 "reserve_requirement": os.path.join(self.input_data_path, "reserve_requirement.csv"),
                 "constraint_list": os.path.join(self.input_data_path, "constraint_list.csv"),
-                "outputs": os.path.join(self.output_data_path, self.name),
-                "results": os.path.join(self.output_data_path, self.name, "results"),
+                "outputs": os.path.join(self.output_data_path),
+                "results": os.path.join(self.output_data_path, "results"),
             },
             "settings": {"P1": 101, "P2": "A_STRING", "P3": False, "reserves": None},
             "problem": mock.ANY,

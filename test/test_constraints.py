@@ -568,11 +568,12 @@ class StorageConstraints(unittest.TestCase):
 
 
 class ReserveConstraints(unittest.TestCase):
+    def setUp(self):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1"],
             "NumUnits": [2],
-            "RaiseReserveCapabilityMW": [20],
-            "LowerReserveCapabilityMW": [10],
+            "RaiseCapabilityMW": [20],
+            "LowerCapabilityMW": [10],
         }).set_index("Unit")
 
         initial_state = pd.DataFrame(
@@ -586,9 +587,9 @@ class ReserveConstraints(unittest.TestCase):
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
-        units_reserve = pyuc.Set("units_reserve", [], master_set=units)
+        units_reserve = pyuc.Set("units_reserve", ["U1"], master_set=units)
         intervals = pyuc.Set("intervals", list(range(24)))
-        reserves = pyuc.Set("reserves", [])
+        reserves = pyuc.Set("reserves", ["Raise", "Lower"])
 
         sets = {
             "units": units,
@@ -615,22 +616,22 @@ class ReserveConstraints(unittest.TestCase):
     def test_raise_reserve_capability(self):
         constraints = ca.cnt_reserve_enabled_lt_reserve_capability(self.problem)
 
-        self.problem["var"]["reserve_enabled"].var[(0, "U1", "raise")].setInitialValue(0)
-        self.problem["var"]["reserve_enabled"].var[(1, "U1", "raise")].setInitialValue(20)
-        self.problem["var"]["reserve_enabled"].var[(2, "U1", "raise")].setInitialValue(40)
+        self.problem["var"]["reserve_enabled"].var[(0, "U1", "Raise")].setInitialValue(0)
+        self.problem["var"]["reserve_enabled"].var[(1, "U1", "Raise")].setInitialValue(20)
+        self.problem["var"]["reserve_enabled"].var[(2, "U1", "Raise")].setInitialValue(40)
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
             0 - 0*20
         )
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
             20 - 1*20
         )
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
             40 - 2*20
         )
 

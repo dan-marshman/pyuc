@@ -155,10 +155,10 @@ def make_results_folders(paths):
     :param paths dict: dict of paths
     """
 
-    for dir in [paths["outputs"], paths["results"]]:
-        if os.path.exists(dir):
-            shutil.rmtree(dir)
-        os.makedirs(dir)
+    if os.path.exists(paths["results"]):
+        shutil.rmtree(paths["results"])
+
+    os.makedirs(paths["results"])
 
 
 def setup_problem(name, input_data_path, output_data_path):

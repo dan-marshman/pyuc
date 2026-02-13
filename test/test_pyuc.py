@@ -35,7 +35,7 @@ class RunOptProblem(unittest.TestCase):
                                      save_results_mock
                                      ):
 
-        pyuc.run_opt_problem(self.name, self.input_data_path, self.output_data_path)
+        pyuc.run_opt_problem(self.input_data_path, self.output_data_path, self.name)
         setup_problem_mock.assert_called_once_with(
             self.name, self.input_data_path, self.output_data_path
         )
