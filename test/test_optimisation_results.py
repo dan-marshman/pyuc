@@ -23,6 +23,7 @@ class testThermal(unittest.TestCase):
             "MinimumUpTimeHrs": [1, 1],
             "MinimumDownTimeHrs": [1, 1],
             "RampRate_pctCapphr": [1, 1],
+            "StartUpFuelUseGJ/MW": [0, 0],
         }).set_index("Unit")
 
         units = pyuc.Set("units", list(unit_data.index))
@@ -97,6 +98,7 @@ class testVariableAndStorage(unittest.TestCase):
             "RampRate_pctCapphr": [1, 1, 0],
             "RoundTripEfficiencyFrac": [1, 0, 0.8],
             "StorageHrs": [0, 0, 1],
+            "StartUpFuelUseGJ/MW": [0, 0, 0],
         }).set_index("Unit")
 
         units = pyuc.Set("units", list(unit_data.index))

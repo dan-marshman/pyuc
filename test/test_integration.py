@@ -77,10 +77,23 @@ class IntegrationComplex(unittest.TestCase):
                 index_col=0,
             )
 
+        num_starting_up = \
+            pd.read_csv(
+                os.path.join(self.output_path, "results", "num_starting_up_#Units.csv"),
+                index_col=0,
+            )
+
         # 0.5 = interval duration in hours
         total_generation_cost = unit_data["SRMC"] * power_generated.sum() * 0.5
+        total_start_cost = \
+            unit_data["CapacityMW"] \
+            * unit_data["StartUpFuelUseGJ/MW"] \
+            * unit_data["FuelCost$/GJ"] \
+            * num_starting_up.sum()
 
-        self.assertEqual(objective_value, total_generation_cost.sum())
+        total_cost = total_generation_cost.sum() + total_start_cost.sum()
+
+        self.assertEqual(objective_value, total_cost)
 
     def test_min_down_time(self):
         num_committed = \

@@ -10,7 +10,9 @@ class testObjectiveFunctionTerms(unittest.TestCase):
     def setUp(self):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
+            "CapacityMW": [10, 20],
             "FuelCost$/GJ": [10/3.6, 20/3.6],
+            "StartUpFuelUseGJ/MW": [6, 10],
             "VOM$/MWh": [2.5, 6],
             "ThermalEfficiencyFrac": [1, 0.5],
         }).set_index("Unit")
@@ -56,13 +58,30 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         self.problem["var"]["unserved_power"].var[(0)].setInitialValue(5)
         self.problem["var"]["unserved_power"].var[(1)].setInitialValue(55)
 
+        self.problem["var"]["num_starting_up"].var[(0, "U1")].setInitialValue(1)
+        self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(2)
+        self.problem["var"]["num_starting_up"].var[(0, "U2")].setInitialValue(0)
+        self.problem["var"]["num_starting_up"].var[(1, "U2")].setInitialValue(1)
+
+            # "Unit": ["U1", "U2"],
+            # "CapacityMW": [10, 20],
+            # "FuelCost$/GJ": [10/3.6, 20/3.6],
+            # "StartUpFuelUseGJGJ/MW": [6, 10],
+            # "VOM$/MWh": [2.5, 6],
+            # "ThermalEfficiencyFrac": [1, 0.5],
+
         self.expected_fuel_cost = (20 + 200) * 10 + (45 + 45) * 20 / 0.5
+        self.expected_start_cost = (1 + 2) * 10 * 10/3.6 *6 + (0 + 1) * 20 * 20/3.6 * 10
         self.expected_vom_cost = (20 + 200) * 2.5 + (45 + 45) * 6
         self.expected_unserved_cost = (5 + 55) * 1000
 
     def test_fuel_cost_term(self):
         result = of.fuel_cost_term(self.problem)
         self.assertEqual(result.value(), self.expected_fuel_cost)
+
+    def test_start_cost_term(self):
+        result = of.start_cost_term(self.problem)
+        self.assertEqual(round(result.value(), 3), round(self.expected_start_cost, 3))
 
     def test_vom_cost_term(self):
         result = of.vom_cost_term(self.problem)
@@ -98,5 +117,18 @@ class testObjectiveFunctionUtils(unittest.TestCase):
 
         result = of.fuel_cost_per_mwh_calculator(unit_data, "U1")
         expected = 3.6*10/0.5
+
+        self.assertEqual(result, expected)
+
+    def test_fuel_cost_per_start_calculator(self):
+        unit_data = pd.DataFrame(data={
+            "Unit": ["U1", "U2"],
+            "FuelCost$/GJ": [10, 20],
+            "StartUpFuelUseGJ/MW": [0.5, 0.25],
+            "CapacityMW": [100, 20],
+        }).set_index("Unit")
+
+        result = of.fuel_cost_per_start_calculator(unit_data, "U1")
+        expected = 10 * 0.5 * 100
 
         self.assertEqual(result, expected)

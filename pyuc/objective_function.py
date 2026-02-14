@@ -22,6 +22,15 @@ def fuel_cost_term(sets, data, var):
 
 
 @objective_adder
+def start_cost_term(sets, data, var):
+    return pp.lpSum([
+        var["num_starting_up"].var[(i, u)]
+        * fuel_cost_per_start_calculator(data["units"], u)
+        for u in sets["units_commit"].indices for i in sets["intervals"].indices
+    ])
+
+
+@objective_adder
 def vom_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
@@ -43,10 +52,11 @@ def unserved_energy_cost_term(sets, data, var):
 
 def make_objective_function(problem):
     fuel_cost = fuel_cost_term(problem)
+    start_cost = start_cost_term(problem)
     vom_cost = vom_cost_term(problem)
     unserved_energy_cost = unserved_energy_cost_term(problem)
 
-    objective_function = fuel_cost + vom_cost + unserved_energy_cost
+    objective_function = fuel_cost + start_cost + vom_cost + unserved_energy_cost
     problem["problem"] += objective_function
 
     return problem["problem"]
@@ -61,3 +71,14 @@ def fuel_cost_per_mwh_calculator(unit_data, u):
     """
 
     return 3.6 * unit_data["FuelCost$/GJ"][u] / unit_data["ThermalEfficiencyFrac"][u]
+
+
+def fuel_cost_per_start_calculator(unit_data, u):
+    """
+    Calculate fuel cost per start
+
+    :param unit_data DataFrame: unit_data df
+    :param u str: unit name
+    """
+
+    return unit_data["FuelCost$/GJ"][u] * unit_data["StartUpFuelUseGJ/MW"][u] * unit_data["CapacityMW"][u]
