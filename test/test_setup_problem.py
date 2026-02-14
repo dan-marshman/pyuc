@@ -306,5 +306,6 @@ class SetUpProblem(unittest.TestCase):
             },
             "settings": {"P1": 101, "P2": "A_STRING", "P3": False, "reserves": None},
             "problem": mock.ANY,
+            "results_summary": dict()
         }
         self.assertEqual(result, expected)

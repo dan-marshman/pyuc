@@ -8,6 +8,7 @@ from pyuc import constraint_adder as ca
 from pyuc import load_data as ld
 from pyuc import objective_function as of
 from pyuc import setup_problem as sp
+from pyuc import utils
 
 
 def run_opt_problem(input_data_path, output_data_path, name=None):
@@ -21,7 +22,9 @@ def run_opt_problem(input_data_path, output_data_path, name=None):
     problem["problem"] = ca.add_constraints(problem)
     problem["problem"] = of.make_objective_function(problem)
     problem["problem"] = solve_problem(problem)
-    save_results(problem)
+
+    add_solve_outcome_to_results(problem)
+    save_variable_results(problem)
 
 
 def create_variables(sets):
@@ -70,29 +73,33 @@ def solve_problem(problem):
     """
 
     problem["problem"].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
-    print_solution_value_and_time(problem["problem"])
+    problem["results_summary"] = add_solve_outcome_to_results(problem)
+    print_solution_value_and_time(problem["results_summary"])
 
     return problem["problem"]
 
 
-def print_solution_value_and_time(problem):
-    status_dict = {
-        1:  "Optimal",
-        0:  "Not Solved",
-        -1: "Infeasible",
-        -2: "Unbounded",
-        -3: "Undefined"
-    }
-
-    print("Objective Function Value: %f" % problem.objective.value())
-    print("Optimisation Status: %s" % status_dict[problem.status])
-    print("Solve Time: %.2f" % problem.solutionTime)
+def print_solution_value_and_time(results_summary):
+    print("Objective Function Value: %f" % results_summary["ObjectiveValue"])
+    print("Optimisation Status: %s" % results_summary["OptimisationStatus"])
+    print("Solve Time: %.2f" % results_summary["SolveTime"])
 
 
-def save_results(problem):
+def save_variable_results(problem):
     for var in problem["var"].values():
         var.to_df_fn_chooser()
         var.to_csv(problem["paths"]["results"])
+
+
+def add_solve_outcome_to_results(problem):
+    problem["results_summary"]["ObjectiveValue"] = problem["problem"].objective.value()
+
+    problem["results_summary"]["OptimisationStatus"] = \
+        utils.get_optimisation_status(problem["problem"].status)
+
+    problem["results_summary"]["SolveTime"] = problem["problem"].solutionTime
+
+    return problem["results_summary"]
 
 
 class Set():

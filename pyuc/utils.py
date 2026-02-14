@@ -20,3 +20,15 @@ def check_path_exists(path, file_type, required_file=False):
             return False
     else:
         return True
+
+
+def get_optimisation_status(problem_status):
+    status_dict = {
+        1:  "Optimal",
+        0:  "Not Solved",
+        -1: "Infeasible",
+        -2: "Unbounded",
+        -3: "Undefined"
+    }
+
+    return status_dict[problem_status]

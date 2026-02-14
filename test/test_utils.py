@@ -25,3 +25,21 @@ class PathExists(unittest.TestCase):
             utils.check_path_exists(self.path, self.file_type)
         except SystemExit:  # pragma: no cover
             self.fail("utils.check_path_exists exited when the file exists.")
+
+class TestOptimisationStatus(unittest.TestCase):
+    def test_valid_statuses(self):
+        """Check that all defined status codes return correct string."""
+        self.assertEqual(utils.get_optimisation_status(1), "Optimal")
+        self.assertEqual(utils.get_optimisation_status(0), "Not Solved")
+        self.assertEqual(utils.get_optimisation_status(-1), "Infeasible")
+        self.assertEqual(utils.get_optimisation_status(-2), "Unbounded")
+        self.assertEqual(utils.get_optimisation_status(-3), "Undefined")
+
+    def test_invalid_status_raises(self):
+        """Check that invalid codes raise KeyError."""
+        with self.assertRaises(KeyError):
+            utils.get_optimisation_status(99)
+        with self.assertRaises(KeyError):
+            utils.get_optimisation_status(None)
+        with self.assertRaises(KeyError):
+            utils.get_optimisation_status("Optimal")  # wrong type

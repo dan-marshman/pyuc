@@ -174,6 +174,7 @@ def setup_problem(name, input_data_path, output_data_path):
     problem["paths"] = initialise_paths(input_data_path, output_data_path)
     problem["settings"] = load_settings(problem["paths"]["settings"])
     problem["problem"] = make_pulp_problem(name)
+    problem["results_summary"] = dict()
     make_results_folders(problem["paths"])
 
     return problem

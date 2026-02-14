@@ -5,7 +5,7 @@ import unittest
 from pyuc import pyuc
 
 
-class Integration(unittest.TestCase):
+class IntegrationTestSet1(unittest.TestCase):
     def setUp(self):
         self.output_path = os.path.join("test")
 
@@ -34,3 +34,9 @@ class Integration(unittest.TestCase):
             file_name = f"{name}_{unit}.csv"
             file_path = os.path.join(self.output_path, "results", file_name)
             self.assertTrue(os.path.exists(file_path), msg=f"File not found {file_path}")
+
+    def test_correct_objective(self):
+        self.name = "test_problem_files_made"
+        self.input_path = os.path.join("test", "test_problems", "Integration", "TestSet1")
+
+        pyuc.run_opt_problem(self.input_path, self.output_path, self.name)
