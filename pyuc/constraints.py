@@ -474,7 +474,7 @@ def num_start_ups_within_up_time_calculator(sets, data, var):
     for i in sets["intervals"].indices:
 
         for u in sets["units_commit"].indices:
-            up_time = data["units"]["MinimumUpTimeHrs"][u]
+            up_time = int(data["units"]["MinimumUpTimeHrs"][u] / data["IntervalDurationHrs"])
             i_low = i - up_time + 1
             i_low_var = max(i0, i_low)
 
@@ -518,7 +518,7 @@ def num_shut_downs_within_down_time_calculator(sets, data, var):
 
     for i in sets["intervals"].indices:
         for u in sets["units_commit"].indices:
-            down_time = data["units"]["MinimumDownTimeHrs"][u]
+            down_time = int(data["units"]["MinimumDownTimeHrs"][u] / data["IntervalDurationHrs"])
             i_low = i - down_time + 1
             i_low_var = max(i0, i_low)
 
@@ -654,7 +654,7 @@ def start_up_ramp_capacity_calculator(sets, data):
     for u in sets["units_commit"].indices:
         start_up_ramp_capacityMW[u] = \
             max(
-                data["units"]["RampRate_pctCapphr"][u],
+                data["units"]["RampRate_pctCapphr"][u] * data["IntervalDurationHrs"],
                 data["units"]["MinimumGenerationFrac"][u]
             ) \
             * data["units"]["CapacityMW"][u]
@@ -677,7 +677,7 @@ def shut_down_ramp_capacity_calculator(sets, data):
     for u in sets["units_commit"].indices:
         shut_down_ramp_capacityMW[u] = \
             max(
-                data["units"]["RampRate_pctCapphr"][u],
+                data["units"]["RampRate_pctCapphr"][u] * data["IntervalDurationHrs"],
                 data["units"]["MinimumGenerationFrac"][u]
             ) \
             * data["units"]["CapacityMW"][u]
@@ -699,7 +699,8 @@ def online_ramp_capacity_calculator(sets, data):
     for u in sets["units"].indices:
         online_ramp_capacityMW[u] = \
             data["units"]["RampRate_pctCapphr"][u] \
-            * data["units"]["CapacityMW"][u]
+            * data["units"]["CapacityMW"][u] \
+            * data["IntervalDurationHrs"]
 
     return online_ramp_capacityMW
 

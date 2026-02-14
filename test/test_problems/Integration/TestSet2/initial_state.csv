@@ -1,0 +1,6 @@
+Unit,power_generated,num_committed,num_starting_up,num_starting_up,num_shutting_down,num_shutting_down,stored_energy
+Interval,-1,-1,-1,-3,-1,-6,-1
+Coal1,160,2,0,0,3,2,0
+CCGT1,0,0,0,0,0,0,0
+OCGT1,500,5,2,2,0,0,0
+Battery1,20,0,0,0,0,0,100

@@ -24,7 +24,9 @@ def run_opt_problem(input_data_path, output_data_path, name=None):
     problem["problem"] = solve_problem(problem)
 
     add_solve_outcome_to_results(problem)
+
     save_variable_results(problem)
+    save_results_summary(problem)
 
 
 def create_variables(sets):
@@ -89,6 +91,11 @@ def save_variable_results(problem):
     for var in problem["var"].values():
         var.to_df_fn_chooser()
         var.to_csv(problem["paths"]["results"])
+
+
+def save_results_summary(problem):
+    save_path = os.path.join(problem["paths"]["results"], "results_summary.csv")
+    pd.Series(problem["results_summary"]).to_csv(save_path, header=False)
 
 
 def add_solve_outcome_to_results(problem):

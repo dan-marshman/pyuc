@@ -494,6 +494,27 @@ class testSaveResults(unittest.TestCase):
         pyuc.save_variable_results(self.problem)
         self.assertEqual(to_df_mock.call_count, 2)
 
+    @mock.patch("os.path.join")
+    def test_save_results_summary_calls_to_csv_correctly(self, mock_path_join):
+        # Setup mock return for os.path.join
+        mock_path_join.return_value = "/fake/path/results_summary"
+
+        # Fake problem dictionary with a dict for results_summary
+        problem = {
+            "paths": {"results": "/fake/path"},
+            "results_summary": {"a": 1, "b": 2}
+        }
+
+        # Patch the to_csv method on the Series instance created inside the function
+        with mock.patch.object(pd.Series, "to_csv") as mock_to_csv:
+            pyuc.save_results_summary(problem)
+
+            # Check that os.path.join was called with the correct arguments
+            mock_path_join.assert_called_once_with("/fake/path", "results_summary.csv")
+
+            # Check that to_csv was called with the path returned by os.path.join
+            mock_to_csv.assert_called_once_with("/fake/path/results_summary", header=False)
+
     @mock.patch("pyuc.pyuc.Var.to_csv")
     def test_vars_dfs_are_correct(self, to_csv_mock):
         pyuc.save_variable_results(self.problem)

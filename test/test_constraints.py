@@ -264,7 +264,8 @@ class MinUpAndDownTimes(unittest.TestCase):
         }
 
         self.problem = {
-            "data": {"units": unit_data, "initial_state": initial_state},
+                "data": {"units": unit_data, "initial_state": initial_state, "IntervalDurationHrs":
+                         1},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -347,7 +348,7 @@ class RampRatesConstraints(unittest.TestCase):
         }
 
         self.problem = {
-            "data": {"units": unit_data},
+                "data": {"units": unit_data, "IntervalDurationHrs":1},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
@@ -935,7 +936,8 @@ class OtherFunctions(unittest.TestCase):
         self.problem = {
             "data": {"units": unit_data,
                      "initial_state": initial_state,
-                     "ValueOfLostLoad$/MWh": 1000},
+                     "ValueOfLostLoad$/MWh": 1000,
+                     "IntervalDurationHrs": 1},
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
             "paths": None
