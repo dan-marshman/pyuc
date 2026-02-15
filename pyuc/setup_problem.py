@@ -145,7 +145,7 @@ def make_pulp_problem(name):
     :param name str: Name of problem for pulp
     """
 
-    return pp.LpProblem(name=name, sense=pp.LpMinimize)
+    return pp.LpProblem(name=name.replace(" ", "_"), sense=pp.LpMinimize)
 
 
 def make_results_folders(paths):

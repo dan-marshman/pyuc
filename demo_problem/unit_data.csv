@@ -1,0 +1,9 @@
+Unit,Technology,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh,RoundTripEfficiencyFrac,StorageHrs,MinimumUpTimeHrs,MinimumDownTimeHrs,RampRate_pctCapphr,StartUpFuelUseGJ/MW
+Coal1,Coal,3,100,0.5,5,0.5,10,1,0,12,12,0.6,20
+Coal2,Coal,2,100,0.5,6,0.45,10,1,0,12,12,0.6,20
+Combined Cycle GT1,CCGT,2,100,0.4,12,0.6,5,1,0,6,6,0.8,6
+Combined Cycle GT2,CCGT,2,100,0.4,12,0.55,5,1,0,4,4,0.8,6
+Open Cycle GT,OCGT,5,100,0.2,15,0.4,5,1,0,3,3,1,0.1
+Battery,Storage,2,100,0,0,1,2,0.8,4,0,0,1,0
+Wind,Wind,5,130,0,0,1,4,1,0,0,0,1,0
+Solar,Solar,7,100,0,0,1,2,1,0,0,0,1,0

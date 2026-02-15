@@ -24,6 +24,7 @@ def run_opt_problem(input_data_path, output_data_path, name=None):
     problem["problem"] = solve_problem(problem)
 
     add_solve_outcome_to_results(problem)
+    problem = get_energy_price(problem)
 
     save_variable_results(problem)
     save_results_summary(problem)
@@ -73,7 +74,7 @@ def solve_problem(problem):
 
     :param problem dict: model problem
     """
-
+    print(f"\n--- Solving Problem {problem['name']} ---\n")
     problem["problem"].solve(solver=pp.apis.PULP_CBC_CMD(msg=False))
     problem["results_summary"] = add_solve_outcome_to_results(problem)
     print_solution_value_and_time(problem["results_summary"])
@@ -85,6 +86,7 @@ def print_solution_value_and_time(results_summary):
     print("Objective Function Value: %f" % results_summary["ObjectiveValue"])
     print("Optimisation Status: %s" % results_summary["OptimisationStatus"])
     print("Solve Time: %.2f" % results_summary["SolveTime"])
+    print("\n")
 
 
 def save_variable_results(problem):
@@ -96,6 +98,7 @@ def save_variable_results(problem):
 def save_results_summary(problem):
     save_path = os.path.join(problem["paths"]["results"], "results_summary.csv")
     pd.Series(problem["results_summary"]).to_csv(save_path, header=False)
+    print("Results csv files saved.\n")
 
 
 def add_solve_outcome_to_results(problem):
@@ -107,6 +110,21 @@ def add_solve_outcome_to_results(problem):
     problem["results_summary"]["SolveTime"] = problem["problem"].solutionTime
 
     return problem["results_summary"]
+
+
+def get_energy_price(problem):
+    s = problem["sets"]
+    energy_price = Var("energy_price", "$pMWh", [s["intervals"]], "Continuous")
+
+    for  i in s["intervals"].indices:
+        price = \
+            problem["problem"].constraints[f"supply_eq_demand_(i={i})"].pi \
+            / problem["data"]["IntervalDurationHrs"]
+        energy_price.var[(i)].setInitialValue(price)
+
+    problem["var"]["energy_price"] = energy_price
+
+    return problem
 
 
 class Set():
