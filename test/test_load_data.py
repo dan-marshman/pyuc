@@ -12,7 +12,9 @@ from pyuc import setup_problem
 
 class LoadSets(unittest.TestCase):
     def setUp(self):
-        self.demand_df = pd.DataFrame(index=range(100))
+        index = pd.MultiIndex.from_product([[0, 1], range(100)], names=["Scenario", "Interval"])
+        self.demand_df = pd.DataFrame(index=index)
+
         self.unit_df = pd.DataFrame(
             index=["A1", "A2", "A3", "A4"],
             data={"Technology": ["Coal", "Coal", "Coal", "Coal"]})
@@ -27,7 +29,7 @@ class LoadSets(unittest.TestCase):
 
     def test_create_master_set_check_keys(self):
         result = list(self.sets.keys())
-        self.assertEqual(result, ["intervals", "units", "reserves"])
+        self.assertEqual(result, ["scenarios", "intervals", "units", "reserves"])
 
     def test_load_intervals_master_set(self):
         result = self.sets["intervals"]
@@ -66,7 +68,9 @@ class LoadSets(unittest.TestCase):
 @mock.patch("pyuc.load_data.create_subsets")
 class CreateSets(unittest.TestCase):
     def setUp(self):
-        self.demand_df = pd.DataFrame(index=range(100))
+        index = pd.MultiIndex.from_product([[0, 1], range(100)], names=["Scenario", "Interval"])
+        self.demand_df = pd.DataFrame(index=index)
+
         self.unit_df = pd.DataFrame(
             index=["A1", "A2", "A3", "A4"],
             data={"Technology": ["Coal", "Coal", "Coal", "Coal"]})
@@ -109,7 +113,9 @@ class CreateSets(unittest.TestCase):
 
 class LoadSubSets(unittest.TestCase):
     def setUp(self):
-        self.demand_df = pd.DataFrame(index=range(100))
+        index = pd.MultiIndex.from_product([[0, 1], range(100)], names=["Scenario", "Interval"])
+        self.demand_df = pd.DataFrame(index=index)
+
         self.unit_df = pd.DataFrame(
             index=["Co", "CC", "OC", "Nu", "Wi", "So", "St"],
             data={"Technology": ["Coal", "CCGT", "OCGT", "Nuclear", "Wind", "Solar", "Storage"]})
@@ -150,7 +156,7 @@ class LoadSubSets(unittest.TestCase):
 
 class LoadDataItems(unittest.TestCase):
     def setUp(self):
-        self.settings = {"IntervalDurationHrs": 1, "ValueOfLostLoad$/MWh": 99}
+        self.settings = {"IntervalDurationHrs": 1, "ValueOfLostLoad$/MWh": 99, "NumScenarios": 2}
 
     @mock.patch("pyuc.utils.check_path_exists")
     def test_load_unit_data(self, check_path_mock):
@@ -172,14 +178,20 @@ class LoadDataItems(unittest.TestCase):
     @mock.patch("pyuc.utils.check_path_exists")
     def test_load_demand_data(self, check_path_mock):
         test_file = io.StringIO(
-            "Interval,Demand\n"
-            + "1,100\n"
-            + "2,200\n"
-            + "3,300"
+            "Scenario,Interval,Demand\n"
+            + "0,1,100\n"
+            + "0,2,200\n"
+            + "0,3,300\n"
+            + "1,1,150\n"
+            + "1,2,250\n"
+            + "1,3,350"
         )
         result = ld.load_demand_data(test_file)
 
-        expected = pd.DataFrame(index=[1, 2, 3], data={"Demand": [100, 200, 300]})
+        expected = pd.DataFrame(
+            index = pd.MultiIndex.from_product([[0, 1], [1, 2, 3]], names=["Scenario", "Interval"]),
+            data={"Demand": [100, 200, 300, 150, 250, 350]}
+            )
         expected.index.name = "Interval"
 
         pd.testing.assert_frame_equal(result, expected)
@@ -205,17 +217,18 @@ class LoadDataItems(unittest.TestCase):
     @mock.patch("pyuc.utils.check_path_exists")
     def test_load_variable_data_file_exists(self, check_path_mock):
         test_file = io.StringIO(
-            "Interval,Wind,Solar\n"
-            + "1,1,0.2\n"
-            + "2,0.5,0.2"
+            "Scenario,Interval,Wind,Solar\n"
+            + "0,1,1,0.2\n"
+            + "0,2,0.5,0.2\n"
+            + "1,1,1,0.2\n"
+            + "1,2,0.5,0.3"
         )
         result = ld.load_variable_data(test_file)
 
         expected = pd.DataFrame(
-            index=[1, 2],
-            data={"Wind": [1, 0.5], "Solar": [0.2, 0.2]}
+            index = pd.MultiIndex.from_product([[0, 1], [1, 2]], names=["Scenario", "Interval"]),
+            data={"Wind": [1, 0.5, 1, 0.5], "Solar": [0.2, 0.2, 0.2, 0.3]}
         )
-        expected.index.name = "Interval"
 
         pd.testing.assert_frame_equal(result, expected)
 
@@ -276,11 +289,11 @@ class LoadData(unittest.TestCase):
 
         self.problem = {
             "paths": self.paths,
-            "settings": {"ValueOfLostLoad$/MWh": 10, "IntervalDurationHrs": 0.5}
+            "settings": {"ValueOfLostLoad$/MWh": 10, "IntervalDurationHrs": 0.5, "NumScenarios": 3}
         }
 
-        self.demand_df = pd.DataFrame(index=[1, 2, 3], data={"Demand": [100, 200, 300]})
-        self.demand_df.index.name = "Interval"
+        index = pd.MultiIndex.from_product([[0, 1], [1, 2, 3]], names=["Scenario", "Interval"])
+        self.demand_df = pd.DataFrame(data={"Demand": [100, 200, 300, 150, 250, 350]}, index=index)
 
         self.unit_data_df = pd.DataFrame(
             index=["U1", "U2"],
@@ -289,8 +302,8 @@ class LoadData(unittest.TestCase):
         self.unit_data_df.index.name = "Unit"
 
         self.variable_data_df = pd.DataFrame(
-            index=[1, 2, 3],
-            data={"Wind": [0.5, 0.5, 0.5]}
+            index=index,
+            data={"Wind": [0.5, 0.5, 0.5, 0.3, 0.3, 0.3]}
         )
         self.variable_data_df.index.name = "Interval"
 
@@ -319,7 +332,8 @@ class LoadData(unittest.TestCase):
             "variable_traces": self.variable_data_df,
             "initial_state": self.variable_data_df,
             "ValueOfLostLoad$/MWh": 10,
-            "IntervalDurationHrs": 0.5
+            "IntervalDurationHrs": 0.5,
+            "ScenarioProbability": 0.3
         }
 
         self.assertEqual(list(result.keys()), list(expected.keys()))

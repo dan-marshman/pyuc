@@ -179,7 +179,7 @@ class IntegrationComplex(unittest.TestCase):
         power_generated = \
             pd.read_csv(
                 os.path.join(self.output_path, "results", "power_generated_MW.csv"),
-                index_col=0,
+                index_col=[0, 1],
             )
 
         ### Coal1
@@ -187,49 +187,49 @@ class IntegrationComplex(unittest.TestCase):
             # Ramp capacity is 0.3 * 100 per hour, or 15 MW per interval.
             # 1 Unit turns on in first interval, to minimum generation of 0.5 * 100 = 50 MW.
             # Total ramp capacity is 160 + 30 + 50 = 240
-        self.assertEqual(power_generated["Coal1"][0], 240)
+        self.assertEqual(power_generated["Coal1"][(0, 0)], 240)
 
     def test_ramp_down(self):
         power_generated = \
             pd.read_csv(
                 os.path.join(self.output_path, "results", "power_generated_MW.csv"),
-                index_col=0,
+                index_col=[0, 1],
             )
 
         ### OCGT1
             # Starts with 5 units on at 500 MW.
             # Ramp capacity is 5 * 0.6 * 100 per hour, or 150 MW per interval.
             # In first interval, power output should be 350 MW.
-        self.assertEqual(power_generated["OCGT1"][0], 350)
+        self.assertEqual(power_generated["OCGT1"][(0, 0)], 350)
 
             # In second interval, one unit turns off (ramping by 30), and the other 3 ramp by 4 *
             # 0.6 * 100/2 = 120 MW per interval.
-        self.assertEqual(power_generated["OCGT1"][1], 200)
+        self.assertEqual(power_generated["OCGT1"][(0, 1)], 200)
 
 
     def test_storage_profile(self):
         power_generated = \
             pd.read_csv(
                 os.path.join(self.output_path, "results", "power_generated_MW.csv"),
-                index_col=0,
+                index_col=[0, 1],
             )
 
         power_charged = \
             pd.read_csv(
                 os.path.join(self.output_path, "results", "power_charged_MW.csv"),
-                index_col=0,
+                index_col=[0, 1],
             )
 
         stored_energy = \
             pd.read_csv(
                 os.path.join(self.output_path, "results", "stored_energy_MWh.csv"),
-                index_col=0,
+                index_col=[0, 1],
             )
 
         total_generated = power_generated["Battery1"].sum()
         total_charged = power_charged["Battery1"].sum()
         initial_energy = 100
-        actual_final_energy = stored_energy["Battery1"][47]
+        actual_final_energy = stored_energy["Battery1"][(0, 47)]
 
         # 0.5 = interval duration in hours
         expected_final_energy = \

@@ -1,0 +1,10 @@
+Unit,power_generated,num_committed,num_starting_up,num_shutting_down,stored_energy
+Interval,-1,-1,-1,-1,-1
+Coal1,300,3,0,0,0
+Coal2,200,2,0,0,0
+Combined Cycle GT1,150,2,0,0,0
+Combined Cycle GT2,100,1,0,0,0
+Open Cycle GT,0,0,0,0,0
+Battery,0,0,0,0,0
+Wind,0,0,0,0,0
+Solar,0,0,0,0,0

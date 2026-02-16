@@ -15,9 +15,10 @@ def objective_adder(objective_term_func):
 def fuel_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
-        * var["power_generated"].var[(i, u)]
+        * data["ScenarioProbability"]
+        * var["power_generated"].var[(s, i, u)]
         * fuel_cost_per_mwh_calculator(data["units"], u)
-        for u in sets["units_commit"].indices for i in sets["intervals"].indices
+        for s in sets["scenarios"].indices for u in sets["units_commit"].indices for i in sets["intervals"].indices
     ])
 
 
@@ -34,9 +35,10 @@ def start_cost_term(sets, data, var):
 def vom_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
-        * var["power_generated"].var[(i, u)]
+        * data["ScenarioProbability"]
+        * var["power_generated"].var[(s, i, u)]
         * data["units"]["VOM$/MWh"][u]
-        for u in sets["units"].indices for i in sets["intervals"].indices
+        for s in sets["scenarios"].indices for u in sets["units"].indices for i in sets["intervals"].indices
     ])
 
 
@@ -44,9 +46,10 @@ def vom_cost_term(sets, data, var):
 def unserved_energy_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
-        * var["unserved_power"].var[(i)]
+        * data["ScenarioProbability"]
+        * var["unserved_power"].var[(s, i)]
         * data["ValueOfLostLoad$/MWh"]
-        for i in sets["intervals"].indices
+        for s in sets["scenarios"].indices for i in sets["intervals"].indices
     ])
 
 

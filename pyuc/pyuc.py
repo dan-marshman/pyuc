@@ -35,7 +35,7 @@ def create_variables(sets):
     s = sets
 
     vars["power_generated"] = \
-        Var("power_generated", "MW", [s["intervals"], s["units"]], "Continuous")
+        Var("power_generated", "MW", [s["scenarios"], s["intervals"], s["units"]], "Continuous")
 
     vars["num_committed"] = \
         Var("num_committed", "#Units", [s["intervals"], s["units_commit"]], "Integer")
@@ -47,23 +47,19 @@ def create_variables(sets):
         Var("num_starting_up", "#Units", [s["intervals"], s["units_commit"]], "Integer")
 
     vars["unserved_power"] = \
-        Var("unserved_power", "MW", [s["intervals"]], "Continuous")
+        Var("unserved_power", "MW", [s["scenarios"], s["intervals"]], "Continuous")
 
     vars["unserved_reserve"] = \
-        Var("unserved_reserve", "MW", [s["intervals"], s["reserves"]], "Continuous")
+        Var("unserved_reserve", "MW", [s["scenarios"], s["intervals"], s["reserves"]], "Continuous")
 
     vars["stored_energy"] = \
-        Var("stored_energy", "MWh", [s["intervals"], s["units_storage"]], "Continuous")
+        Var("stored_energy", "MWh", [s["scenarios"], s["intervals"], s["units_storage"]], "Continuous")
 
     vars["power_charged"] = \
-        Var("power_charged", "MW", [s["intervals"], s["units_storage"]], "Continuous")
+        Var("power_charged", "MW", [s["scenarios"], s["intervals"], s["units_storage"]], "Continuous")
 
     vars["reserve_enabled"] = \
-        Var("reserve_enabled",
-            "MW",
-            [s["intervals"], s["units_reserve"], s["reserves"]],
-            "Continuous"
-            )
+        Var("reserve_enabled", "MW", [s["scenarios"], s["intervals"], s["units_reserve"], s["reserves"]], "Continuous")
 
     return vars
 
@@ -113,16 +109,19 @@ def add_solve_outcome_to_results(problem):
 
 
 def get_energy_price(problem):
-    s = problem["sets"]
-    energy_price = Var("energy_price", "$pMWh", [s["intervals"]], "Continuous")
+    sets = problem["sets"]
+    energy_price = Var("energy_price", "$pMWh", [sets["intervals"], sets["scenarios"]], "Continuous")
 
-    for  i in s["intervals"].indices:
-        price = \
-            problem["problem"].constraints[f"supply_eq_demand_(i={i})"].pi \
-            / problem["data"]["IntervalDurationHrs"]
-        energy_price.var[(i)].setInitialValue(price)
+    for s in sets["scenarios"].indices:
+        for i in sets["intervals"].indices:
+            price = \
+                problem["problem"].constraints[f"supply_eq_demand_(s={s},i={i})"].pi \
+                / problem["data"]["IntervalDurationHrs"] \
+                / problem["data"]["ScenarioProbability"]
 
-    problem["var"]["energy_price"] = energy_price
+            energy_price.var[(i, s)].setInitialValue(price)
+
+        problem["var"]["energy_price"] = energy_price
 
     return problem
 

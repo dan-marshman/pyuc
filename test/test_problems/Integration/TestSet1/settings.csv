@@ -1,3 +1,4 @@
 Parameter,Value,Type,Description
 ValueOfLostLoad$/MWh,1000,float,Value of lost load ($/MWh)
 IntervalDurationHrs,1,float,Duration of intervals in hours for conversion of MW to MWh
+NumScenarios,1,int,Number of scenarios

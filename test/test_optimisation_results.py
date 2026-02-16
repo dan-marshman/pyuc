@@ -9,7 +9,8 @@ from pyuc import objective_function, pyuc
 
 class testThermal(unittest.TestCase):
     def setUp(self):
-        demand = pd.DataFrame(data={"Demand": [200, 300, 400]})
+        index = pd.MultiIndex.from_product([[0], [0, 1, 2]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 300, 400]}, index=index)
 
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
@@ -26,15 +27,17 @@ class testThermal(unittest.TestCase):
             "StartUpFuelUseGJ/MW": [0, 0],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
         units_reserve = pyuc.Set("units_reserve", [], master_set=units)
-        intervals = pyuc.Set("intervals", list(demand.index))
+        intervals = pyuc.Set("intervals", [0, 1, 2])
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_storage": units_storage,
@@ -50,7 +53,8 @@ class testThermal(unittest.TestCase):
                 "units": unit_data,
                 "initial_state": None,
                 "ValueOfLostLoad$/MWh": 1000,
-                "IntervalDurationHrs": 0.5
+                "IntervalDurationHrs": 0.5,
+                "ScenarioProbability": 1
             },
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
@@ -81,8 +85,9 @@ class testThermal(unittest.TestCase):
 
 class testVariableAndStorage(unittest.TestCase):
     def setUp(self):
-        demand = pd.DataFrame(data={"Demand": [200, 181, 100]})
-        wind_trace = pd.DataFrame(data={"Wind": [1, 0, 0]})
+        index = pd.MultiIndex.from_product([[0], [0, 1, 2]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 181, 100]}, index=index)
+        wind_trace = pd.DataFrame(data={"Wind": [1, 0, 0]}, index=index)
 
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "W1", "B1"],
@@ -101,15 +106,17 @@ class testVariableAndStorage(unittest.TestCase):
             "StartUpFuelUseGJ/MW": [0, 0, 0],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", ["U1"], master_set=units)
         units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         units_variable = pyuc.Set("units_variable", ["W1"], master_set=units)
         units_storage = pyuc.Set("units_storage", ["B1"], master_set=units)
-        intervals = pyuc.Set("intervals", list(demand.index))
+        intervals = pyuc.Set("intervals", [0, 1, 2])
         reserves = pyuc.Set("reserves", [], master_set=units)
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_reserve": units_reserve,
@@ -125,7 +132,8 @@ class testVariableAndStorage(unittest.TestCase):
                 "variable_traces": wind_trace,
                 "initial_state": None,
                 "ValueOfLostLoad$/MWh": 1000,
-                "IntervalDurationHrs": 0.5
+                "IntervalDurationHrs": 0.5,
+                "ScenarioProbability": 1
             }
 
         self.problem = {
@@ -151,7 +159,10 @@ class testVariableAndStorage(unittest.TestCase):
         # Unit W1: 300 in hour 1, 0 in hours 2 and 3
         # Unit B1: 80 in hour 2, 0 in hours 2 and 3
         # Unserved Energy: 1 MW in hour 2
-        expected = 2 * 100 * 10 + 300 * 1 + 1000*1
+        expected = \
+            2 * 100 * 10 \
+            + 300 * 1 \
+            + 1000*1
         expected *= 0.5  # Interval Duration
         result = self.problem["problem"].objective.value()
 

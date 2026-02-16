@@ -9,7 +9,8 @@ from pyuc import load_data, pyuc
 
 class BasicConstraintEquations(unittest.TestCase):
     def setUp(self):
-        demand = pd.DataFrame(data={"Demand": [200, 300, 400]})
+        index = pd.MultiIndex.from_product([[0], [0, 1, 2]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 300, 400]}, index=index)
 
         reserve_requirement = pd.DataFrame(
             data={"raise": [45, 45, 45], "lower": [35, 35, 35]}
@@ -31,6 +32,7 @@ class BasicConstraintEquations(unittest.TestCase):
             index=["U1", "U2"]
         )
 
+        scenarios = pyuc.Set("scenarios", list(range(1)))
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -42,6 +44,7 @@ class BasicConstraintEquations(unittest.TestCase):
         lower_reserves = pyuc.Set("lower_reserves", ["lower"])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -69,11 +72,11 @@ class BasicConstraintEquations(unittest.TestCase):
         }
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
-        self.problem["var"]["unserved_power"].var[(0)].setInitialValue(5)
-        self.problem["var"]["unserved_power"].var[(1)].setInitialValue(55)
+        self.problem["var"]["unserved_power"].var[(0, 0)].setInitialValue(5)
+        self.problem["var"]["unserved_power"].var[(0, 1)].setInitialValue(55)
 
-        self.problem["var"]["unserved_reserve"].var[(0, "raise")].setInitialValue(25)
-        self.problem["var"]["unserved_reserve"].var[(0, "lower")].setInitialValue(25)
+        self.problem["var"]["unserved_reserve"].var[(0, 0, "raise")].setInitialValue(25)
+        self.problem["var"]["unserved_reserve"].var[(0, 0, "lower")].setInitialValue(25)
 
         self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(1)
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
@@ -90,46 +93,46 @@ class BasicConstraintEquations(unittest.TestCase):
         self.problem["var"]["num_shutting_down"].var[(0, "U2")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U2")].setInitialValue(1)
 
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
-        self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
-        self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        self.problem["var"]["power_generated"].var[(0, 0, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(200)
+        self.problem["var"]["power_generated"].var[(0, 1, "U2")].setInitialValue(45)
 
-        self.problem["var"]["reserve_enabled"].var[(0, "U1", "raise")].setInitialValue(30)
-        self.problem["var"]["reserve_enabled"].var[(0, "U1", "lower")].setInitialValue(10)
-        self.problem["var"]["reserve_enabled"].var[(1, "U1", "raise")].setInitialValue(30)
-        self.problem["var"]["reserve_enabled"].var[(1, "U1", "lower")].setInitialValue(10)
+        self.problem["var"]["reserve_enabled"].var[(0, 0, "U1", "raise")].setInitialValue(30)
+        self.problem["var"]["reserve_enabled"].var[(0, 0, "U1", "lower")].setInitialValue(10)
+        self.problem["var"]["reserve_enabled"].var[(0, 1, "U1", "raise")].setInitialValue(30)
+        self.problem["var"]["reserve_enabled"].var[(0, 1, "U1", "lower")].setInitialValue(10)
 
     def test_cnt_supply_eq_demand(self):
         constraints = ca.cnt_supply_eq_demand(self.problem)
-        self.assertEqual(constraints["supply_eq_demand_(i=0)"].value(), 20+45+5-200)
-        self.assertEqual(constraints["supply_eq_demand_(i=1)"].value(), 200+45+55-300)
+        self.assertEqual(constraints["supply_eq_demand_(s=0,i=0)"].value(), 20+45+5-200)
+        self.assertEqual(constraints["supply_eq_demand_(s=0,i=1)"].value(), 200+45+55-300)
 
     def test_cnt_reserve_enabled_exceeds_reserve_requirement(self):
         constraints = ca.cnt_reserve_enabled_exceeds_reserve_requirement(self.problem)
-        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(i=0, r=raise)"].value(), 30+25-45)
-        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(i=0, r=lower)"].value(), 10+25-35)
+        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(s=0,i=0,r=raise)"].value(), 30+25-45)
+        self.assertEqual(constraints["reserve_enabled_exceeds_reserve_requirement_(s=0,i=0,r=lower)"].value(), 10+25-35)
 
     def test_cnt_power_lt_capacity(self):
         constraints = ca.cnt_power_lt_capacity(self.problem)
 
         self.assertEqual(
-            constraints["power_lt_capacity_(i=0, u=U1)"].value(),
+            constraints["power_lt_capacity_(s=0,i=0,u=U1)"].value(),
             20-2*100
         )
 
         self.assertEqual(
-            constraints["power_lt_capacity_(i=1, u=U1)"].value(),
+            constraints["power_lt_capacity_(s=0,i=1,u=U1)"].value(),
             200-2*100
         )
 
         self.assertEqual(
-            constraints["power_lt_capacity_(i=0, u=U2)"].value(),
+            constraints["power_lt_capacity_(s=0,i=0,u=U2)"].value(),
             45-1*100
         )
 
         self.assertEqual(
-            constraints["power_lt_capacity_(i=1, u=U2)"].value(),
+            constraints["power_lt_capacity_(s=0,i=1,u=U2)"].value(),
             45-1*100
         )
 
@@ -137,22 +140,22 @@ class BasicConstraintEquations(unittest.TestCase):
         constraints = ca.cnt_power_lt_committed_capacity(self.problem)
 
         self.assertEqual(
-            constraints["power_lt_committed_capacity_(i=0, u=U1)"].value(),
+            constraints["power_lt_committed_capacity_(s=0,i=0,u=U1)"].value(),
             20+30-1*100
         )
 
         self.assertEqual(
-            constraints["power_lt_committed_capacity_(i=0, u=U2)"].value(),
+            constraints["power_lt_committed_capacity_(s=0,i=0,u=U2)"].value(),
             45-1*100
         )
 
         self.assertEqual(
-            constraints["power_lt_committed_capacity_(i=1, u=U1)"].value(),
+            constraints["power_lt_committed_capacity_(s=0,i=1,u=U1)"].value(),
             200+30-2*100
         )
 
         self.assertEqual(
-            constraints["power_lt_committed_capacity_(i=1, u=U2)"].value(),
+            constraints["power_lt_committed_capacity_(s=0,i=1,u=U2)"].value(),
             45-0*100
         )
 
@@ -160,22 +163,22 @@ class BasicConstraintEquations(unittest.TestCase):
         constraints = ca.cnt_power_gt_minimum_generation(self.problem)
 
         self.assertEqual(
-            constraints["power_gt_minimum_generation_(i=0, u=U1)"].value(),
+            constraints["power_gt_minimum_generation_(s=0,i=0,u=U1)"].value(),
             20-10-0.5*1*100
         )
 
         self.assertEqual(
-            constraints["power_gt_minimum_generation_(i=1, u=U1)"].value(),
+            constraints["power_gt_minimum_generation_(s=0,i=1,u=U1)"].value(),
             200-10-0.5*2*100
         )
 
         self.assertEqual(
-            constraints["power_gt_minimum_generation_(i=0, u=U2)"].value(),
+            constraints["power_gt_minimum_generation_(s=0,i=0,u=U2)"].value(),
             45-0.2*1*100
         )
 
         self.assertEqual(
-            constraints["power_gt_minimum_generation_(i=1, u=U2)"].value(),
+            constraints["power_gt_minimum_generation_(s=0,i=1,u=U2)"].value(),
             45-0.2*0*100
         )
 
@@ -183,22 +186,22 @@ class BasicConstraintEquations(unittest.TestCase):
         constraints = ca.cnt_num_committed_lt_num_units(self.problem)
 
         self.assertEqual(
-            constraints["num_committed_lt_num_units(i=0, u=U1)"].value(),
+            constraints["num_committed_lt_num_units(i=0,u=U1)"].value(),
             1-2
         )
 
         self.assertEqual(
-            constraints["num_committed_lt_num_units(i=1, u=U1)"].value(),
+            constraints["num_committed_lt_num_units(i=1,u=U1)"].value(),
             2-2
         )
 
         self.assertEqual(
-            constraints["num_committed_lt_num_units(i=0, u=U2)"].value(),
+            constraints["num_committed_lt_num_units(i=0,u=U2)"].value(),
             1-1
         )
 
         self.assertEqual(
-            constraints["num_committed_lt_num_units(i=1, u=U2)"].value(),
+            constraints["num_committed_lt_num_units(i=1,u=U2)"].value(),
             0-1
         )
 
@@ -206,12 +209,12 @@ class BasicConstraintEquations(unittest.TestCase):
         constraints = ca.cnt_commitment_continuity(self.problem)
 
         self.assertEqual(
-            constraints["commitment_continuity(i=1, u=U1)"].value(),
+            constraints["commitment_continuity(i=1,u=U1)"].value(),
             0
         )
 
         self.assertEqual(
-            constraints["commitment_continuity(i=1, u=U2)"].value(),
+            constraints["commitment_continuity(i=1,u=U2)"].value(),
             2-2
         )
 
@@ -219,12 +222,12 @@ class BasicConstraintEquations(unittest.TestCase):
         constraints = ca.cnt_commitment_continuity_initial_interval(self.problem)
 
         self.assertEqual(
-            constraints["commitment_continuity(i=0, u=U1)"].value(),
+            constraints["commitment_continuity(i=0,u=U1)"].value(),
             0
         )
 
         self.assertEqual(
-            constraints["commitment_continuity(i=0, u=U2)"].value(),
+            constraints["commitment_continuity(i=0,u=U2)"].value(),
             -2
         )
 
@@ -245,6 +248,7 @@ class MinUpAndDownTimes(unittest.TestCase):
             index=["U1"]
         )
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -254,6 +258,7 @@ class MinUpAndDownTimes(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -287,13 +292,13 @@ class MinUpAndDownTimes(unittest.TestCase):
 
         self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(3)
         self.assertEqual(
-            constraints["minimum_up_time(i=0, u=U1)"].value(),
+            constraints["minimum_up_time(i=0,u=U1)"].value(),
             3 - (2 + 1 + 1)
         )
 
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(3)
         self.assertEqual(
-            constraints["minimum_up_time(i=3, u=U1)"].value(),
+            constraints["minimum_up_time(i=3,u=U1)"].value(),
             3 - (2 + 3 + 2)
         )
 
@@ -302,19 +307,19 @@ class MinUpAndDownTimes(unittest.TestCase):
 
         self.problem["var"]["num_committed"].var[(0, "U1")].setInitialValue(6)
         self.assertEqual(
-            constraints["minimum_down_time(i=0, u=U1)"].value(),
+            constraints["minimum_down_time(i=0,u=U1)"].value(),
             (10 - 6) - (5 + 1)
         )
 
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(6)
         self.assertEqual(
-            constraints["minimum_down_time(i=3, u=U1)"].value(),
+            constraints["minimum_down_time(i=3,u=U1)"].value(),
             (10 - 6) - (2 + 3)
         )
 
         self.problem["var"]["num_committed"].var[(3, "U1")].setInitialValue(5)
         self.assertEqual(
-            constraints["minimum_down_time(i=3, u=U1)"].value(),
+            constraints["minimum_down_time(i=3,u=U1)"].value(),
             (10 - 5) - (2 + 3)
         )
 
@@ -329,6 +334,7 @@ class RampRatesConstraints(unittest.TestCase):
             "MinimumGenerationFrac": [0.6],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -338,6 +344,7 @@ class RampRatesConstraints(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -359,61 +366,61 @@ class RampRatesConstraints(unittest.TestCase):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(0)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(140)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(180)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(140)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(180)
 
         constraints = ca.cnt_ramp_rate_up(self.problem)
-        self.assertEqual(constraints["ramp_rate_up_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_up_(s=0,i=1,u=U1)"].value(), 0)
 
     def test_ramp_rate_up_starting_up(self):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(1)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(0)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(60)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(140)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(60)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(140)
 
         constraints = ca.cnt_ramp_rate_up(self.problem)
-        self.assertEqual(constraints["ramp_rate_up_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_up_(s=0,i=1,u=U1)"].value(), 0)
 
     def test_ramp_rate_up_shutting_down(self):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(1)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(1)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(120)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(80)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(120)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(80)
 
         constraints = ca.cnt_ramp_rate_up(self.problem)
-        self.assertEqual(constraints["ramp_rate_up_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_up_(s=0,i=1,u=U1)"].value(), 0)
 
     def test_ramp_rate_down_committed_only(self):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(0)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(180)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(140)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(180)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(140)
 
         constraints = ca.cnt_ramp_rate_down(self.problem)
-        self.assertEqual(constraints["ramp_rate_down_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_down_(s=0,i=1,u=U1)"].value(), 0)
 
     def test_ramp_rate_down_starting_up(self):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(2)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(1)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(0)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(140)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(180)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(140)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(180)
 
         constraints = ca.cnt_ramp_rate_down(self.problem)
-        self.assertEqual(constraints["ramp_rate_down_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_down_(s=0,i=1,u=U1)"].value(), 0)
 
     def test_ramp_rate_down_shutting_down(self):
         self.problem["var"]["num_committed"].var[(1, "U1")].setInitialValue(1)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(0)
         self.problem["var"]["num_shutting_down"].var[(1, "U1")].setInitialValue(1)
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(120)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(40)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(120)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(40)
 
         constraints = ca.cnt_ramp_rate_down(self.problem)
-        self.assertEqual(constraints["ramp_rate_down_(i=1, u=U1)"].value(), 0)
+        self.assertEqual(constraints["ramp_rate_down_(s=0,i=1,u=U1)"].value(), 0)
 
 
 class VariableResourceConstraints(unittest.TestCase):
@@ -427,13 +434,17 @@ class VariableResourceConstraints(unittest.TestCase):
             }
         ).set_index("Unit")
 
+        index = pd.MultiIndex.from_product([[0], [0, 1]], names=["Scenario", "Interval"])
+
         variable_traces = pd.DataFrame(
             data={
                 "Wind": [0.2, 0.4],
                 "Solar": [0.3, 0.5]
-            }
+            },
+            index=index
         )
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", [], master_set=units)
         units_variable = \
@@ -444,6 +455,7 @@ class VariableResourceConstraints(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -463,21 +475,22 @@ class VariableResourceConstraints(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
     def test_variable_power_lt_resource_availability(self):
-        self.problem["var"]["power_generated"].var[(0, "W")].setInitialValue(0.2*1*100)
-        self.problem["var"]["power_generated"].var[(1, "W")].setInitialValue(0.4*1*100)
-        self.problem["var"]["power_generated"].var[(0, "S")].setInitialValue(0.3*2*200)
-        self.problem["var"]["power_generated"].var[(1, "S")].setInitialValue(0.5*2*200)
+        self.problem["var"]["power_generated"].var[(0, 0, "W")].setInitialValue(0.2*1*100)
+        self.problem["var"]["power_generated"].var[(0, 1, "W")].setInitialValue(0.4*1*100)
+        self.problem["var"]["power_generated"].var[(0, 0, "S")].setInitialValue(0.3*2*200)
+        self.problem["var"]["power_generated"].var[(0, 1, "S")].setInitialValue(0.5*2*200)
 
         constraints = ca.cnt_variable_resource_availability(self.problem)
-        self.assertEqual(constraints["variable_resource_availability(i=0, u=W)"].value(), 0)
-        self.assertEqual(constraints["variable_resource_availability(i=1, u=W)"].value(), 0)
-        self.assertEqual(constraints["variable_resource_availability(i=0, u=S)"].value(), 0)
-        self.assertEqual(constraints["variable_resource_availability(i=1, u=S)"].value(), 0)
+        self.assertEqual(constraints["variable_resource_availability(s=0,i=0,u=W)"].value(), 0)
+        self.assertEqual(constraints["variable_resource_availability(s=0,i=1,u=W)"].value(), 0)
+        self.assertEqual(constraints["variable_resource_availability(s=0,i=0,u=S)"].value(), 0)
+        self.assertEqual(constraints["variable_resource_availability(s=0,i=1,u=S)"].value(), 0)
 
 
 class StorageConstraints(unittest.TestCase):
     def setUp(self):
-        demand = pd.DataFrame(data={"Demand": [200, 300]})
+        index = pd.MultiIndex.from_product([[0], [0, 1]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 300]}, index=index)
 
         unit_data = pd.DataFrame(data={
             "Unit": ["S1"],
@@ -487,6 +500,7 @@ class StorageConstraints(unittest.TestCase):
             "RoundTripEfficiencyFrac": [0.8],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", [], master_set=units)
         units_storage = pyuc.Set("units_storage", list(unit_data.index), master_set=units)
@@ -496,6 +510,7 @@ class StorageConstraints(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_reserve": units_reserve,
@@ -527,45 +542,45 @@ class StorageConstraints(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
     def test_stored_energy_lt_storage_capacity(self):
-        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10*100*4/2)
+        self.problem["var"]["stored_energy"].var[(0, 0, "S1")].setInitialValue(10*100*4/2)
         constraints = ca.cnt_stored_energy_lt_storage_capacity(self.problem)
-        result = constraints["stored_energy_lt_storage_capacity(i=0, u=S1)"].value()
+        result = constraints["stored_energy_lt_storage_capacity(s=0,i=0,u=S1)"].value()
         self.assertEqual(result, 0)
 
     def test_charge_lt_rt_loss_adjusted_capacity(self):
-        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(10*100*0.8)
+        self.problem["var"]["power_charged"].var[(0, 0, "S1")].setInitialValue(10*100*0.8)
 
         constraints = ca.cnt_charge_lt_rt_loss_adjusted_capacity(self.problem)
-        self.assertEqual(constraints["charge_lt_rt_loss_adjusted_capacity(i=0, u=S1)"].value(), 0)
+        self.assertEqual(constraints["charge_lt_rt_loss_adjusted_capacity(s=0,i=0,u=S1)"].value(), 0)
 
     def test_storage_energy_continuity(self):
-        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(10)
-        self.problem["var"]["power_generated"].var[(1, "S1")].setInitialValue(5)
-        self.problem["var"]["power_charged"].var[(1, "S1")].setInitialValue(20)
+        self.problem["var"]["stored_energy"].var[(0, 0, "S1")].setInitialValue(10)
+        self.problem["var"]["power_generated"].var[(0, 1, "S1")].setInitialValue(5)
+        self.problem["var"]["power_charged"].var[(0, 1, "S1")].setInitialValue(20)
 
         final_val = 10 + 0.5 * (-5 + 20)
-        self.problem["var"]["stored_energy"].var[(1, "S1")].setInitialValue(final_val)
+        self.problem["var"]["stored_energy"].var[(0, 1, "S1")].setInitialValue(final_val)
 
         constraints = ca.cnt_storage_energy_continuity(self.problem)
-        self.assertEqual(constraints["storage_energy_continuity(i=1, u=S1)"].value(), 0)
+        self.assertEqual(constraints["storage_energy_continuity(s=0,i=1,u=S1)"].value(), 0)
 
     def test_storage_energy_continuity_initial_interval(self):
-        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(5)
-        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(20)
+        self.problem["var"]["power_generated"].var[(0, 0, "S1")].setInitialValue(5)
+        self.problem["var"]["power_charged"].var[(0, 0, "S1")].setInitialValue(20)
 
         final_val = 100 + 0.5 * (-5 + 20)
-        self.problem["var"]["stored_energy"].var[(0, "S1")].setInitialValue(final_val)
+        self.problem["var"]["stored_energy"].var[(0, 0, "S1")].setInitialValue(final_val)
 
         constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
-        self.assertEqual(constraints["storage_energy_continuity(i=0, u=S1)"].value(), 0)
+        self.assertEqual(constraints["storage_energy_continuity(s=0,i=0,u=S1)"].value(), 0)
 
     def test_storage_adds_to_demand(self):
-        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(10)
-        self.problem["var"]["unserved_power"].var[0].setInitialValue(200+10/0.8)
-        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(0)
+        self.problem["var"]["power_charged"].var[(0, 0, "S1")].setInitialValue(10)
+        self.problem["var"]["unserved_power"].var[(0, 0)].setInitialValue(200+10/0.8)
+        self.problem["var"]["power_generated"].var[(0, 0, "S1")].setInitialValue(0)
 
         constraints = ca.cnt_supply_eq_demand(self.problem)
-        self.assertEqual(constraints["supply_eq_demand_(i=0)"].value(), 0)
+        self.assertEqual(constraints["supply_eq_demand_(s=0,i=0)"].value(), 0)
 
 
 class ReserveConstraints(unittest.TestCase):
@@ -584,6 +599,7 @@ class ReserveConstraints(unittest.TestCase):
             index=["U1"]
         )
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -593,6 +609,7 @@ class ReserveConstraints(unittest.TestCase):
         reserves = pyuc.Set("reserves", ["Raise", "Lower"])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -617,29 +634,30 @@ class ReserveConstraints(unittest.TestCase):
     def test_raise_reserve_capability(self):
         constraints = ca.cnt_reserve_enabled_lt_reserve_capability(self.problem)
 
-        self.problem["var"]["reserve_enabled"].var[(0, "U1", "Raise")].setInitialValue(0)
-        self.problem["var"]["reserve_enabled"].var[(1, "U1", "Raise")].setInitialValue(20)
-        self.problem["var"]["reserve_enabled"].var[(2, "U1", "Raise")].setInitialValue(40)
+        self.problem["var"]["reserve_enabled"].var[(0, 0, "U1", "Raise")].setInitialValue(0)
+        self.problem["var"]["reserve_enabled"].var[(0, 1, "U1", "Raise")].setInitialValue(20)
+        self.problem["var"]["reserve_enabled"].var[(0, 2, "U1", "Raise")].setInitialValue(40)
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(s=0,i=0,u=U1,r=Raise)"].value(),
             0 - 0*20
         )
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(s=0,i=0,u=U1,r=Raise)"].value(),
             20 - 1*20
         )
 
         self.assertEqual(
-            constraints["reserve_enabled_lt_reserve_capability_(i=0, u=U1, r=Raise)"].value(),
+            constraints["reserve_enabled_lt_reserve_capability_(s=0,i=0,u=U1,r=Raise)"].value(),
             40 - 2*20
         )
 
 
 class UnitTypeConstraintSets(unittest.TestCase):
     def setUp(self):
-        demand = pd.DataFrame(data={"Demand": [200]})
+        index = pd.MultiIndex.from_product([[0], [0]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200]}, index=index)
 
         self.units = ["Coal", "CCGT", "OCGT", "Nuclear", "Wind", "Solar", "Storage"]
 
@@ -659,7 +677,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
             }
         ).set_index("Unit")
 
-        variable_traces = pd.DataFrame(data={"Wind": [1], "Solar": [1]})
+        variable_traces = pd.DataFrame(data={"Wind": [1], "Solar": [1]}, index=index)
 
         data = {
             "demand": demand,
@@ -683,30 +701,32 @@ class UnitTypeConstraintSets(unittest.TestCase):
 
     def test_sets_cnt_power_lt_capacity(self):
         constraints = ca.cnt_power_lt_capacity(self.problem)
-        expected = [f"power_lt_capacity_(i=0, u={u})" for u in self.units]
+        expected = [f"power_lt_capacity_(s=0,i=0,u={u})" for u in self.units]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_power_lt_committed_capacity(self):
         constraints = ca.cnt_power_lt_committed_capacity(self.problem)
-        expected = [f"power_lt_committed_capacity_(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"power_lt_committed_capacity_(s=0,i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_power_gt_minimum_generation(self):
         constraints = ca.cnt_power_gt_minimum_generation(self.problem)
-        expected = [f"power_gt_minimum_generation_(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"power_gt_minimum_generation_(s=0,i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_num_committed_lt_num_units(self):
         constraints = ca.cnt_num_committed_lt_num_units(self.problem)
-        expected = [f"num_committed_lt_num_units(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"num_committed_lt_num_units(i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_commitment_continuity(self):
-        demand = pd.DataFrame(data={"Demand": [200, 200]})
+        index = pd.MultiIndex.from_product([[0], [0, 1]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 200]}, index=index)
+
         data = {"demand": demand, "units": self.unit_data, "ValueOfLostLoad$/MWh": 1000}
         sets = load_data.create_sets(data)
 
@@ -719,61 +739,64 @@ class UnitTypeConstraintSets(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
         constraints = ca.cnt_commitment_continuity(self.problem)
-        expected = [f"commitment_continuity(i=1, u={u})" for u in self.units[:4]]
+        expected = [f"commitment_continuity(i=1,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_commitment_continuity_initial_interval(self):
         constraints = ca.cnt_commitment_continuity_initial_interval(self.problem)
-        expected = [f"commitment_continuity(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"commitment_continuity(i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_minimum_up_time(self):
         constraints = ca.cnt_minimum_up_time(self.problem)
-        expected = [f"minimum_up_time(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"minimum_up_time(i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_minimum_down_time(self):
         constraints = ca.cnt_minimum_down_time(self.problem)
-        expected = [f"minimum_down_time(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"minimum_down_time(i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_ramp_rate_up(self):
         constraints = ca.cnt_ramp_rate_up(self.problem)
-        expected = [f"ramp_rate_up_(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"ramp_rate_up_(s=0,i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_ramp_rate_down(self):
         constraints = ca.cnt_ramp_rate_down(self.problem)
-        expected = [f"ramp_rate_down_(i=0, u={u})" for u in self.units[:4]]
+        expected = [f"ramp_rate_down_(s=0,i=0,u={u})" for u in self.units[:4]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_variable_resource_availability(self):
         constraints = ca.cnt_variable_resource_availability(self.problem)
-        expected = [f"variable_resource_availability(i=0, u={u})"
+        expected = [f"variable_resource_availability(s=0,i=0,u={u})"
                     for u in ["Wind", "Solar"]]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_charge_lt_rt_loss_adjusted_capacity(self):
         constraints = ca.cnt_charge_lt_rt_loss_adjusted_capacity(self.problem)
-        expected = ["charge_lt_rt_loss_adjusted_capacity(i=0, u=Storage)"]
+        expected = ["charge_lt_rt_loss_adjusted_capacity(s=0,i=0,u=Storage)"]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_storage_energy_continuity(self):
-        demand = pd.DataFrame(data={"Demand": [200, 200]})
+        index = pd.MultiIndex.from_product([[0], [0, 1]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 200]}, index=index)
+
         data = {
             "demand": demand,
             "units": self.unit_data,
             "ValueOfLostLoad$/MWh": 1000,
             "IntervalDurationHrs": 1
         }
+
         sets = load_data.create_sets(data)
 
         self.problem = {
@@ -785,7 +808,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
         constraints = ca.cnt_storage_energy_continuity(self.problem)
-        expected = ["storage_energy_continuity(i=1, u=Storage)"]
+        expected = ["storage_energy_continuity(s=0,i=1,u=Storage)"]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
@@ -796,13 +819,16 @@ class UnitTypeConstraintSets(unittest.TestCase):
             index=["Storage"]
         )
 
-        demand = pd.DataFrame(data={"Demand": [200, 200]})
+        index = pd.MultiIndex.from_product([[0], [0, 1]], names=["Scenario", "Interval"])
+        demand = pd.DataFrame(data={"Demand": [200, 200]}, index=index)
+
         data = {
             "demand": demand,
             "units": self.unit_data,
             "initial_state": initial_state,
             "IntervalDurationHrs": 1
         }
+
         sets = load_data.create_sets(data)
 
         self.problem = {
@@ -815,19 +841,20 @@ class UnitTypeConstraintSets(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
         constraints = ca.cnt_storage_energy_continuity_initial_interval(self.problem)
-        expected = ["storage_energy_continuity(i=0, u=Storage)"]
+        expected = ["storage_energy_continuity(s=0,i=0,u=Storage)"]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
     def test_sets_cnt_stored_energy_lt_storage_capacity(self):
         constraints = ca.cnt_stored_energy_lt_storage_capacity(self.problem)
-        expected = ["stored_energy_lt_storage_capacity(i=0, u=Storage)"]
+        expected = ["stored_energy_lt_storage_capacity(s=0,i=0,u=Storage)"]
         result = list(constraints.keys())
         self.assertEqual(result, expected)
 
 
 class OtherConstraintTests(unittest.TestCase):
     def setUp(self):
+        index = pd.MultiIndex.from_product([[0], [0, 1, 2]], names=["Scenario", "Interval"])
         demand = pd.DataFrame(data={"Demand": [200, 300, 400]})
 
         unit_data = pd.DataFrame(data={
@@ -840,6 +867,7 @@ class OtherConstraintTests(unittest.TestCase):
             "MinimumGenerationFrac": [0.5, 0.2],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -849,6 +877,7 @@ class OtherConstraintTests(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -877,15 +906,15 @@ class OtherConstraintTests(unittest.TestCase):
     def test_cnt_commitment_continuity_ignores_first_interval(self):
         constraints = ca.cnt_commitment_continuity(self.problem)
 
-        self.assertFalse("commitment_continuity(i=0, u=U1)" in constraints.keys())
-        self.assertFalse("commitment_continuity(i=0, u=U2)" in constraints.keys())
+        self.assertFalse("commitment_continuity(i=0,u=U1)" in constraints.keys())
+        self.assertFalse("commitment_continuity(i=0,u=U2)" in constraints.keys())
 
     def test_cnt_commitment_continuity_init_int_only_uses_first_int(self):
         constraints = ca.cnt_commitment_continuity_initial_interval(self.problem)
 
         expected = [
-            "commitment_continuity(i=0, u=U1)",
-            "commitment_continuity(i=0, u=U2)",
+            "commitment_continuity(i=0,u=U1)",
+            "commitment_continuity(i=0,u=U2)",
         ]
 
         self.assertEqual(list(constraints.keys()), expected)
@@ -915,6 +944,7 @@ class OtherFunctions(unittest.TestCase):
             index=["U1", "U2"]
         )
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", ["U1", "U2"], master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
@@ -924,6 +954,7 @@ class OtherFunctions(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_variable": units_variable,
@@ -946,25 +977,25 @@ class OtherFunctions(unittest.TestCase):
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
     def test_total_power_generated_in_interval(self):
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
-        self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
-        self.problem["var"]["power_generated"].var[(0, "S1")].setInitialValue(10)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        self.problem["var"]["power_generated"].var[(0, 0, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 0, "S1")].setInitialValue(10)
 
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
-        self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
-        self.problem["var"]["power_generated"].var[(1, "S1")].setInitialValue(10)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(200)
+        self.problem["var"]["power_generated"].var[(0, 1, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 1, "S1")].setInitialValue(10)
 
         total_power_generated = \
             ca.total_power_generated_in_interval(self.problem["sets"],
                                                  self.problem["var"]["power_generated"]
                                                  )
 
-        self.assertEqual(total_power_generated[0].value(), 20+45+10)
-        self.assertEqual(total_power_generated[1].value(), 200+45+10)
+        self.assertEqual(total_power_generated[(0, 0)].value(), 20+45+10)
+        self.assertEqual(total_power_generated[(0, 1)].value(), 200+45+10)
 
     def test_total_power_charged_in_interval(self):
-        self.problem["var"]["power_charged"].var[(0, "S1")].setInitialValue(20)
-        self.problem["var"]["power_charged"].var[(1, "S1")].setInitialValue(40)
+        self.problem["var"]["power_charged"].var[(0, 0, "S1")].setInitialValue(20)
+        self.problem["var"]["power_charged"].var[(0, 1, "S1")].setInitialValue(40)
 
         total_power_charged = \
             ca.total_power_charged_in_interval(
@@ -973,8 +1004,8 @@ class OtherFunctions(unittest.TestCase):
                 self.problem["var"]["power_charged"]
             )
 
-        self.assertEqual(total_power_charged[0].value(), 20/0.8)
-        self.assertEqual(total_power_charged[1].value(), 40/0.8)
+        self.assertEqual(total_power_charged[(0, 0)].value(), 20/0.8)
+        self.assertEqual(total_power_charged[(0, 1)].value(), 40/0.8)
 
     def test_num_start_ups_calculator(self):
         sets, data, var = \
@@ -1023,7 +1054,9 @@ class OtherFunctions(unittest.TestCase):
 
         result_keys = list(num_shut_downs_within_down_time.keys())
         expected_keys = [
-            (i, u) for i in sets["intervals"].indices for u in sets["units_commit"].indices
+            (i, u)
+            for i in sets["intervals"].indices
+            for u in sets["units_commit"].indices
         ]
 
         self.assertEqual(result_keys, expected_keys)
@@ -1035,7 +1068,10 @@ class OtherFunctions(unittest.TestCase):
 
         result_keys = list(rampMW.keys())
         expected_keys = [
-            (i, u) for i in sets["intervals"].indices for u in sets["units"].indices
+            (s, i, u)
+            for i in sets["intervals"].indices
+            for u in sets["units"].indices
+            for s in sets["scenarios"].indices
         ]
 
         self.assertEqual(sorted(result_keys), sorted(expected_keys))
@@ -1048,12 +1084,12 @@ class OtherFunctions(unittest.TestCase):
 
         data["initial_state"] = initial_state
 
-        var["power_generated"].var[(0, "U1")].setInitialValue(20)
-        var["power_generated"].var[(0, "U2")].setInitialValue(20)
+        var["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        var["power_generated"].var[(0, 0, "U2")].setInitialValue(20)
 
         rampMW = ca.ramp_calculator(sets, data, var)
-        self.assertEqual(rampMW[(0, "U1")].value(), 20-0)
-        self.assertEqual(rampMW[(0, "U2")].value(), 20-0)
+        self.assertEqual(rampMW[(0, 0, "U1")].value(), 20-0)
+        self.assertEqual(rampMW[(0, 0, "U2")].value(), 20-0)
 
     def test_ramp_calculator_first_interval_with_initial_state(self):
         initial_state = pd.DataFrame(
@@ -1067,22 +1103,22 @@ class OtherFunctions(unittest.TestCase):
 
         data["initial_state"] = initial_state
 
-        var["power_generated"].var[(0, "U1")].setInitialValue(20)
-        var["power_generated"].var[(0, "U2")].setInitialValue(20)
+        var["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        var["power_generated"].var[(0, 0, "U2")].setInitialValue(20)
 
         rampMW = ca.ramp_calculator(sets, data, var)
-        self.assertEqual(rampMW[(0, "U1")].value(), 20-10)
-        self.assertEqual(rampMW[(0, "U2")].value(), 20-0)
+        self.assertEqual(rampMW[(0, 0, "U1")].value(), 20-10)
+        self.assertEqual(rampMW[(0, 0, "U2")].value(), 20-0)
 
     def test_ramp_calculator_second_interval(self):
         sets, data, var = \
             self.problem["sets"], self.problem["data"], self.problem["var"]
 
-        var["power_generated"].var[(0, "U1")].setInitialValue(20)
-        var["power_generated"].var[(1, "U1")].setInitialValue(45)
+        var["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        var["power_generated"].var[(0, 1, "U1")].setInitialValue(45)
 
         rampMW = ca.ramp_calculator(sets, data, var)
-        self.assertEqual(rampMW[(1, "U1")].value(), 45-20)
+        self.assertEqual(rampMW[(0, 1, "U1")].value(), 45-20)
 
     def test_online_ramp_calculator(self):
         sets, data = self.problem["sets"], self.problem["data"]

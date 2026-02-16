@@ -16,7 +16,8 @@ def load_data(problem):
         "variable_traces": load_variable_data(problem["paths"]["variable_traces"]),
         "initial_state": load_initial_state(problem["paths"]["initial_state"]),
         "ValueOfLostLoad$/MWh": load_voll(problem["settings"]),
-        "IntervalDurationHrs": load_interval_duration(problem["settings"])
+        "IntervalDurationHrs": load_interval_duration(problem["settings"]),
+        "ScenarioProbability": 1 / problem["settings"]["NumScenarios"]
     }
 
 
@@ -40,8 +41,12 @@ def load_demand_data(demand_data_path):
     """
 
     utils.check_path_exists(demand_data_path, "Demand File")
+    demand = pd.read_csv(demand_data_path)
 
-    return pd.read_csv(demand_data_path, index_col="Interval")
+    if "Scenario" not in demand.columns:
+        demand["Scenario"] = 0
+
+    return demand.set_index(["Scenario", "Interval"])
 
 
 def load_reserve_data(reserve_data_path):
@@ -65,8 +70,13 @@ def load_variable_data(variable_trace_path):
 
     if not utils.check_path_exists(variable_trace_path, "Variable Trace File"):
         return None
-    else:
-        return pd.read_csv(variable_trace_path, index_col="Interval")
+
+    variable_traces = pd.read_csv(variable_trace_path)
+
+    if "Scenario" not in variable_traces.columns:
+        variable_traces["Scenario"] = 0
+
+    return variable_traces.set_index(["Scenario", "Interval"])
 
 
 def load_initial_state(initial_state_path):
@@ -140,8 +150,12 @@ def create_single_sets(data, reserve_opt=None):
     else:
         reserves = []
 
+    scenario_elements = sorted(data["demand"].index.get_level_values("Scenario").unique().tolist())
+    interval_elements = sorted(data["demand"].index.get_level_values("Interval").unique().tolist())
+
     sets = {
-        "intervals": pyuc.Set("intervals", data["demand"].index.to_list()),
+        "scenarios": pyuc.Set("scenarios", scenario_elements),
+        "intervals": pyuc.Set("intervals", interval_elements),
         "units": pyuc.Set("units", data["units"].index.to_list()),
         "reserves": pyuc.Set("reserves", reserves),
     }

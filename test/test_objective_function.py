@@ -17,6 +17,7 @@ class testObjectiveFunctionTerms(unittest.TestCase):
             "ThermalEfficiencyFrac": [1, 0.5],
         }).set_index("Unit")
 
+        scenarios = pyuc.Set("scenarios", [0])
         units = pyuc.Set("units", list(unit_data.index))
         units_commit = pyuc.Set("units_commit", list(unit_data.index), master_set=units)
         units_storage = pyuc.Set("units_storage", [], master_set=units)
@@ -26,6 +27,7 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         reserves = pyuc.Set("reserves", [])
 
         sets = {
+            "scenarios": scenarios,
             "units": units,
             "units_commit": units_commit,
             "units_storage": units_storage,
@@ -38,7 +40,8 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         data = {
                 "units": unit_data,
                 "ValueOfLostLoad$/MWh": 1000,
-                "IntervalDurationHrs": 1
+                "IntervalDurationHrs": 1,
+                "ScenarioProbability": 0.1
             }
 
         self.problem = {
@@ -50,13 +53,13 @@ class testObjectiveFunctionTerms(unittest.TestCase):
 
         self.problem["var"] = pyuc.create_variables(self.problem["sets"])
 
-        self.problem["var"]["power_generated"].var[(0, "U1")].setInitialValue(20)
-        self.problem["var"]["power_generated"].var[(0, "U2")].setInitialValue(45)
-        self.problem["var"]["power_generated"].var[(1, "U1")].setInitialValue(200)
-        self.problem["var"]["power_generated"].var[(1, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 0, "U1")].setInitialValue(20)
+        self.problem["var"]["power_generated"].var[(0, 0, "U2")].setInitialValue(45)
+        self.problem["var"]["power_generated"].var[(0, 1, "U1")].setInitialValue(200)
+        self.problem["var"]["power_generated"].var[(0, 1, "U2")].setInitialValue(45)
 
-        self.problem["var"]["unserved_power"].var[(0)].setInitialValue(5)
-        self.problem["var"]["unserved_power"].var[(1)].setInitialValue(55)
+        self.problem["var"]["unserved_power"].var[(0, 0)].setInitialValue(5)
+        self.problem["var"]["unserved_power"].var[(0, 1)].setInitialValue(55)
 
         self.problem["var"]["num_starting_up"].var[(0, "U1")].setInitialValue(1)
         self.problem["var"]["num_starting_up"].var[(1, "U1")].setInitialValue(2)
@@ -74,6 +77,11 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         self.expected_start_cost = (1 + 2) * 10 * 10/3.6 *6 + (0 + 1) * 20 * 20/3.6 * 10
         self.expected_vom_cost = (20 + 200) * 2.5 + (45 + 45) * 6
         self.expected_unserved_cost = (5 + 55) * 1000
+
+        # Scenario probability doesn't apply to start costs
+        self.expected_fuel_cost *= data["ScenarioProbability"]
+        self.expected_vom_cost *= data["ScenarioProbability"]
+        self.expected_unserved_cost *= data["ScenarioProbability"]
 
     def test_fuel_cost_term(self):
         result = of.fuel_cost_term(self.problem)

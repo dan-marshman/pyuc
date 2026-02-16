@@ -418,7 +418,8 @@ class testSolve(unittest.TestCase):
     def setUp(self):
         self.problem = {
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
-            "results_summary": {}
+            "results_summary": {},
+            "name": "TEST"
         }
 
         self.problem["problem"] += pp.LpVariable("x", lowBound=5)

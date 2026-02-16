@@ -6,6 +6,7 @@ from pyuc import pyuc
 class makeVariables(unittest.TestCase):
     def setUp(self):
         self.sets = {
+            "scenarios": pyuc.Set("scenarios", [0]),
             "intervals": pyuc.Set("intervals", list(range(3))),
             "units": pyuc.Set("units", ["U1", "U2", "S1", "V1"]),
         }
@@ -43,8 +44,8 @@ class makeVariables(unittest.TestCase):
 
     def test_indices_intervals_x_reserves(self):
         expected = [
-            (0, "raise"), (1, "raise"), (2, "raise"),
-            (0, "lower"), (1, "lower"), (2, "lower"),
+            (0, 0, "raise"), (0, 1, "raise"), (0, 2, "raise"),
+            (0, 0, "lower"), (0, 1, "lower"), (0, 2, "lower"),
         ]
 
         result = self.vars["unserved_reserve"].sets_indices
@@ -52,10 +53,10 @@ class makeVariables(unittest.TestCase):
 
     def test_indices_intervals_x_units(self):
         expected = [
-            (0, "U1"), (1, "U1"), (2, "U1"),
-            (0, "U2"), (1, "U2"), (2, "U2"),
-            (0, "S1"), (1, "S1"), (2, "S1"),
-            (0, "V1"), (1, "V1"), (2, "V1"),
+            (0, 0, "U1"), (0, 1, "U1"), (0, 2, "U1"),
+            (0, 0, "U2"), (0, 1, "U2"), (0, 2, "U2"),
+            (0, 0, "S1"), (0, 1, "S1"), (0, 2, "S1"),
+            (0, 0, "V1"), (0, 1, "V1"), (0, 2, "V1"),
         ]
 
         result = self.vars["power_generated"].sets_indices
@@ -76,7 +77,7 @@ class makeVariables(unittest.TestCase):
     def test_indices_intervals_x_units_storage(self):
         relevant_variables = ["stored_energy", "power_charged"]
 
-        expected = [(0, "S1"), (1, "S1"), (2, "S1")]
+        expected = [(0, 0, "S1"), (0, 1, "S1"), (0, 2, "S1")]
 
         for var in relevant_variables:
             result = self.vars[var].sets_indices
@@ -85,7 +86,7 @@ class makeVariables(unittest.TestCase):
     def test_indices_intervals(self):
         relevant_variables = ["unserved_power"]
 
-        expected = list(range(3))
+        expected = [(0, 0), (0, 1), (0, 2)]
 
         for var in relevant_variables:
             result = self.vars[var].sets_indices

@@ -72,7 +72,7 @@ def _unit_colors(unit_data, ordered_units):
     return colors
 
 
-def plot_dispatch(output_data_path, name="", plot_price=True):
+def plot_dispatch(output_data_path, name="", plot_price=True, scenario=0):
     # --- Paths ---
     power_generated_path = os.path.join(output_data_path, "results", "power_generated_MW.csv")
     power_charged_path = os.path.join(output_data_path, "results", "power_charged_MW.csv")
@@ -84,8 +84,8 @@ def plot_dispatch(output_data_path, name="", plot_price=True):
     colors = _unit_colors(unit_data, order)
 
     # --- Load CSVs ---
-    power_generated = pd.read_csv(power_generated_path, index_col=0)
-    power_charged = pd.read_csv(power_charged_path, index_col=0)
+    power_generated = pd.read_csv(power_generated_path, index_col=[0, 1]).xs(scenario, level="scenarios")
+    power_charged = pd.read_csv(power_charged_path, index_col=[0, 1]).xs(scenario, level="scenarios")
 
     # --- Load settings ---
     settings = pd.read_csv(settings_path, index_col=0)
@@ -116,8 +116,8 @@ def plot_dispatch(output_data_path, name="", plot_price=True):
     df_neg_renamed.plot.area(ax=ax, stacked=True, linewidth=0., color=[colors[u] for u in df_neg.columns])
 
     # --- Y-axis padding ---
-    y_min = df_neg.sum(axis=1).min()
-    y_max = df_pos.sum(axis=1).max()
+    y_min = np.floor(df_neg.sum(axis=1).min() / 500) * 500
+    y_max = np.ceil(df_pos.sum(axis=1).max() / 1000) * 1000
     y_padding = 0.05 * max(1, y_max - y_min)
     ax.set_ylim([y_min - y_padding, y_max + y_padding])
 
@@ -127,7 +127,7 @@ def plot_dispatch(output_data_path, name="", plot_price=True):
         tick_indices = [0, 4, 8, 12, 16, 20]
     else:
         n_ticks = 6  # number of ticks you want
-        # pick evenly spaced tick indices
+        n_intervals = len(power_generated)
         tick_indices = np.linspace(0, n_intervals - 1, n_ticks, dtype=int)
 
     # get the corresponding time in hours
@@ -142,16 +142,16 @@ def plot_dispatch(output_data_path, name="", plot_price=True):
 
     # --- Secondary axis for energy price ---
     if plot_price and os.path.exists(energy_price_path):
-        energy_price = pd.read_csv(energy_price_path, index_col=0)
+        energy_price = pd.read_csv(energy_price_path, index_col=0)[str(scenario)]
         energy_price = energy_price.reindex(power_generated.index, method='nearest')
         ax2 = ax.twinx()
-        ax2.plot(range(len(energy_price)), energy_price.iloc[:, 0], color="black", linestyle="--", label="Energy Price ($/MWh)")
+        ax2.plot(range(len(energy_price)), energy_price, color="black", linestyle="--", label="Energy Price ($/MWh)")
         ax2.set_ylabel("Energy Price ($/MWh)")
         ax2.legend(loc="upper right")
 
-        max_price = energy_price.iloc[:, 0].max()
+        max_price = energy_price.max()
         # Round up to next "nice" number (e.g., nearest 10 or 50)
-        nice_max = int(np.ceil(max_price / 10 + 1) * 10)
+        nice_max = int(np.ceil(max_price / 100 + 1.5) * 100)
         ax2.set_ylim([0, nice_max])
 
     # --- Final touches ---
@@ -162,8 +162,8 @@ def plot_dispatch(output_data_path, name="", plot_price=True):
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1], loc="upper left")
 
-    _save_figure(fig, output_data_path, name="dispatch.png")
+    _save_figure(fig, output_data_path, name=f"dispatch_scenario_{scenario}.png")
 
-    print("\nPlotted dispatch figure.")
+    print(f"Plotted dispatch figure for scenario {scenario}.")
 
     return fig

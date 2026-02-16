@@ -1,0 +1,289 @@
+scenarios,intervals,units_reserve
+0,0,Coal1
+0,0,Coal2
+0,0,Combined Cycle GT1
+0,0,Combined Cycle GT2
+0,0,Open Cycle GT
+0,0,Battery
+0,1,Coal1
+0,1,Coal2
+0,1,Combined Cycle GT1
+0,1,Combined Cycle GT2
+0,1,Open Cycle GT
+0,1,Battery
+0,2,Coal1
+0,2,Coal2
+0,2,Combined Cycle GT1
+0,2,Combined Cycle GT2
+0,2,Open Cycle GT
+0,2,Battery
+0,3,Coal1
+0,3,Coal2
+0,3,Combined Cycle GT1
+0,3,Combined Cycle GT2
+0,3,Open Cycle GT
+0,3,Battery
+0,4,Coal1
+0,4,Coal2
+0,4,Combined Cycle GT1
+0,4,Combined Cycle GT2
+0,4,Open Cycle GT
+0,4,Battery
+0,5,Coal1
+0,5,Coal2
+0,5,Combined Cycle GT1
+0,5,Combined Cycle GT2
+0,5,Open Cycle GT
+0,5,Battery
+0,6,Coal1
+0,6,Coal2
+0,6,Combined Cycle GT1
+0,6,Combined Cycle GT2
+0,6,Open Cycle GT
+0,6,Battery
+0,7,Coal1
+0,7,Coal2
+0,7,Combined Cycle GT1
+0,7,Combined Cycle GT2
+0,7,Open Cycle GT
+0,7,Battery
+0,8,Coal1
+0,8,Coal2
+0,8,Combined Cycle GT1
+0,8,Combined Cycle GT2
+0,8,Open Cycle GT
+0,8,Battery
+0,9,Coal1
+0,9,Coal2
+0,9,Combined Cycle GT1
+0,9,Combined Cycle GT2
+0,9,Open Cycle GT
+0,9,Battery
+0,10,Coal1
+0,10,Coal2
+0,10,Combined Cycle GT1
+0,10,Combined Cycle GT2
+0,10,Open Cycle GT
+0,10,Battery
+0,11,Coal1
+0,11,Coal2
+0,11,Combined Cycle GT1
+0,11,Combined Cycle GT2
+0,11,Open Cycle GT
+0,11,Battery
+0,12,Coal1
+0,12,Coal2
+0,12,Combined Cycle GT1
+0,12,Combined Cycle GT2
+0,12,Open Cycle GT
+0,12,Battery
+0,13,Coal1
+0,13,Coal2
+0,13,Combined Cycle GT1
+0,13,Combined Cycle GT2
+0,13,Open Cycle GT
+0,13,Battery
+0,14,Coal1
+0,14,Coal2
+0,14,Combined Cycle GT1
+0,14,Combined Cycle GT2
+0,14,Open Cycle GT
+0,14,Battery
+0,15,Coal1
+0,15,Coal2
+0,15,Combined Cycle GT1
+0,15,Combined Cycle GT2
+0,15,Open Cycle GT
+0,15,Battery
+0,16,Coal1
+0,16,Coal2
+0,16,Combined Cycle GT1
+0,16,Combined Cycle GT2
+0,16,Open Cycle GT
+0,16,Battery
+0,17,Coal1
+0,17,Coal2
+0,17,Combined Cycle GT1
+0,17,Combined Cycle GT2
+0,17,Open Cycle GT
+0,17,Battery
+0,18,Coal1
+0,18,Coal2
+0,18,Combined Cycle GT1
+0,18,Combined Cycle GT2
+0,18,Open Cycle GT
+0,18,Battery
+0,19,Coal1
+0,19,Coal2
+0,19,Combined Cycle GT1
+0,19,Combined Cycle GT2
+0,19,Open Cycle GT
+0,19,Battery
+0,20,Coal1
+0,20,Coal2
+0,20,Combined Cycle GT1
+0,20,Combined Cycle GT2
+0,20,Open Cycle GT
+0,20,Battery
+0,21,Coal1
+0,21,Coal2
+0,21,Combined Cycle GT1
+0,21,Combined Cycle GT2
+0,21,Open Cycle GT
+0,21,Battery
+0,22,Coal1
+0,22,Coal2
+0,22,Combined Cycle GT1
+0,22,Combined Cycle GT2
+0,22,Open Cycle GT
+0,22,Battery
+0,23,Coal1
+0,23,Coal2
+0,23,Combined Cycle GT1
+0,23,Combined Cycle GT2
+0,23,Open Cycle GT
+0,23,Battery
+0,24,Coal1
+0,24,Coal2
+0,24,Combined Cycle GT1
+0,24,Combined Cycle GT2
+0,24,Open Cycle GT
+0,24,Battery
+0,25,Coal1
+0,25,Coal2
+0,25,Combined Cycle GT1
+0,25,Combined Cycle GT2
+0,25,Open Cycle GT
+0,25,Battery
+0,26,Coal1
+0,26,Coal2
+0,26,Combined Cycle GT1
+0,26,Combined Cycle GT2
+0,26,Open Cycle GT
+0,26,Battery
+0,27,Coal1
+0,27,Coal2
+0,27,Combined Cycle GT1
+0,27,Combined Cycle GT2
+0,27,Open Cycle GT
+0,27,Battery
+0,28,Coal1
+0,28,Coal2
+0,28,Combined Cycle GT1
+0,28,Combined Cycle GT2
+0,28,Open Cycle GT
+0,28,Battery
+0,29,Coal1
+0,29,Coal2
+0,29,Combined Cycle GT1
+0,29,Combined Cycle GT2
+0,29,Open Cycle GT
+0,29,Battery
+0,30,Coal1
+0,30,Coal2
+0,30,Combined Cycle GT1
+0,30,Combined Cycle GT2
+0,30,Open Cycle GT
+0,30,Battery
+0,31,Coal1
+0,31,Coal2
+0,31,Combined Cycle GT1
+0,31,Combined Cycle GT2
+0,31,Open Cycle GT
+0,31,Battery
+0,32,Coal1
+0,32,Coal2
+0,32,Combined Cycle GT1
+0,32,Combined Cycle GT2
+0,32,Open Cycle GT
+0,32,Battery
+0,33,Coal1
+0,33,Coal2
+0,33,Combined Cycle GT1
+0,33,Combined Cycle GT2
+0,33,Open Cycle GT
+0,33,Battery
+0,34,Coal1
+0,34,Coal2
+0,34,Combined Cycle GT1
+0,34,Combined Cycle GT2
+0,34,Open Cycle GT
+0,34,Battery
+0,35,Coal1
+0,35,Coal2
+0,35,Combined Cycle GT1
+0,35,Combined Cycle GT2
+0,35,Open Cycle GT
+0,35,Battery
+0,36,Coal1
+0,36,Coal2
+0,36,Combined Cycle GT1
+0,36,Combined Cycle GT2
+0,36,Open Cycle GT
+0,36,Battery
+0,37,Coal1
+0,37,Coal2
+0,37,Combined Cycle GT1
+0,37,Combined Cycle GT2
+0,37,Open Cycle GT
+0,37,Battery
+0,38,Coal1
+0,38,Coal2
+0,38,Combined Cycle GT1
+0,38,Combined Cycle GT2
+0,38,Open Cycle GT
+0,38,Battery
+0,39,Coal1
+0,39,Coal2
+0,39,Combined Cycle GT1
+0,39,Combined Cycle GT2
+0,39,Open Cycle GT
+0,39,Battery
+0,40,Coal1
+0,40,Coal2
+0,40,Combined Cycle GT1
+0,40,Combined Cycle GT2
+0,40,Open Cycle GT
+0,40,Battery
+0,41,Coal1
+0,41,Coal2
+0,41,Combined Cycle GT1
+0,41,Combined Cycle GT2
+0,41,Open Cycle GT
+0,41,Battery
+0,42,Coal1
+0,42,Coal2
+0,42,Combined Cycle GT1
+0,42,Combined Cycle GT2
+0,42,Open Cycle GT
+0,42,Battery
+0,43,Coal1
+0,43,Coal2
+0,43,Combined Cycle GT1
+0,43,Combined Cycle GT2
+0,43,Open Cycle GT
+0,43,Battery
+0,44,Coal1
+0,44,Coal2
+0,44,Combined Cycle GT1
+0,44,Combined Cycle GT2
+0,44,Open Cycle GT
+0,44,Battery
+0,45,Coal1
+0,45,Coal2
+0,45,Combined Cycle GT1
+0,45,Combined Cycle GT2
+0,45,Open Cycle GT
+0,45,Battery
+0,46,Coal1
+0,46,Coal2
+0,46,Combined Cycle GT1
+0,46,Combined Cycle GT2
+0,46,Open Cycle GT
+0,46,Battery
+0,47,Coal1
+0,47,Coal2
+0,47,Combined Cycle GT1
+0,47,Combined Cycle GT2
+0,47,Open Cycle GT
+0,47,Battery
