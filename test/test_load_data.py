@@ -17,7 +17,11 @@ class LoadSets(unittest.TestCase):
 
         self.unit_df = pd.DataFrame(
             index=["A1", "A2", "A3", "A4"],
-            data={"Technology": ["Coal", "Coal", "Coal", "Coal"]})
+            data={
+                "Technology": ["Coal", "Coal", "Coal", "Coal"],
+                "Type": ["Thermal", "Thermal", "Thermal", "Thermal"]
+                }
+            )
 
         self.data = {
             "demand": self.demand_df,
@@ -118,7 +122,11 @@ class LoadSubSets(unittest.TestCase):
 
         self.unit_df = pd.DataFrame(
             index=["Co", "CC", "OC", "Nu", "Wi", "So", "St"],
-            data={"Technology": ["Coal", "CCGT", "OCGT", "Nuclear", "Wind", "Solar", "Storage"]})
+            data={
+                "Technology": ["Coal", "CCGT", "OCGT", "Nuclear", "Wind", "Solar", "Storage"],
+                "Type": ["Thermal", "Thermal", "Thermal", "Thermal", "Variable", "Variable", "Storage"],
+                }
+            )
 
         self.data = {
             "demand": self.demand_df,

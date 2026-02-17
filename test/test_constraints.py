@@ -665,6 +665,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
             data={
                 "Unit": self.units,
                 "Technology": self.units,
+                "Type": ["Thermal", "Thermal", "Thermal", "Thermal", "Variable", "Variable", "Storage"],
                 "CapacityMW": [100] * len(self.units),
                 "NumUnits": [1] * len(self.units),
                 "FuelCost$/GJ": [1] * len(self.units),

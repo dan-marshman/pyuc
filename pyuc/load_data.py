@@ -164,32 +164,22 @@ def create_single_sets(data, reserve_opt=None):
 
 
 def create_subsets(sets, data, reserve_opt=None):
-    def filter_technology(unit_df, selected_techs):
-        return unit_df[unit_df.Technology.isin(selected_techs)].index.to_list()
-
-    tech_commit = ["Coal", "CCGT", "OCGT", "Nuclear"]
-    tech_variable = ["Wind", "Solar"]
-    tech_storage = ["Storage"]
+    unit_df = data["units"]
+    units_commit = unit_df[unit_df.Type.isin(["Thermal"])].index.to_list()
+    units_storage = unit_df[unit_df.Type.isin(["Storage"])].index.to_list()
+    units_variable = unit_df[unit_df.Type.isin(["Variable"])].index.to_list()
 
     sets["units_commit"] = \
-        pyuc.Set("units_commit",
-                 filter_technology(data["units"], tech_commit),
-                 sets["units"])
+        pyuc.Set("units_commit", units_commit, sets["units"])
 
     sets["units_variable"] = \
-        pyuc.Set("units_variable",
-                 filter_technology(data["units"], tech_variable),
-                 sets["units"])
+        pyuc.Set("units_variable", units_variable, sets["units"])
 
     sets["units_storage"] = \
-        pyuc.Set("units_storage",
-                 filter_technology(data["units"], tech_storage),
-                 sets["units"])
+        pyuc.Set("units_storage", units_storage, sets["units"])
 
     sets["units_reserve"] = \
-        pyuc.Set("units_reserve",
-                 filter_technology(data["units"], tech_storage+tech_commit),
-                 sets["units"])
+        pyuc.Set("units_reserve", units_commit+units_storage, sets["units"])
 
     if reserve_opt != None:
         sets["raise_reserves"] = pyuc.Set("raise_reserves", ["raise"], sets["reserves"])

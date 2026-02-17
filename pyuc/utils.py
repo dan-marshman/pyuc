@@ -32,3 +32,109 @@ def get_optimisation_status(problem_status):
     }
 
     return status_dict[problem_status]
+
+def validate_initial_state(data):
+    def thermal_validation(initial_state, unit_data, invalid_msgs):
+        for unit in initial_state.index:
+            if unit_data.loc[unit, "Type"] != "Thermal":
+                continue
+
+            num_units = unit_data.loc[unit, "NumUnits"]
+
+            power_generated = initial_state.loc[unit, ("power_generated", -1)]
+            num_committed = initial_state.loc[unit, ("num_committed", -1)]
+
+            min_frac = unit_data.loc[unit, "MinimumGenerationFrac"]
+            capacity = unit_data.loc[unit, "CapacityMW"]
+
+            min_allowed = num_committed * min_frac * capacity
+            max_allowed = num_committed * capacity
+
+            # check minimum output
+            if power_generated < min_allowed:
+                invalid_msgs.append(
+                    f"Unit {unit}: power_generated={power_generated} "
+                    f"is below minimum online capacity {min_allowed}"
+                )
+
+            # check maximum output
+            if power_generated > max_allowed:
+                invalid_msgs.append(
+                    f"Unit {unit}: power_generated={power_generated} "
+                    f"exceeds online capacity {max_allowed}"
+                )
+
+            # check units committed
+            if num_committed > num_units:
+                invalid_msgs.append(
+                    f"Unit {unit}: num_committed ({num_committed}) cannot"
+                    f"be greater than NumUnits ({num_units})."
+                )
+
+        return invalid_msgs
+
+    def storage_validation(initial_state, unit_data, invalid_msgs):
+        for unit in initial_state.index:
+            if unit_data.loc[unit, "Type"] != "Storage":
+                continue
+
+            num_units = unit_data.loc[unit, "NumUnits"]
+
+            power_generated = initial_state.loc[unit, ("power_generated", -1)]
+            stored_energy = initial_state.loc[unit, ("stored_energy", -1)]
+
+            capacity = unit_data.loc[unit, "CapacityMW"]
+            storage_capacity = unit_data.loc[unit, "StorageHrs"] *  capacity * num_units
+
+            max_allowed = num_units * capacity
+
+            # check maximum output
+            if power_generated > max_allowed:
+                invalid_msgs.append(
+                    f"Unit {unit}: power_generated={power_generated} "
+                    f"exceeds capacity {max_allowed}"
+                )
+
+            # check stored energy
+            if stored_energy > storage_capacity:
+                invalid_msgs.append(
+                    f"Unit {unit}: stored_energy ({stored_energy}) cannot"
+                    f"be greater than storage capacity ({storage_capacity})."
+                )
+
+        return invalid_msgs
+
+    def variable_validation(initial_state, unit_data, invalid_msgs):
+        for unit in initial_state.index:
+            if unit_data.loc[unit, "Type"] != "Variable":
+                continue
+
+            num_units = unit_data.loc[unit, "NumUnits"]
+
+            power_generated = initial_state.loc[unit, ("power_generated", -1)]
+
+            capacity = unit_data.loc[unit, "CapacityMW"]
+
+            max_allowed = num_units * capacity
+
+            # check maximum output
+            if power_generated > max_allowed:
+                invalid_msgs.append(
+                    f"Unit {unit}: power_generated={power_generated} "
+                    f"exceeds online capacity {max_allowed}"
+                )
+
+        return invalid_msgs
+
+    initial_state = data["initial_state"]
+    unit_data = data["unit_data"]
+
+    invalid_msgs = []
+    invalid_msgs = thermal_validation(initial_state, unit_data, invalid_msgs)
+    invalid_msgs = storage_validation(initial_state, unit_data, invalid_msgs)
+    invalid_msgs = variable_validation(initial_state, unit_data, invalid_msgs)
+
+    if invalid_msgs:
+        raise ValueError(
+            "Invalid initial_state.csv:\n" + "\n".join(invalid_msgs)
+        )

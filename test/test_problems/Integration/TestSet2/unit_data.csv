@@ -1,7 +1,7 @@
-Unit,Technology,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh,RoundTripEfficiencyFrac,StorageHrs,MinimumUpTimeHrs,MinimumDownTimeHrs,RampRate_pctCapphr,StartUpFuelUseGJ/MW
-Coal1,Coal,8,100,0.5,10,0.5,10,1,0,12,12,0.3,20
-CCGT1,CCGT,5,100,0.4,15,0.6,5,1,0,6,6,0.5,6
-OCGT1,OCGT,5,100,0.2,20,0.4,5,1,0,3,3,0.6,0.1
-Battery1,Storage,1,100,0,0,1,2,0.8,4,0,0,1,0
-Wind1,Wind,3,200,0,0,1,4,1,0,0,0,1,0
-Solar1,Solar,2,150,0,0,1,2,1,0,0,0,1,0
+Unit,Technology,Type,NumUnits,CapacityMW,MinimumGenerationFrac,FuelCost$/GJ,ThermalEfficiencyFrac,VOM$/MWh,RoundTripEfficiencyFrac,StorageHrs,MinimumUpTimeHrs,MinimumDownTimeHrs,RampRate_pctCapphr,StartUpFuelUseGJ/MW
+Coal1,Coal,Thermal,8,100,0.5,10,0.5,10,1,0,12,12,0.3,20
+CCGT1,CCGT,Thermal,5,100,0.4,15,0.6,5,1,0,6,6,0.5,6
+OCGT1,OCGT,Thermal,5,100,0.2,20,0.4,5,1,0,3,3,0.6,0.1
+Battery1,Storage,Storage,1,100,0,0,1,2,0.8,4,0,0,1,0
+Wind1,Wind,Variable,3,200,0,0,1,4,1,0,0,0,1,0
+Solar1,Solar,Variable,2,150,0,0,1,2,1,0,0,0,1,0
