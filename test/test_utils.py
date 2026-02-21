@@ -61,6 +61,8 @@ class TestInitialStateValidation(unittest.TestCase):
         self.unit_data.loc["Coal1", "NumUnits"] = 5
         self.unit_data.loc["Coal1", "CapacityMW"] = 100
         self.unit_data.loc["Coal1", "MinimumGenerationFrac"] = 0.5
+        self.unit_data.loc["Coal1", "MinimumUpTimeHrs"] = 6
+        self.unit_data.loc["Coal1", "MinimumDownTimeHrs"] = 6
 
         self.unit_data.loc["Battery1", "NumUnits"] = 2
         self.unit_data.loc["Battery1", "CapacityMW"] = 100
@@ -70,7 +72,14 @@ class TestInitialStateValidation(unittest.TestCase):
         self.unit_data.loc["Wind1", "CapacityMW"] = 100
 
     def test_valid_data_passes(self):
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        self.initial_state.loc["Coal1", ("num_shutting_down", -1)] = 2
+        self.initial_state.loc["Coal1", ("num_shutting_down", -6)] = 0
+
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
 
         try:
             utils.validate_initial_state(data)
@@ -82,7 +91,12 @@ class TestInitialStateValidation(unittest.TestCase):
         self.initial_state.loc["Coal1", ("power_generated", -1)] = 99
         self.initial_state.loc["Coal1", ("num_committed", -1)] = 2
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
+
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -96,7 +110,12 @@ class TestInitialStateValidation(unittest.TestCase):
         self.initial_state.loc["Coal1", ("power_generated", -1)] = 201
         self.initial_state.loc["Coal1", ("num_committed", -1)] = 2
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
+
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -110,7 +129,11 @@ class TestInitialStateValidation(unittest.TestCase):
         self.initial_state.loc["Coal1", ("power_generated", -1)] = 800
         self.initial_state.loc["Coal1", ("num_committed", -1)] = 8
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -122,7 +145,11 @@ class TestInitialStateValidation(unittest.TestCase):
     def test_power_gt_capacity_storage(self):
         self.initial_state.loc["Battery1", ("power_generated", -1)] = 201
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -135,7 +162,11 @@ class TestInitialStateValidation(unittest.TestCase):
     def test_power_gt_storage_energy_capacity(self):
         self.initial_state.loc["Battery1", ("stored_energy", -1)] = 601
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -148,7 +179,11 @@ class TestInitialStateValidation(unittest.TestCase):
     def test_power_gt_capacity_variable(self):
         self.initial_state.loc["Wind1", ("power_generated", -1)] = 201
 
-        data = {"unit_data": self.unit_data, "initial_state": self.initial_state}
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
 
         with self.assertRaises(ValueError) as context:
             utils.validate_initial_state(data)
@@ -156,4 +191,69 @@ class TestInitialStateValidation(unittest.TestCase):
         self.assertIn("Wind1", str(context.exception))
         self.assertIn("201", str(context.exception))
         self.assertIn("200", str(context.exception))
+        self.assertIn("exceed", str(context.exception))
+
+    def test_number_of_units_starting_and_stopping_A(self):
+        self.initial_state.loc["Coal1", ("num_starting_up", -1)] = 1
+        self.initial_state.loc["Coal1", ("num_starting_up", -3)] = 1
+        self.initial_state.loc["Coal1", ("num_starting_up", -5)] = 2
+        self.initial_state.loc["Coal1", ("num_shutting_down", -1)] = 1
+        self.initial_state.loc["Coal1", ("num_shutting_down", -6)] = 2
+
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
+
+        with self.assertRaises(ValueError) as context:
+            utils.validate_initial_state(data)
+
+        self.assertIn("Coal1", str(context.exception))
+        self.assertIn("4", str(context.exception))
+        self.assertIn("3", str(context.exception))
+        self.assertIn("5", str(context.exception))
+        self.assertIn("exceed", str(context.exception))
+
+    def test_number_of_units_starting_and_stopping_B(self):
+        self.initial_state.loc["Coal1", ("num_starting_up", -1)] = 1
+        self.initial_state.loc["Coal1", ("num_starting_up", -3)] = 1
+        self.initial_state.loc["Coal1", ("num_starting_up", -5)] = 2
+
+        self.initial_state.loc["Coal1", ("num_committed", -1)] = 3
+
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
+
+        with self.assertRaises(ValueError) as context:
+            utils.validate_initial_state(data)
+
+        self.assertIn("Coal1", str(context.exception))
+        self.assertIn("4", str(context.exception))
+        self.assertIn("3", str(context.exception))
+        self.assertIn("exceed", str(context.exception))
+
+    def test_number_of_units_starting_and_stopping_C(self):
+        self.initial_state.loc["Coal1", ("num_shutting_down", -1)] = 1
+        self.initial_state.loc["Coal1", ("num_shutting_down", -3)] = 1
+        self.initial_state.loc["Coal1", ("num_shutting_down", -6)] = 2
+
+        self.initial_state.loc["Coal1", ("num_committed", -1)] = 2
+
+        data = {
+            "unit_data": self.unit_data,
+            "initial_state": self.initial_state,
+            "IntervalDurationHrs": 0.5
+            }
+
+        with self.assertRaises(ValueError) as context:
+            utils.validate_initial_state(data)
+
+        self.assertIn("Coal1", str(context.exception))
+        self.assertIn("4", str(context.exception))
+        self.assertIn("5", str(context.exception))
+        self.assertIn("2", str(context.exception))
         self.assertIn("exceed", str(context.exception))

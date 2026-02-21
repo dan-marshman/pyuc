@@ -44,6 +44,24 @@ def validate_initial_state(data):
             power_generated = initial_state.loc[unit, ("power_generated", -1)]
             num_committed = initial_state.loc[unit, ("num_committed", -1)]
 
+            up_time_periods = \
+                unit_data.loc[unit, "MinimumUpTimeHrs"] / data["IntervalDurationHrs"]
+
+            up_time_cols = [col for col in initial_state.columns if col[0] == "num_starting_up"
+                            and col[1] * -1 <= up_time_periods]
+
+            num_starting_within_up_time = \
+                sum(initial_state.loc[unit, col] for col in up_time_cols)
+
+            down_time_periods = \
+                unit_data.loc[unit, "MinimumDownTimeHrs"] / data["IntervalDurationHrs"]
+
+            down_time_cols = [col for col in initial_state.columns if col[0] == "num_shutting_down"
+                              and col[1] * -1 <= down_time_periods]
+
+            num_shutting_down_within_down_time = \
+                sum(initial_state.loc[unit, col] for col in down_time_cols)
+
             min_frac = unit_data.loc[unit, "MinimumGenerationFrac"]
             capacity = unit_data.loc[unit, "CapacityMW"]
 
@@ -69,6 +87,32 @@ def validate_initial_state(data):
                 invalid_msgs.append(
                     f"Unit {unit}: num_committed ({num_committed}) cannot"
                     f"be greater than NumUnits ({num_units})."
+                )
+
+            # check units starting and stopping - A
+            num_starting_and_stopping = \
+                num_starting_within_up_time + num_shutting_down_within_down_time
+
+            if  num_starting_and_stopping > num_units:
+                invalid_msgs.append(
+                    f"Unit {unit}: total of num_starting_up ({num_starting_within_up_time}) plus "
+                    f"num_shutting_down {num_shutting_down_within_down_time} may not exceed "
+                    f"NumUnits ({num_units})."
+                )
+
+            # check units starting and stopping - B
+            if  num_starting_within_up_time > num_committed:
+                invalid_msgs.append(
+                    f"Unit {unit}: total of num_starting_up ({num_starting_within_up_time}) "
+                    f"cannot exceed number of units online ({num_committed})."
+                )
+
+            # check units starting and stopping - C
+            if  num_shutting_down_within_down_time > num_units - num_committed:
+                invalid_msgs.append(
+                    f"Unit {unit}: total of num_shutting_down ({num_shutting_down_within_down_time}) "
+                    f"cannot exceed number of units {num_units} less "
+                    f"number of units committed ({num_committed})."
                 )
 
         return invalid_msgs
