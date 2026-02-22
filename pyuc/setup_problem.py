@@ -25,6 +25,12 @@ def validate_settings(settings):
     if "reserves" not in settings.keys():
         settings["reserves"] = None
 
+    if "carbon_price" not in settings.keys():
+        settings["carbon_price"] = 0
+
+    if "rec_price" not in settings.keys():
+        settings["rec_price"] = 0
+
     return settings
 
 

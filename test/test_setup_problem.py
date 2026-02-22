@@ -169,14 +169,44 @@ class LoadSettings(unittest.TestCase):
 class ValidateSettings(unittest.TestCase):
     def test_reserves_not_in_settings(self):
         settings = {}
-        result = setup_problem.validate_settings(settings)
-        expected = {"reserves": None}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["reserves"]
+        expected = None
         self.assertEqual(result, expected)
 
     def test_reserves_is_in_settings(self):
         settings = {"reserves": "reserve_setting"}
-        result = setup_problem.validate_settings(settings)
-        expected = {"reserves": "reserve_setting"}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["reserves"]
+        expected = "reserve_setting"
+        self.assertEqual(result, expected)
+
+    def test_carbon_price_not_in_settings(self):
+        settings = {}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["carbon_price"]
+        expected = 0
+        self.assertEqual(result, expected)
+
+    def test_carbon_price_is_in_settings(self):
+        settings = {"carbon_price": 40}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["carbon_price"]
+        expected = 40
+        self.assertEqual(result, expected)
+
+    def test_rec_price_not_in_settings(self):
+        settings = {}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["rec_price"]
+        expected = 0
+        self.assertEqual(result, expected)
+
+    def test_rec_price_is_in_settings(self):
+        settings = {"rec_price": 20}
+        result_dict = setup_problem.validate_settings(settings)
+        result = result_dict["rec_price"]
+        expected = 20
         self.assertEqual(result, expected)
 
 
@@ -304,7 +334,7 @@ class SetUpProblem(unittest.TestCase):
                 "outputs": os.path.join(self.output_data_path),
                 "results": os.path.join(self.output_data_path, "results"),
             },
-            "settings": {"P1": 101, "P2": "A_STRING", "P3": False, "reserves": None},
+            "settings": {"P1": 101, "P2": "A_STRING", "P3": False, "reserves": None, "carbon_price": 0, "rec_price": 0},
             "problem": mock.ANY,
             "results_summary": dict()
         }
