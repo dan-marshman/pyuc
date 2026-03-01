@@ -24,6 +24,7 @@ class BasicConstraintEquations(unittest.TestCase):
             "VOM$/MWh": [1, 1],
             "ThermalEfficiencyFrac": [1, 0.5],
             "MinimumGenerationFrac": [0.5, 0.2],
+            "Renewable": [0, 0],
         }).set_index("Unit")
 
         initial_state = pd.DataFrame(
@@ -332,6 +333,7 @@ class RampRatesConstraints(unittest.TestCase):
             "CapacityMW": [100],
             "RampRate_pctCapphr": [0.2],
             "MinimumGenerationFrac": [0.6],
+            "Renewable": [0],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])
@@ -670,6 +672,7 @@ class UnitTypeConstraintSets(unittest.TestCase):
                 "NumUnits": [1] * len(self.units),
                 "FuelCost$/GJ": [1] * len(self.units),
                 "MinimumGenerationFrac": [1] * len(self.units),
+                "Renewable": [0] * len(self.units),
                 "MinimumUpTimeHrs": [1] * len(self.units),
                 "MinimumDownTimeHrs": [1] * len(self.units),
                 "RampRate_pctCapphr": [1] * len(self.units),
@@ -866,6 +869,7 @@ class OtherConstraintTests(unittest.TestCase):
             "VOM$/MWh": [1, 1],
             "ThermalEfficiencyFrac": [1, 0.5],
             "MinimumGenerationFrac": [0.5, 0.2],
+            "Renewable": [0, 0],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])
@@ -931,6 +935,7 @@ class OtherFunctions(unittest.TestCase):
             "MinimumDownTimeHrs": [2, 2, 0],
             "RampRate_pctCapphr": [0.5, 0.4, 1],
             "MinimumGenerationFrac": [0.6, 0.3, 1],
+            "Renewable": [0, 0, 0],
             "RoundTripEfficiencyFrac": [1, 1, 0.8],
         }).set_index("Unit")
 

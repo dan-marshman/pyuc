@@ -15,6 +15,7 @@ class testObjectiveFunctionTerms(unittest.TestCase):
             "StartUpFuelUseGJ/MW": [6, 10],
             "VOM$/MWh": [2.5, 6],
             "ThermalEfficiencyFrac": [1, 0.5],
+            "CarbonIntensityTpMWh": [1, 0.5],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])
@@ -23,6 +24,7 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         units_storage = pyuc.Set("units_storage", [], master_set=units)
         units_reserve = pyuc.Set("units_reserve", [], master_set=units)
         units_variable = pyuc.Set("units_variable", [], master_set=units)
+        units_renewable = pyuc.Set("units_renewable", ["U1"], master_set=units)
         intervals = pyuc.Set("intervals", range(2))
         reserves = pyuc.Set("reserves", [])
 
@@ -33,12 +35,15 @@ class testObjectiveFunctionTerms(unittest.TestCase):
             "units_storage": units_storage,
             "units_reserve": units_reserve,
             "units_variable": units_variable,
+            "units_renewable": units_renewable,
             "intervals": intervals,
             "reserves": reserves
         }
 
         data = {
                 "units": unit_data,
+                "carbon_price$pT": 8,
+                "rec_price$pMWh": 20,
                 "ValueOfLostLoad$/MWh": 1000,
                 "IntervalDurationHrs": 1,
                 "ScenarioProbability": 0.1
@@ -76,11 +81,15 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         self.expected_fuel_cost = (20 + 200) * 10 + (45 + 45) * 20 / 0.5
         self.expected_start_cost = (1 + 2) * 10 * 10/3.6 *6 + (0 + 1) * 20 * 20/3.6 * 10
         self.expected_vom_cost = (20 + 200) * 2.5 + (45 + 45) * 6
+        self.expected_carbon_cost = 8 * ((20 + 200) * 1 + (45 + 45) * 0.5)
+        self.expected_rec_benefit = 20 * ((20 + 200))
         self.expected_unserved_cost = (5 + 55) * 1000
 
         # Scenario probability doesn't apply to start costs
         self.expected_fuel_cost *= data["ScenarioProbability"]
         self.expected_vom_cost *= data["ScenarioProbability"]
+        self.expected_carbon_cost *= data["ScenarioProbability"]
+        self.expected_rec_benefit *= data["ScenarioProbability"]
         self.expected_unserved_cost *= data["ScenarioProbability"]
 
     def test_fuel_cost_term(self):
@@ -95,6 +104,14 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         result = of.vom_cost_term(self.problem)
         self.assertEqual(result.value(), self.expected_vom_cost)
 
+    def test_carbon_cost_term(self):
+        result = of.carbon_cost_term(self.problem)
+        self.assertEqual(result.value(), self.expected_carbon_cost)
+
+    def test_rec_benefit_term(self):
+        result = of.rec_benefit_term(self.problem)
+        self.assertEqual(result.value(), self.expected_rec_benefit)
+
     def test_unserved_energy_cost_term(self):
         result = of.unserved_energy_cost_term(self.problem)
         self.assertEqual(result.value(), self.expected_unserved_cost)
@@ -103,6 +120,16 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         self.problem["data"]["IntervalDurationHrs"] = 0.5
         result = of.vom_cost_term(self.problem)
         self.assertEqual(result.value(), self.expected_vom_cost*0.5)
+
+    def test_carbon_cost_term_interval_duration(self):
+        self.problem["data"]["IntervalDurationHrs"] = 0.5
+        result = of.carbon_cost_term(self.problem)
+        self.assertEqual(result.value(), self.expected_carbon_cost*0.5)
+
+    def test_rec_benefit_term_interval_duration(self):
+        self.problem["data"]["IntervalDurationHrs"] = 0.5
+        result = of.rec_benefit_term(self.problem)
+        self.assertEqual(result.value(), self.expected_rec_benefit*0.5)
 
     def test_fuel_cost_term_interval_duration(self):
         self.problem["data"]["IntervalDurationHrs"] = 0.5
@@ -113,6 +140,12 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         self.problem["data"]["IntervalDurationHrs"] = 0.5
         result = of.unserved_energy_cost_term(self.problem)
         self.assertEqual(result.value(), self.expected_unserved_cost*0.5)
+
+    def test_start_cost_term_interval_duration(self):
+        # Should be no change
+        self.problem["data"]["IntervalDurationHrs"] = 0.5
+        result = of.start_cost_term(self.problem)
+        self.assertEqual(round(result.value(), 3), round(self.expected_start_cost, 3))
 
 
 class testObjectiveFunctionUtils(unittest.TestCase):

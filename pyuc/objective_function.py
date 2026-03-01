@@ -43,6 +43,29 @@ def vom_cost_term(sets, data, var):
 
 
 @objective_adder
+def carbon_cost_term(sets, data, var):
+    return pp.lpSum([
+        data["IntervalDurationHrs"]
+        * data["ScenarioProbability"]
+        * data["units"]["CarbonIntensityTpMWh"][u]
+        * var["power_generated"].var[(s, i, u)]
+        * data["carbon_price$pT"]
+        for s in sets["scenarios"].indices for u in sets["units"].indices for i in sets["intervals"].indices
+    ])
+
+
+@objective_adder
+def rec_benefit_term(sets, data, var):
+    return pp.lpSum([
+        data["IntervalDurationHrs"]
+        * data["ScenarioProbability"]
+        * var["power_generated"].var[(s, i, u)]
+        * data["rec_price$pMWh"]
+        for s in sets["scenarios"].indices for u in sets["units_renewable"].indices for i in sets["intervals"].indices
+    ])
+
+
+@objective_adder
 def unserved_energy_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
@@ -60,6 +83,15 @@ def make_objective_function(problem):
     unserved_energy_cost = unserved_energy_cost_term(problem)
 
     objective_function = fuel_cost + start_cost + vom_cost + unserved_energy_cost
+
+    if problem["data"]["carbon_price"] != 0:
+        carbon_cost = carbon_cost_term(problem)
+        objective_function += carbon_cost
+
+    if problem["data"]["rec_price"] != 0:
+        rec_benefit = rec_benefit_term(problem)
+        objective_function -= rec_benefit
+
     problem["problem"] += objective_function
 
     return problem["problem"]

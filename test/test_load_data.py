@@ -19,7 +19,8 @@ class LoadSets(unittest.TestCase):
             index=["A1", "A2", "A3", "A4"],
             data={
                 "Technology": ["Coal", "Coal", "Coal", "Coal"],
-                "Type": ["Thermal", "Thermal", "Thermal", "Thermal"]
+                "Type": ["Thermal", "Thermal", "Thermal", "Thermal"],
+                "Renewable": [0, 0, 0, 0]
                 }
             )
 
@@ -125,6 +126,7 @@ class LoadSubSets(unittest.TestCase):
             data={
                 "Technology": ["Coal", "CCGT", "OCGT", "Nuclear", "Wind", "Solar", "Storage"],
                 "Type": ["Thermal", "Thermal", "Thermal", "Thermal", "Variable", "Variable", "Storage"],
+                "Renewable": [0, 0, 0, 0, 1, 1, 0]
                 }
             )
 
@@ -149,6 +151,11 @@ class LoadSubSets(unittest.TestCase):
     def test_units_storage_subset(self):
         result = self.sets["units_storage"].indices
         expected = ["St"]
+        self.assertEqual(result, expected)
+
+    def test_units_renewable_subset(self):
+        result = self.sets["units_renewable"].indices
+        expected = ["Wi", "So"]
         self.assertEqual(result, expected)
 
     def test_raise_reserves_subset(self):
@@ -177,7 +184,8 @@ class LoadDataItems(unittest.TestCase):
 
         expected = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5]}
+            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5], "Renewable": [0, 0],
+                  "CarbonIntensityTpMWh": [0, 0]}
         )
         expected.index.name = "Unit"
 
@@ -297,7 +305,8 @@ class LoadData(unittest.TestCase):
 
         self.problem = {
             "paths": self.paths,
-            "settings": {"ValueOfLostLoad$/MWh": 10, "IntervalDurationHrs": 0.5, "NumScenarios": 3}
+            "settings": {"ValueOfLostLoad$/MWh": 10, "IntervalDurationHrs": 0.5, "NumScenarios": 3,
+                         "carbon_price": 0, "rec_price": 0}
         }
 
         index = pd.MultiIndex.from_product([[0, 1], [1, 2, 3]], names=["Scenario", "Interval"])
@@ -305,7 +314,8 @@ class LoadData(unittest.TestCase):
 
         self.unit_data_df = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5]}
+            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5], "Renewable": [0, 0],
+                  "CarbonIntensityTpMWh": [0, 0]}
         )
         self.unit_data_df.index.name = "Unit"
 
@@ -341,10 +351,37 @@ class LoadData(unittest.TestCase):
             "initial_state": self.variable_data_df,
             "ValueOfLostLoad$/MWh": 10,
             "IntervalDurationHrs": 0.5,
-            "ScenarioProbability": 0.3
+            "ScenarioProbability": 0.3,
+            "carbon_price": 0,
+            "rec_price": 0,
         }
 
         self.assertEqual(list(result.keys()), list(expected.keys()))
         pd.testing.assert_frame_equal(result["demand"], expected["demand"])
         pd.testing.assert_frame_equal(result["units"], expected["units"])
         pd.testing.assert_frame_equal(result["variable_traces"], expected["variable_traces"])
+
+
+class AddMissingUnitData(unittest.TestCase):
+    def setUp(self):
+        self.unit_data_empty = pd.DataFrame(
+            index=["U1", "U2"],
+            )
+
+        self.unit_data_full = pd.DataFrame(
+            index=["U1", "U2"],
+            data={"Renewable": [1, 2], "CarbonIntensityTpMWh": [3, 4], "VOM$/MWh": [5, 6]}
+            )
+
+    def test_missing_items_added(self):
+        expected = pd.DataFrame(
+            index=["U1", "U2"],
+            data={"Renewable": [0, 0], "CarbonIntensityTpMWh": [0, 0], "VOM$/MWh": [0, 0]}
+            )
+
+        result = ld.add_missing_unit_data(self.unit_data_empty)
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_existing_items_unchanged(self):
+        result = ld.add_missing_unit_data(self.unit_data_full)
+        pd.testing.assert_frame_equal(result, self.unit_data_full)

@@ -17,7 +17,9 @@ def load_data(problem):
         "initial_state": load_initial_state(problem["paths"]["initial_state"]),
         "ValueOfLostLoad$/MWh": load_voll(problem["settings"]),
         "IntervalDurationHrs": load_interval_duration(problem["settings"]),
-        "ScenarioProbability": 1 / problem["settings"]["NumScenarios"]
+        "ScenarioProbability": 1 / problem["settings"]["NumScenarios"],
+        "carbon_price": problem["settings"]["carbon_price"],
+        "rec_price": problem["settings"]["rec_price"],
     }
 
 
@@ -29,8 +31,23 @@ def load_unit_data(unit_data_path):
     """
 
     utils.check_path_exists(unit_data_path, "Unit Data File")
+    unit_data = pd.read_csv(unit_data_path, index_col="Unit").fillna(0)
+    unit_data = add_missing_unit_data(unit_data)
 
-    return pd.read_csv(unit_data_path, index_col="Unit").fillna(0)
+    return unit_data
+
+
+def add_missing_unit_data(unit_data):
+    if "Renewable" not in unit_data.columns:
+        unit_data["Renewable"] = 0
+
+    if "CarbonIntensityTpMWh" not in unit_data.columns:
+        unit_data["CarbonIntensityTpMWh"] = 0
+
+    if "VOM$/MWh" not in unit_data.columns:
+        unit_data["VOM$/MWh"] = 0
+
+    return unit_data
 
 
 def load_demand_data(demand_data_path):
@@ -168,6 +185,7 @@ def create_subsets(sets, data, reserve_opt=None):
     units_commit = unit_df[unit_df.Type.isin(["Thermal"])].index.to_list()
     units_storage = unit_df[unit_df.Type.isin(["Storage"])].index.to_list()
     units_variable = unit_df[unit_df.Type.isin(["Variable"])].index.to_list()
+    units_renewable = unit_df[unit_df.Renewable==1].index.to_list()
 
     sets["units_commit"] = \
         pyuc.Set("units_commit", units_commit, sets["units"])
@@ -177,6 +195,9 @@ def create_subsets(sets, data, reserve_opt=None):
 
     sets["units_storage"] = \
         pyuc.Set("units_storage", units_storage, sets["units"])
+
+    sets["units_renewable"] = \
+        pyuc.Set("units_renewable", units_renewable, sets["units"])
 
     sets["units_reserve"] = \
         pyuc.Set("units_reserve", units_commit+units_storage, sets["units"])

@@ -54,7 +54,9 @@ class testThermal(unittest.TestCase):
                 "initial_state": None,
                 "ValueOfLostLoad$/MWh": 1000,
                 "IntervalDurationHrs": 0.5,
-                "ScenarioProbability": 1
+                "ScenarioProbability": 1,
+                "carbon_price": 0,
+                "rec_price": 0,
             },
             "problem": pp.LpProblem(name="MY_PROB", sense=pp.LpMinimize),
             "sets": sets,
@@ -133,7 +135,9 @@ class testVariableAndStorage(unittest.TestCase):
                 "initial_state": None,
                 "ValueOfLostLoad$/MWh": 1000,
                 "IntervalDurationHrs": 0.5,
-                "ScenarioProbability": 1
+                "ScenarioProbability": 1,
+                "carbon_price": 0,
+                "rec_price": 0,
             }
 
         self.problem = {
