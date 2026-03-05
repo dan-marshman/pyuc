@@ -52,9 +52,11 @@ def update_initial_state():
 
 def get_days(traces, day_length):
     def check_len_demand_equals_len_variable_traces():
+
         if len(traces["demand"]) != len(traces["variable_traces"]):
             print("Length of demand trace and variable traces are unequal")
             sys.exit(1)
+
         else:
             return
 
@@ -62,9 +64,11 @@ def get_days(traces, day_length):
         return math.ceil(len(traces["demand"]) / day_length)
 
     check_len_demand_equals_len_variable_traces()
+
     number_of_days = get_number_of_days(traces, day_length)
 
     return number_of_days
+
 
 def call_pyuc():
     pass

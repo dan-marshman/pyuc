@@ -37,7 +37,7 @@ def vom_cost_term(sets, data, var):
         data["IntervalDurationHrs"]
         * data["ScenarioProbability"]
         * var["power_generated"].var[(s, i, u)]
-        * data["units"]["VOM$/MWh"][u]
+        * data["units"]["VOMDollarsPerMWh"][u]
         for s in sets["scenarios"].indices for u in sets["units"].indices for i in sets["intervals"].indices
     ])
 
@@ -47,7 +47,7 @@ def carbon_cost_term(sets, data, var):
     return pp.lpSum([
         data["IntervalDurationHrs"]
         * data["ScenarioProbability"]
-        * data["units"]["CarbonIntensityTpMWh"][u]
+        * data["units"]["CarbonIntensityTonnesPerMWh"][u]
         * var["power_generated"].var[(s, i, u)]
         * data["carbon_price$pT"]
         for s in sets["scenarios"].indices for u in sets["units"].indices for i in sets["intervals"].indices
@@ -105,7 +105,7 @@ def fuel_cost_per_mwh_calculator(unit_data, u):
     :param u str: unit name
     """
 
-    return 3.6 * unit_data["FuelCost$/GJ"][u] / unit_data["ThermalEfficiencyFrac"][u]
+    return 3.6 * unit_data["FuelCostDollarsPerGJ"][u] / unit_data["ThermalEfficiencyFrac"][u]
 
 
 def fuel_cost_per_start_calculator(unit_data, u):
@@ -116,4 +116,4 @@ def fuel_cost_per_start_calculator(unit_data, u):
     :param u str: unit name
     """
 
-    return unit_data["FuelCost$/GJ"][u] * unit_data["StartUpFuelUseGJ/MW"][u] * unit_data["CapacityMW"][u]
+    return unit_data["FuelCostDollarsPerGJ"][u] * unit_data["StartUpFuelUseGJPerMW"][u] * unit_data["CapacityMW"][u]

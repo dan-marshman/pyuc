@@ -17,14 +17,14 @@ class testThermal(unittest.TestCase):
             "Technology": ["Coal", "Coal"],
             "CapacityMW": [100, 100],
             "NumUnits": [2, 1],
-            "FuelCost$/GJ": [10/3.6, 20/3.6],
-            "VOM$/MWh": [1, 1],
+            "FuelCostDollarsPerGJ": [10/3.6, 20/3.6],
+            "VOMDollarsPerMWh": [1, 1],
             "ThermalEfficiencyFrac": [1, 0.5],
             "MinimumGenerationFrac": [1, 1],
             "MinimumUpTimeHrs": [1, 1],
             "MinimumDownTimeHrs": [1, 1],
             "RampRate_pctCapphr": [1, 1],
-            "StartUpFuelUseGJ/MW": [0, 0],
+            "StartUpFuelUseGJPerMW": [0, 0],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])
@@ -96,8 +96,8 @@ class testVariableAndStorage(unittest.TestCase):
             "Technology": ["Coal", "Wind", "Battery"],
             "CapacityMW": [100, 300, 100],
             "NumUnits": [1, 1, 1],
-            "FuelCost$/GJ": [5/3.6, 0, 0],
-            "VOM$/MWh": [0, 1, 0],
+            "FuelCostDollarsPerGJ": [5/3.6, 0, 0],
+            "VOMDollarsPerMWh": [0, 1, 0],
             "ThermalEfficiencyFrac": [0.5, 0, 0],
             "MinimumGenerationFrac": [1, 0, 0],
             "MinimumUpTimeHrs": [1, 1, 0],
@@ -105,7 +105,7 @@ class testVariableAndStorage(unittest.TestCase):
             "RampRate_pctCapphr": [1, 1, 0],
             "RoundTripEfficiencyFrac": [1, 0, 0.8],
             "StorageHrs": [0, 0, 1],
-            "StartUpFuelUseGJ/MW": [0, 0, 0],
+            "StartUpFuelUseGJPerMW": [0, 0, 0],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])

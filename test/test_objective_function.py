@@ -11,11 +11,11 @@ class testObjectiveFunctionTerms(unittest.TestCase):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
             "CapacityMW": [10, 20],
-            "FuelCost$/GJ": [10/3.6, 20/3.6],
-            "StartUpFuelUseGJ/MW": [6, 10],
-            "VOM$/MWh": [2.5, 6],
+            "FuelCostDollarsPerGJ": [10/3.6, 20/3.6],
+            "StartUpFuelUseGJPerMW": [6, 10],
+            "VOMDollarsPerMWh": [2.5, 6],
             "ThermalEfficiencyFrac": [1, 0.5],
-            "CarbonIntensityTpMWh": [1, 0.5],
+            "CarbonIntensityTonnesPerMWh": [1, 0.5],
         }).set_index("Unit")
 
         scenarios = pyuc.Set("scenarios", [0])
@@ -73,9 +73,9 @@ class testObjectiveFunctionTerms(unittest.TestCase):
 
             # "Unit": ["U1", "U2"],
             # "CapacityMW": [10, 20],
-            # "FuelCost$/GJ": [10/3.6, 20/3.6],
-            # "StartUpFuelUseGJGJ/MW": [6, 10],
-            # "VOM$/MWh": [2.5, 6],
+            # "FuelCostDollarsPerGJ": [10/3.6, 20/3.6],
+            # "StartUpFuelUseGJPerMW": [6, 10],
+            # "VOMDollarsPerMWh": [2.5, 6],
             # "ThermalEfficiencyFrac": [1, 0.5],
 
         self.expected_fuel_cost = (20 + 200) * 10 + (45 + 45) * 20 / 0.5
@@ -152,7 +152,7 @@ class testObjectiveFunctionUtils(unittest.TestCase):
     def test_heat_rate_calculator(self):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
-            "FuelCost$/GJ": [10, 20],
+            "FuelCostDollarsPerGJ": [10, 20],
             "ThermalEfficiencyFrac": [0.5, 0.25]
         }).set_index("Unit")
 
@@ -164,8 +164,8 @@ class testObjectiveFunctionUtils(unittest.TestCase):
     def test_fuel_cost_per_start_calculator(self):
         unit_data = pd.DataFrame(data={
             "Unit": ["U1", "U2"],
-            "FuelCost$/GJ": [10, 20],
-            "StartUpFuelUseGJ/MW": [0.5, 0.25],
+            "FuelCostDollarsPerGJ": [10, 20],
+            "StartUpFuelUseGJPerMW": [0.5, 0.25],
             "CapacityMW": [100, 20],
         }).set_index("Unit")
 

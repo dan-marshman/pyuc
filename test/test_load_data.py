@@ -184,8 +184,13 @@ class LoadDataItems(unittest.TestCase):
 
         expected = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5], "Renewable": [0, 0],
-                  "CarbonIntensityTpMWh": [0, 0]}
+            data={
+                "Capacity": [100, 200],
+                "MinGen": [0.5, 0.5],
+                "Renewable": [0, 0],
+                "CarbonIntensityTonnesPerMWh": [0, 0],
+                "VOMDollarsPerMWh": [0, 0],
+                }
         )
         expected.index.name = "Unit"
 
@@ -314,8 +319,13 @@ class LoadData(unittest.TestCase):
 
         self.unit_data_df = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Capacity": [100, 200], "MinGen": [0.5, 0.5], "Renewable": [0, 0],
-                  "CarbonIntensityTpMWh": [0, 0]}
+            data={
+                "Capacity": [100, 200],
+                "MinGen": [0.5, 0.5],
+                "Renewable": [0, 0],
+                "CarbonIntensityTonnesPerMWh": [0, 0],
+                "VOMDollarsPerMWh": [0, 0],
+                }
         )
         self.unit_data_df.index.name = "Unit"
 
@@ -370,13 +380,13 @@ class AddMissingUnitData(unittest.TestCase):
 
         self.unit_data_full = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Renewable": [1, 2], "CarbonIntensityTpMWh": [3, 4], "VOM$/MWh": [5, 6]}
+            data={"Renewable": [1, 2], "CarbonIntensityTonnesPerMWh": [3, 4], "VOMDollarsPerMWh": [5, 6]}
             )
 
     def test_missing_items_added(self):
         expected = pd.DataFrame(
             index=["U1", "U2"],
-            data={"Renewable": [0, 0], "CarbonIntensityTpMWh": [0, 0], "VOM$/MWh": [0, 0]}
+            data={"Renewable": [0, 0], "CarbonIntensityTonnesPerMWh": [0, 0], "VOMDollarsPerMWh": [0, 0]}
             )
 
         result = ld.add_missing_unit_data(self.unit_data_empty)

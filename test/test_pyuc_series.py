@@ -5,7 +5,7 @@ import mock
 import pandas as pd
 import pulp as pp
 from pyuc import pyuc
-from pyuc import pyuc_series as pyucs
+from pyuc import pyuc_series as pus
 
 
 class testLoadDataAndPaths(unittest.TestCase):
@@ -13,7 +13,7 @@ class testLoadDataAndPaths(unittest.TestCase):
     @mock.patch("pyuc.load_data.load_demand_data", return_value="xyz")
     def test_read_traces_series(self, demand_trace_mock, variable_trace_mock):
         dummy_paths = {"demand": "dummy", "variable_traces": "dummy"}
-        result = pyucs.read_traces_series(dummy_paths)
+        result = pus.read_traces_series(dummy_paths)
         expected = {"demand": "xyz", "variable_traces": "abc"}
         self.assertEqual(result, expected)
 
@@ -25,7 +25,7 @@ class testFilterDays(unittest.TestCase):
         trace_df = pd.DataFrame(index=range(8760))
         traces = {"demand": trace_df, "variable_traces": trace_df}
 
-        result = pyucs.get_days(traces, day_length)
+        result = pus.get_days(traces, day_length)
 
         self.assertEqual(result, expected)
 
@@ -35,7 +35,7 @@ class testFilterDays(unittest.TestCase):
         trace_df = pd.DataFrame(index=range(8761))
         traces = {"demand": trace_df, "variable_traces": trace_df}
 
-        result = pyucs.get_days(traces, day_length)
+        result = pus.get_days(traces, day_length)
 
         self.assertEqual(result, expected)
 
@@ -47,6 +47,6 @@ class testFilterDays(unittest.TestCase):
         traces = {"demand": demand_df, "variable_traces": variable_trace_df}
 
         with self.assertRaises(SystemExit) as cm:
-            pyucs.get_days(traces, day_length)
+            pus.get_days(traces, day_length)
 
         self.assertEqual(cm.exception.code, 1)

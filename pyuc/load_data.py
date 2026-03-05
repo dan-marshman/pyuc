@@ -41,11 +41,11 @@ def add_missing_unit_data(unit_data):
     if "Renewable" not in unit_data.columns:
         unit_data["Renewable"] = 0
 
-    if "CarbonIntensityTpMWh" not in unit_data.columns:
-        unit_data["CarbonIntensityTpMWh"] = 0
+    if "CarbonIntensityTonnesPerMWh" not in unit_data.columns:
+        unit_data["CarbonIntensityTonnesPerMWh"] = 0
 
-    if "VOM$/MWh" not in unit_data.columns:
-        unit_data["VOM$/MWh"] = 0
+    if "VOMDollarsPerMWh" not in unit_data.columns:
+        unit_data["VOMDollarsPerMWh"] = 0
 
     return unit_data
 
