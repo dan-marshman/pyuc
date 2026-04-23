@@ -7,6 +7,10 @@ import pulp as pp
 
 from pyuc import pyuc
 
+class MockConstraint:
+    def __init__(self, pi):
+        self.pi = pi
+
 # THis feels like more an integration test. Suggest adding back in when project is completed.
 # @mock.patch("pyuc.pyuc.save_variable_results")
 # @mock.patch("pyuc.pyuc.solve_problem", return_value="problem")
@@ -536,3 +540,48 @@ class testSaveResults(unittest.TestCase):
     def test_vars_to_csv_is_called(self, to_csv_mock):
         pyuc.save_variable_results(self.problem)
         self.assertEqual(to_csv_mock.call_count, 2)
+
+
+class TestPrices(unittest.TestCase):
+    def setUp(self):
+        self.problem = {
+            "sets": {
+                "intervals": pyuc.Set("intervals", [1, 2]),
+                "scenarios": pyuc.Set("scenarios", ["A"]),
+                "reserves": pyuc.Set("reserves", ["R1", "R2"])
+            },
+            "problem": type("P", (), {
+                "constraints": {
+                    "supply_eq_demand_(s=A,i=1)": MockConstraint(100),
+                    "supply_eq_demand_(s=A,i=2)": MockConstraint(200),
+                }
+            })(),
+            "data": {
+                "IntervalDurationHrs": 2,
+                "ScenarioProbability": 0.5
+            },
+            "var": {}
+        }
+
+    def test_get_energy_price(self):
+        result = pyuc.get_energy_price(self.problem)
+        energy_price = result["var"]["energy_price"]
+
+        self.assertEqual(energy_price.var[(1, "A")].value(), 100)
+        self.assertEqual(energy_price.var[(2, "A")].value(), 200)
+
+    def test_get_reserve_price(self):
+        result = pyuc.get_reserve_price(self.problem)
+        reserve_price = result["var"]["reserve_price"]
+
+        self.assertEqual(reserve_price.var[(1, "A", "R1")].value(), 100)
+        self.assertEqual(reserve_price.var[(1, "A", "R2")].value(), 100)
+        self.assertEqual(reserve_price.var[(2, "A", "R1")].value(), 200)
+        self.assertEqual(reserve_price.var[(2, "A", "R2")].value(), 200)
+
+    def test_all_reserve_values_set(self):
+        result = pyuc.get_reserve_price(self.problem)
+        reserve_price = result["var"]["reserve_price"]
+
+        for key, entry in reserve_price.var.items():
+            self.assertIsNotNone(entry.value)

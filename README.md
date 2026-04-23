@@ -13,16 +13,16 @@ This model includes:
     * Reserve and inertia requirements
 * Ability to include a look-ahead period to better optimise decisions.
 * Stocashtic model allows simulating different scenarios of wind, solar and demand (or forecast errors). Commitment decisions (made ahead of time must be the same in all scenarios, but dispatch and storage profiles can differ).
+* Policy costs (carbon price, renewable energy certificate price, etc).
+* Determines energy and reserve prices (using constraint shadow prices).
 
 This model was original written GAMS in support of a doctoral thesis to model energy-only markets with increasing renewable
 generation [2].
 
 Planned features
 * Generation of multiple uncertain wind, solar and demand scenarios using an auto-regressive moving average approach.
-* Reserve pricing.
 * Ability to run multiple days in series, using the end state (commitment status, stored energy, etc) of *day n* as the initial condition for day *n+1*.
 * Generation expansion.
-* Policy costs (carbon price, renewable energy certificate price, etc).
 
 ## Requirements
 - PuLP with CBC solver.

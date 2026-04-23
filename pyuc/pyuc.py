@@ -25,6 +25,7 @@ def run_opt_problem(input_data_path, output_data_path, name=None):
 
     add_solve_outcome_to_results(problem)
     problem = get_energy_price(problem)
+    problem = get_reserve_price(problem)
 
     save_variable_results(problem)
     save_results_summary(problem)
@@ -121,7 +122,31 @@ def get_energy_price(problem):
 
             energy_price.var[(i, s)].setInitialValue(price)
 
-        problem["var"]["energy_price"] = energy_price
+    problem["var"]["energy_price"] = energy_price
+
+    return problem
+
+
+def get_reserve_price(problem):
+    sets = problem["sets"]
+    reserve_price = \
+        Var("reserve_price",
+            "$pMWh",
+            [sets["intervals"], sets["scenarios"], sets["reserves"]],
+            "Continuous"
+            )
+
+    for s in sets["scenarios"].indices:
+        for i in sets["intervals"].indices:
+            for r in sets["reserves"].indices:
+                price = \
+                    problem["problem"].constraints[f"supply_eq_demand_(s={s},i={i})"].pi \
+                    / problem["data"]["IntervalDurationHrs"] \
+                    / problem["data"]["ScenarioProbability"]
+
+                reserve_price.var[(i, s, r)].setInitialValue(price)
+
+    problem["var"]["reserve_price"] = reserve_price
 
     return problem
 

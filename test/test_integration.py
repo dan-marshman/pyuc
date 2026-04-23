@@ -4,6 +4,7 @@ import unittest
 import pandas as pd
 
 from pyuc import pyuc
+from pyuc import pyuc_series_new as pus
 
 
 class IntegrationTestSet1(unittest.TestCase):
@@ -238,3 +239,30 @@ class IntegrationComplex(unittest.TestCase):
             + total_charged * 0.5
 
         self.assertEqual(round(expected_final_energy, 3), round(actual_final_energy, 3))
+
+
+class IntegrationSeriesProblem(unittest.TestCase):
+    def setUp(self):
+        self.output_path = os.path.join("test")
+
+        if os.path.exists(os.path.join(self.output_path, "results")):
+            shutil.rmtree(os.path.join(self.output_path, "results"))
+
+        self.name = "test_series_problem"
+        self.input_path = os.path.join("test", "test_problems", "Integration", "TestSet3")
+
+        self.run_result = pus.run_pyuc_series(self.input_path, self.output_path, self.name)
+
+    def test_problem_runs(self):
+        result = self.run_result
+        expected = "series problem complete"
+        self.assertEqual(result, expected)
+
+        results_path = r"test\results"
+        expected_folders = {"Day 0", "Day 1", "Day 2"}
+        actual_folders = {
+            f for f in os.listdir(results_path)
+            if os.path.isdir(os.path.join(results_path, f))
+        }
+
+        self.assertSetEqual(actual_folders, expected_folders)
